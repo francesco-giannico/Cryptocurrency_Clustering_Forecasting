@@ -1,0 +1,2 @@
+from web_scraping.yahoo_finance_history import get_all_crypto
+get_all_crypto()
