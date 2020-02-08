@@ -5,6 +5,10 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+from crypto_utility import experiments
+from crypto_utility.experiments import get_RMSE
+
+
 def report_configurations(temporal_sequence_used, neurons_used, name_folder_experiment,
                                        name_folder_result_experiment, name_folder_report, name_output_files):
     kind_of_report = "configurations_oriented"
