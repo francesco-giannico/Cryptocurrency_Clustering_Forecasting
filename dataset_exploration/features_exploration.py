@@ -1,13 +1,11 @@
 import itertools
-
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas
+import pandas as pd
 from scipy import stats
 from scipy.stats import pearsonr
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
-
 
 def info_bivariate(data, features_name):
     thre = 0.4
@@ -69,58 +67,63 @@ def info_univariate(data, features_name):
     plot_boxnotch_univariateanalysis(data_t, features_name)
     return
 
-"""dataframe = pandas.read_csv("crypto_preprocessing/step2_normalized/BTC_normalized.csv", delimiter=',',
-                            header=0)
-# data := lista di dati (ciascuna entry è a sua volta una lista)
-data = dataframe.values
+def main():
+    """dataframe = pandas.read_csv("crypto_preprocessing/step2_normalized/BTC_normalized.csv", delimiter=',',
+                                header=0)
+    # data := lista di dati (ciascuna entry è a sua volta una lista)
+    data = dataframe.values
 
-# X := lista di dati (ciascuna entry è l'insieme delle sole features di ciascuna entry)
-a = dataframe.drop(columns=["DateTime", 'Symbol'])
-print(a)
-dd = a.values
-col_name = a.columns.values
-print(np.shape(data), "\n", col_name)
-info_bivariate(dd, col_name)"""
-#info_univariate(dd, col_name)
+    # X := lista di dati (ciascuna entry è l'insieme delle sole features di ciascuna entry)
+    a = dataframe.drop(columns=["DateTime", 'Symbol'])
+    print(a)
+    dd = a.values
+    col_name = a.columns.values
+    print(np.shape(data), "\n", col_name)
+    info_bivariate(dd, col_name)"""
+    #info_univariate(dd, col_name)
 
-#sns.distplot(df_train['SalePrice']);
+    #sns.distplot(df_train['SalePrice']);
 
-"""var = 'GrLivArea'
-data = pd.concat([df_train['SalePrice'], df_train[var]], axis=1)
-data.plot.scatter(x=var, y='SalePrice', ylim=(0,800000));"""
-dataframe = pandas.read_csv("crypto_preprocessing/step0-5_data/MARS.csv", delimiter=',',
-                            header=0)
-# data := lista di dati (ciascuna entry è a sua volta una lista)
-data = dataframe.values
-df = dataframe.drop(columns=["DateTime", 'Symbol'])
-dd = df.values
-col_name = df.columns.values
-sns.set()
-sns.pairplot(df[col_name], size = 2.5)
-#plt.show()
+    """var = 'GrLivArea'
+    data = pd.concat([df_train['SalePrice'], df_train[var]], axis=1)
+    data.plot.scatter(x=var, y='SalePrice', ylim=(0,800000));"""
+    dataframe = pd.read_csv("crypto_preprocessing/step0-5_data/MARS.csv", delimiter=',',
+                                header=0)
+    # data := lista di dati (ciascuna entry è a sua volta una lista)
+    data = dataframe.values
+    df = dataframe.drop(columns=["DateTime", 'Symbol'])
+    dd = df.values
+    col_name = df.columns.values
+    sns.set()
+    sns.pairplot(df[col_name], size = 2.5)
+    #plt.show()
 
-close_scaled = StandardScaler().fit_transform(df['Low'][:,np.newaxis])
-low_range = close_scaled[close_scaled[:,0].argsort()][:10]
-high_range= close_scaled[close_scaled[:,0].argsort()][-10:]
-print('outer range (low) of the distribution:')
-print(low_range)
-print('\nouter range (high) of the distribution:')
-print(high_range)
+    close_scaled = StandardScaler().fit_transform(df['Low'][:,np.newaxis])
+    low_range = close_scaled[close_scaled[:,0].argsort()][:10]
+    high_range= close_scaled[close_scaled[:,0].argsort()][-10:]
+    print('outer range (low) of the distribution:')
+    print(low_range)
+    print('\nouter range (high) of the distribution:')
+    print(high_range)
 
-"""
-#heatmap
-import seaborn as sns
-path_distance_matrix="crypto_clustering/distanceMeasures/distance_matrix_old.csv"
-df = pd.read_csv(path_distance_matrix, delimiter=',', header=None).iloc[290:306,290:306]
-sample = df.values
-plt.figure(figsize = (7, 5))
-sns.heatmap(sample, linecolor='white')
-plt.title('DTW Distance Matrix')
-plt.show()"""
 
-"""df1 = pd.read_csv("crypto_preprocessing/step2_normalized/NTRN_normalized.csv", delimiter=',',header=0)
-df = pd.read_csv("crypto_preprocessing/step2_normalized/CUBE_normalized.csv", delimiter=',',header=0)
-df1 = df1.drop(columns=["DateTime", 'Symbol'])
-df = df.drop(columns=["DateTime", 'Symbol'])
-distance, path = fastdtw(df.values, df1.values, dist=euclidean)
-print(distance)"""
+
+    df1 = pd.read_csv("crypto_preprocessing/step2_normalized/NTRN_normalized.csv", delimiter=',',header=0)
+    df = pd.read_csv("crypto_preprocessing/step2_normalized/CUBE_normalized.csv", delimiter=',',header=0)
+    df1 = df1.drop(columns=["DateTime", 'Symbol'])
+    df = df.drop(columns=["DateTime", 'Symbol'])
+
+
+
+    """distance, path = fastdtw(df.values, df1.values, dist=euclidean)
+    print(distance)"""
+    """
+    #heatmap
+    import seaborn as sns
+    path_distance_matrix="crypto_clustering/distanceMeasures/distance_matrix_old.csv"
+    df = pd.read_csv(path_distance_matrix, delimiter=',', header=None).iloc[290:306,290:306]
+    sample = df.values
+    plt.figure(figsize = (7, 5))
+    sns.heatmap(sample, linecolor='white')
+    plt.title('DTW Distance Matrix')
+    plt.show()"""
