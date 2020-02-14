@@ -3,31 +3,41 @@ import pandas as pd
 import os
 import math
 
-COLUMNS=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
-"""
-it separates files starting from the original dataset, 
-the ones with null values are moved in with_null_values folder and the ones
-dead before 31-12-2019 are moved in dead_before folder"""
-def separate_files():
+from utility.folder_creator import folder_creator
+
+""" it Moves the crypto dead before 31-12-2019 in the dead folder """
+
+PATH_MAIN_FOLDER="../data_acquisition/dataset/"
+def find_by_dead_before():
+    folder_creator(PATH_MAIN_FOLDER+"selected",1)
+    folder_creator(PATH_MAIN_FOLDER + "selected/"+"dead", 1)
+    for file in os.listdir(PATH_MAIN_FOLDER+"original/"):
+        df = pd.read_csv(PATH_MAIN_FOLDER+"original/" + file, delimiter=',', header=0)
+        df = df.set_index("Date")
+        # dead before
+        lastDate = df.index[::-1][0]
+        if lastDate != '2019-12-31':
+            shutil.copy(PATH_MAIN_FOLDER+"original/" + file, PATH_MAIN_FOLDER+"selected/dead/" + file)
+
+""" it moves the crypto with null values in the uncomplete folder """
+def find_uncomplete():
+   folder_creator(PATH_MAIN_FOLDER + "selected/" + "uncomplete", 1)
+   folder_creator(PATH_MAIN_FOLDER + "selected/" + "complete", 1)
    #print(df.columns.values.tolist())
-   for file in os.listdir("../data_acquisition/dataset/original/"):
-    df = pd.read_csv("../dataset/original/"+file, delimiter=',',header=0)
+   for file in os.listdir(PATH_MAIN_FOLDER+"original/"):
+    df = pd.read_csv(PATH_MAIN_FOLDER+"original/"+file, delimiter=',',header=0)
     df=df.set_index("Date")
-
-    #dead before
-    lastDate=df.index[::-1][0]
-    if lastDate!='2019-12-31':
-        shutil.move("../dataset/original/" + file, "../dataset/dead_before/" + file)
-
     #with null values
-    for column in COLUMNS:
-      if(df[column].isnull().any()):
-         #print(file)
+    if(df["Open"].isnull().any()):
          try:
-            shutil.move("../dataset/original/"+file, "../dataset/with_null_values/"+file)
+            shutil.copy(PATH_MAIN_FOLDER+"original/"+file, PATH_MAIN_FOLDER+"selected/uncomplete/"+file)
          except:
              pass
-         break
+    else:
+        try:
+            shutil.copy(PATH_MAIN_FOLDER + "original/" + file, PATH_MAIN_FOLDER + "selected/complete/" + file)
+        except:
+            pass
 
 
 def find_minimum_date():

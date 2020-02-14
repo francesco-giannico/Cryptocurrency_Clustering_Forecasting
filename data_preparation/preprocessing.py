@@ -1,23 +1,25 @@
 import os
 import pandas as pd
 
+from data_preparation.data_selection import find_by_dead_before, find_uncomplete
 from utility.folder_creator import folder_creator
 from utility.reader import get_crypto_symbols
 
-path_raw_data = "../data_acquisition/dataset/original/"
-path_preprocessed = "../data_acquisition/dataset/preprocessed"
+FEATURES=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+PATH_RAW_DATA = "../data_acquisition/dataset/original/"
+PATH_PREPROCESSED = "../data_acquisition/dataset/preprocessed"
 #path = path_preprocessed+"/"+ "step_0/"
 
-dir_step_zero= "step_0"
-dir_step_one = "step_1"
-dir_step_two = "step_2"
+DIR_STEP_ZERO= "step_0"
+DIR_STEP_ONE = "step_1"
+DIR_STEP_TWO = "step_2"
 #folder_step_one = "step1_indicators"
 
 def preprocessing(type):
     CRYPTO_SYMBOLS= get_crypto_symbols()
-    folders_setup()
+    #folders_setup()
     step_0(CRYPTO_SYMBOLS)
-    step_1()
+    #step_1()
     """if type=="indexes":
         step_additionalFeatures()
         step_normalization_indexes()
@@ -26,17 +28,18 @@ def preprocessing(type):
 
 def folders_setup():
     # Set the name of folder in which to save all intermediate results
-    folder_creator(path_preprocessed,1)
-    folder_creator(path_preprocessed + "/" + dir_step_zero,1)
-    folder_creator(path_preprocessed + "/" + dir_step_one, 1)
-    folder_creator(path_preprocessed + "/" + dir_step_two,1)
+    folder_creator(PATH_PREPROCESSED,1)
+    folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_ZERO,1)
+    folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_ONE, 1)
+    folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_TWO,1)
     #folder_creator(path_preprocessed + "/"+ folder_step_one,1) #indexes
 
 # ------------------------------------------
 # STEP.0: PreProcessData and delete the ones with the older date upper to 05-2016
 # ------------------------------------------
 def step_0(CRYPTO_SYMBOLS):
-
+    find_by_dead_before()
+    find_uncomplete()
     """#Converts data into our format
     output_indicators_path =  name_folder + "/" + folder_step_zero + "/"
 

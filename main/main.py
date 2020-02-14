@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from data_preparation.preprocessing import preprocessing
-from data_acquisition.yahoo_finance_history import get_most_important_crypto
+from data_acquisition.yahoo_finance_history import get_most_important_cryptos
 
 
 def main():
@@ -7,18 +9,18 @@ def main():
 
     #COLLECT INITIAL DATA
     #todo data collecting from yahoo finance
-    #get_most_important_cryptos()
+    #get_most_important_cryptos(startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
     # EXPLORE DATA
     # todo dataset exploration
 
     #DATA PREPARATION
     #SELECT DATA (row selection e feature selection)
-
+    folderpreprocessing = "../dataset/original"
+    preprocessing("t")
     #CLEAN DATA
     #
     #todo data_preparation
-    folderpreprocessing="../dataset/original"
-    #data_preparation("t")
+
     #todo calcolo la matrice delle distanze
     #todo dynamic time warping
     #compute_distance_matrix("dtw",[],"dtw_allFeatures_noindicators")

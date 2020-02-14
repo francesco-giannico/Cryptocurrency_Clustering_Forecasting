@@ -9,29 +9,6 @@ from pandas.plotting import lag_plot
 from scipy.stats import pearsonr, stats
 
 COLUMNS=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
-#it separates files starting from the original dataset, the ones with null values are moved in with_null_values folder and the ones
-#dead before 31-12-2019 are moved in dead_before folder
-def separate_files():
-   #print(df.columns.values.tolist())
-   for file in os.listdir("../data_acquisition/dataset/original/"):
-    df = pd.read_csv("../dataset/original/"+file, delimiter=',',header=0)
-    df=df.set_index("Date")
-
-    #dead before
-    lastDate=df.index[::-1][0]
-    if lastDate!='2019-12-31':
-        shutil.move("../dataset/original/" + file, "../dataset/dead_before/" + file)
-
-    #with null values
-    for column in COLUMNS:
-      if(df[column].isnull().any()):
-         #print(file)
-         try:
-            shutil.move("../dataset/original/"+file, "../dataset/with_null_values/"+file)
-         except:
-             pass
-         break
-
 
 #generates a file in which, for each cryptocurrency, there is the count of the missing values by column
 def missing_values():
