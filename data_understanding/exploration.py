@@ -1,6 +1,5 @@
 import itertools
 import shutil
-
 import pandas as pd
 import os
 import math
@@ -14,7 +13,7 @@ COLUMNS=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 #dead before 31-12-2019 are moved in dead_before folder
 def separate_files():
    #print(df.columns.values.tolist())
-   for file in os.listdir("../dataset/original/"):
+   for file in os.listdir("../data_acquisition/dataset/original/"):
     df = pd.read_csv("../dataset/original/"+file, delimiter=',',header=0)
     df=df.set_index("Date")
 
@@ -37,10 +36,10 @@ def separate_files():
 #generates a file in which, for each cryptocurrency, there is the count of the missing values by column
 def missing_values():
    crypto=[]
-   for file in os.listdir("../dataset/with_null_values/"):
+   for file in os.listdir("../data_acquisition/dataset/with_null_values/"):
        crypto.append(file.replace(".csv",""))
    df = pd.DataFrame(columns=COLUMNS, index=crypto)
-   for file in os.listdir("../dataset/with_null_values/"):
+   for file in os.listdir("../data_acquisition/dataset/with_null_values/"):
     df1 = pd.read_csv("../dataset/with_null_values/"+file, delimiter=',',header=0)
     df1=df1.set_index("Date")
     #counting the number of null element, for column
@@ -50,26 +49,6 @@ def missing_values():
     #from series to dataframe
     #df1=pd.DataFrame({'column': sf.index, 'count': sf.values})
     df.to_csv("missing_values.csv",",")
-
-#todo questo va in preprocesssing!!
-def find_minimum_date():
-    for file in os.listdir("../dataset/with_null_values/"):
-        df = pd.read_csv("../dataset/with_null_values/" + file, delimiter=',', header=0)
-        df = df.set_index("Date")
-
-        init_date=df.index[0]
-        for row in df.itertuples():
-            #print(row.Open)
-            if (math.isnan(row.Open)):
-                fin_date=row.Index
-                #df=df.drop(df.index[init_date:row.Index])
-                df=df.query('index < @init_date or index > @fin_date')
-                init_date=row.Index
-        df.to_csv('../dataset/reviewed/'+file,",")
-
-
-
-
 
 def describe(df):
     print(df.describe())
@@ -165,7 +144,7 @@ def info_univariate(data, features_name):
     return
 
 #df=pd.read_csv("../dataset/interpolated/time/ARDR.csv", delimiter=',', header=0)
-df=pd.read_csv("../dataset/original/BTC.csv", delimiter=',', header=0)
+df=pd.read_csv("../data_acquisition/dataset/original/BTC.csv", delimiter=',', header=0)
 # Converting the column to DateTime format
 df.Date = pd.to_datetime(df.Date, format='%Y-%m-%d')
 df = df.set_index('Date')

@@ -1,13 +1,24 @@
-from preprocessing.preprocessing import preprocessing
-from web_scraping.yahoo_finance_history import get_most_important_crypto
+from data_preparation.preprocessing import preprocessing
+from data_acquisition.yahoo_finance_history import get_most_important_crypto
 
 
 def main():
-    #web scraping
-    get_most_important_crypto()
-    #todo preprocessing
+    #DATA UNDERSTANDING
+
+    #COLLECT INITIAL DATA
+    #todo data collecting from yahoo finance
+    #get_most_important_cryptos()
+    # EXPLORE DATA
+    # todo dataset exploration
+
+    #DATA PREPARATION
+    #SELECT DATA (row selection e feature selection)
+
+    #CLEAN DATA
+    #
+    #todo data_preparation
     folderpreprocessing="../dataset/original"
-    #preprocessing("t")
+    #data_preparation("t")
     #todo calcolo la matrice delle distanze
     #todo dynamic time warping
     #compute_distance_matrix("dtw",[],"dtw_allFeatures_noindicators")

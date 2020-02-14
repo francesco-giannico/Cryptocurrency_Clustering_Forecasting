@@ -1,4 +1,4 @@
-from preprocessing.preprocessing import preprocessing
+from data_preparation.preprocessing import preprocessing
 
 """import os
 import sys
@@ -187,7 +187,7 @@ def generate_report():
             cluster_id+=1"""
 
 def main():
-    #todo preprocessing
+    #todo data_preparation
     folderpreprocessing="../dataset/original"
     preprocessing("t")
     #todo calcolo la matrice delle distanze

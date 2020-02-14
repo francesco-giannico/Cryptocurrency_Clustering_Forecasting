@@ -4,8 +4,8 @@ import pandas as pd
 from utility.folder_creator import folder_creator
 from utility.reader import get_crypto_symbols
 
-path_raw_data = "../dataset/original/"
-path_preprocessed = "../dataset/preprocessed"
+path_raw_data = "../data_acquisition/dataset/original/"
+path_preprocessed = "../data_acquisition/dataset/preprocessed"
 #path = path_preprocessed+"/"+ "step_0/"
 
 dir_step_zero= "step_0"
@@ -47,7 +47,7 @@ def step_0(CRYPTO_SYMBOLS):
         if name in COINS:
             #prende i raw data di questo coin e li trasforma
             file = raw_data + each_stock
-            preprocessing.generate_normal(file, output_indicators_path, name)"""
+            data_preparation.generate_normal(file, output_indicators_path, name)"""
 
 # ------------------------------------------
 # STEP.0,5: Convert Values to USD and/or remove Volumes
@@ -100,7 +100,7 @@ def step_1():
         name = each_stock.replace(".csv", "")
         #if name in COINS:
         file = path + each_stock
-        preprocessing.generate_indicators(file, "Close", lookback, output_indicators_path, name)"""
+        data_preparation.generate_indicators(file, "Close", lookback, output_indicators_path, name)"""
 
 # ------------------------------------------
 # STEP.2: Normalize Data - no indexes
@@ -114,7 +114,7 @@ def step_1():
     for each_stock in stock_series:
         name = each_stock.replace(".csv", "")
         file = data + "/" + each_stock
-        #preprocessing.normalized(file, excluded_features, output_normalized_path, name)"""
+        #data_preparation.normalized(file, excluded_features, output_normalized_path, name)"""
 
 # ------------------------------------------
 # STEP.2: Normalize Data - indexes
@@ -128,7 +128,7 @@ def step_1():
         for each_stock_with_indicators in with_indicators_stock_series:
             name = each_stock_with_indicators.replace("_with_indicators.csv", "")
             file = with_indicators_data + "/" + each_stock_with_indicators
-            preprocessing.normalized(file, excluded_features, output_normalized_path, name)"""
+            data_preparation.normalized(file, excluded_features, output_normalized_path, name)"""
 
 
 # ------------------------------------------

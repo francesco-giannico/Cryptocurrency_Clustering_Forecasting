@@ -7,7 +7,7 @@ from sklearn.metrics import r2_score
 
 # To load the raw data:
 
-df = pd.read_csv("../dataset/with_null_values/ARDR.csv", delimiter=',', header=0)
+df = pd.read_csv("../data_acquisition/dataset/with_null_values/ARDR.csv", delimiter=',', header=0)
 # Converting the column to DateTime format
 df.Date = pd.to_datetime(df.Date, format='%Y-%m-%d')
 df = df.set_index('Date')

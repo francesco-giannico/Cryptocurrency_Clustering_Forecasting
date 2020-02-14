@@ -7,7 +7,7 @@ import pandas as pd
 def get_crypto_symbols():
     print(os.getcwd())
     crypto_symbols= []
-    fileToRead = read_file("../web_scraping/crypto_symbols.txt")
+    fileToRead = read_file("../data_acquisition/crypto_symbols.txt")
     for line in fileToRead:
         crypto_symbols.append(line.replace("\n", ""))
     fileToRead.close()
