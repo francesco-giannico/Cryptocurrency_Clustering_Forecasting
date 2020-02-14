@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 
+from data_preparation.data_cleaning import remove_uncomplete_rows
 from data_preparation.data_selection import find_by_dead_before, find_uncomplete
 from utility.folder_creator import folder_creator
 from utility.reader import get_crypto_symbols
@@ -38,8 +39,9 @@ def folders_setup():
 # STEP.0: PreProcessData and delete the ones with the older date upper to 05-2016
 # ------------------------------------------
 def step_0(CRYPTO_SYMBOLS):
-    find_by_dead_before()
-    find_uncomplete()
+    """find_by_dead_before()
+    find_uncomplete()"""
+    remove_uncomplete_rows()
     """#Converts data into our format
     output_indicators_path =  name_folder + "/" + folder_step_zero + "/"
 

@@ -2,7 +2,8 @@ import shutil
 import pandas as pd
 import os
 import math
-
+import pandas as pd
+from utility.reader import read_csv
 from utility.folder_creator import folder_creator
 
 """ it Moves the crypto dead before 31-12-2019 in the dead folder """
@@ -39,26 +40,10 @@ def find_uncomplete():
         except:
             pass
 
+def remove_feature():
+    pass
 
-def find_minimum_date():
-    for file in os.listdir("../data_acquisition/dataset/with_null_values/"):
-        df = pd.read_csv("../dataset/with_null_values/" + file, delimiter=',', header=0)
-        df = df.set_index("Date")
-
-        init_date=df.index[0]
-        for row in df.itertuples():
-            #print(row.Open)
-            if (math.isnan(row.Open)):
-                fin_date=row.Index
-                #df=df.drop(df.index[init_date:row.Index])
-                df=df.query('index < @init_date or index > @fin_date')
-                init_date=row.Index
-        df.to_csv('../dataset/reviewed/'+file,",")
-
-import pandas as pd
-from utility.reader import read_csv
-
-def get_date_crypto_less_entry(folderpreprocessing,cluster):
+"""def get_date_crypto_less_entry(folderpreprocessing,cluster):
     min=10000
     cryptoMin=''
     #dateTimeMin=pd.datetime.now()
@@ -77,4 +62,4 @@ def get_date_crypto_less_entry(folderpreprocessing,cluster):
        # print("cluster "+ str(id) + " la minima e': " + cryptoMin)
         #recupero la data piu' vecchia della criptovaluta con meno entry
     csv = read_csv(folderpreprocessing+"/step2_normalized/" + cryptoMin + "_normalized.csv")
-    return csv['DateTime'][0]
+    return csv['DateTime'][0]"""
