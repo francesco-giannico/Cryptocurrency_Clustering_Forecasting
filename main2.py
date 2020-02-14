@@ -1,7 +1,6 @@
-from web_scraping.yahoo_finance_history import get_all_crypto
-get_all_crypto()
+from preprocessing.preprocessing import preprocessing
 
-import os
+"""import os
 import sys
 import warnings
 from crypto_clustering import consensus_clustering
@@ -80,11 +79,11 @@ def experiment(k_n,folderoutput,folderpreprocessing):
             TENSOR_PATH = "crypto_clustering/"+ folderoutput+"/"+c_algorithm +"/cluster_"+str(cluster_id)+"/crypto_TensorData"
             EXPERIMENT = "crypto_clustering/"+ folderoutput+"/"+ c_algorithm+"/cluster_"+str(cluster_id)+"/MultiTarget_Data"
             DATA_PATH = "crypto_clustering/"+ folderoutput+"/horizontalDataset/"+ c_algorithm+"/cluster_"+str(cluster_id)+"/"
-            """multi_target(EXPERIMENT=EXPERIMENT, DATA_PATH=DATA_PATH, TENSOR_DATA_PATH=TENSOR_PATH,
+            multi_target(EXPERIMENT=EXPERIMENT, DATA_PATH=DATA_PATH, TENSOR_DATA_PATH=TENSOR_PATH,
                          temporal_sequence=temporal_sequence_considered,
                          number_neurons=number_neurons_LSTM, learning_rate=learning_rate,
                          dimension_last_layer=dimension_last_layer,
-                         features_to_exclude_from_scaling=MULTI_features_to_exclude_from_scaling, testing_set=TEST_SET,type="indexes")"""
+                         features_to_exclude_from_scaling=MULTI_features_to_exclude_from_scaling, testing_set=TEST_SET,type="indexes")
 
             multi_target(EXPERIMENT=EXPERIMENT, DATA_PATH=DATA_PATH, TENSOR_DATA_PATH=TENSOR_PATH,
                          temporal_sequence=temporal_sequence_considered,
@@ -115,12 +114,12 @@ def experiment_single():
     folderoutput="experiment_common_indicators"
     folderpreprocessing = "crypto_preprocessing_indicators"
     clusters = get_clusters2("experiment_common_indicators", "noclustering_indicators_multitarget")
-    """cluster_id = 0
+    cluster_id = 0
     for cluster in clusters:
         # set the day to use to cut the data (the first day to use in training, should be the first day of the cryptocurrency with less entry)
         first_day = get_date_crypto_less_entry(folderpreprocessing, cluster)
         # "cut" dei dataset presenti in questo cluster
-        cut_crypto(first_day, cluster, cluster_id, "noclustering_indicators_singletarget","indexes", folderoutput, folderpreprocessing)"""
+        cut_crypto(first_day, cluster, cluster_id, "noclustering_indicators_singletarget","indexes", folderoutput, folderpreprocessing)
 
     single_target(EXPERIMENT=EXPERIMENT, DATA_PATH=DATA_PATH, TENSOR_DATA_PATH=TENSOR_PATH,
                    temporal_sequence=temporal_sequence_considered,
@@ -130,7 +129,7 @@ def experiment_single():
 def results():
     k_n_consensus = ["consensus_k_sqrtN", "consensus_k_sqrtNdiv2", "consensus_k_sqrtNby2","consensus_k_sqrtNdiv4","consensus_k_sqrtNby4"]
     #k_n_consensus=["consensus_k_sqrtN"]
-    """experiments=['experiment_dtw_close','experiment_pearson_close',"experiment_dtw_allFeatures_noindicators","experiment_pearson_allFeatures_noindicators"]
+    experiments=['experiment_dtw_close','experiment_pearson_close',"experiment_dtw_allFeatures_noindicators","experiment_pearson_allFeatures_noindicators"]
     for experiment in experiments:
         for c_algorithm in k_n_consensus:
             clusters = get_clusters2(experiment,c_algorithm)
@@ -138,7 +137,7 @@ def results():
 
     #for single target
     generate_averagermseForK(path="crypto_clustering/experiment_common/noclustering_noindicators_singletarget",
-                             num_of_clusters=1, name_experiment_model="SingleTarget_Data")"""
+                             num_of_clusters=1, name_experiment_model="SingleTarget_Data")
     experiments = ['experiment_dtw_close', 'experiment_pearson_close']
     #experiments = [ "experiment_dtw_allFeatures_noindicators","experiment_pearson_allFeatures_noindicators"]
 
@@ -185,13 +184,14 @@ def generate_report():
                                        name_folder_report=REPORT_FOLDER_NAME,
                                        name_files_output="report")"""
             generate_linechart_png(EXPERIMENTFIN,str(cluster_id),temporal_sequence,number_neurons,cluster)
-            cluster_id+=1
+            cluster_id+=1"""
 
 def main():
-    # # -------- SETUP ----------------------------------------------------------------------------
-    #Preprocess dataset data (Relaunch preprocessing if data changes)
-    #preprocessing_main("indexes")
-    folderpreprocessing="crypto_preprocessing_indicators"
+    #todo preprocessing
+    folderpreprocessing="../dataset/original"
+    preprocessing("t")
+    #todo calcolo la matrice delle distanze
+    #todo dynamic time warping
     #compute_distance_matrix("dtw",[],"dtw_allFeatures_noindicators")
     #compute_distance_matrix("dtw", ['High','Low','Open'], "dtw_close_noindicators")
     #compute_distance_matrix("dtw", ['High','Low'], "dtw_openclose_noindicators")
@@ -200,9 +200,11 @@ def main():
     #compute_distance_matrix("dtw", [], "dtw_allFeatures_indicators",folderpreprocessing=folderpreprocessing)
     #compute_distance_matrix("dtw", ['High','Low'], "dtw_closeopen_indicators")
 
-    """compute_distance_matrix("pearson", [], "pearson_allFeatures_noindicators")
-    compute_distance_matrix("pearson", ['High','Low','Open'], "pearson_close_noindicators")
-    compute_distance_matrix("pearson", ['High','Low'], "pearson_closeopen_noindicators")"""
+    #todo pearson
+    compute_distance_matrix("pearson", [], "pearson_allFeatures_noindicators")
+
+    #compute_distance_matrix("pearson", ['High','Low','Open'], "pearson_close_noindicators")
+    #compute_distance_matrix("pearson", ['High','Low'], "pearson_closeopen_noindicators")
 
     #compute_distance_matrix("pearson", [], "pearson_allFeatures_indicators",folderpreprocessing=folderpreprocessing)
     #compute_distance_matrix("pearson", ['High','Low','Open'], "pearson_close_indicators",folderpreprocessing=folderpreprocessing)

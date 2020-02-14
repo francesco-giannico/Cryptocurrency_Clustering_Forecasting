@@ -1,15 +1,17 @@
 import json
+import os
 
 import pandas as pd
 
 
-def get_cryptocurrenciesSymbols():
-    cryptocurrenciesSymbols = []
-    fileToRead = read_file("crypto_data/dataset/Crypto.txt")
+def get_crypto_symbols():
+    print(os.getcwd())
+    crypto_symbols= []
+    fileToRead = read_file("../web_scraping/crypto_symbols.txt")
     for line in fileToRead:
-        cryptocurrenciesSymbols.append(line.replace("\n", "").replace("*", ""))
+        crypto_symbols.append(line.replace("\n", ""))
     fileToRead.close()
-    return cryptocurrenciesSymbols
+    return crypto_symbols
 
 def read_json(path):
     with open(path, 'r') as f:

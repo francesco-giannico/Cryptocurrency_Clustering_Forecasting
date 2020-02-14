@@ -6,7 +6,6 @@ import requests
 import os
 from utility.folder_creator import folder_creator
 
-CURRDIR = os.path.dirname(os.path.realpath(__file__))
 TIMEOUT = 1
 CRUMB_LINK = 'https://finance.yahoo.com/quote/{0}/history?p={0}'
 CRUMBLE_REGEX = r'CrumbStore":{"crumb":"(.*?)"}'
@@ -37,15 +36,18 @@ def get_quote(symbol,session):
     response.raise_for_status()
     return pd.read_csv(StringIO(response.text), parse_dates=['Date'])
 
-def get_all_crypto():
-    dataset_name="\cryptocurrencies"
-    dataset_dir=CURRDIR +dataset_name
-    folder_creator(dataset_dir,0)
+def get_most_important_crypto():
+    DATASET_NAME="original"
+    folder_creator("../dataset", 1)
+    DATASET_DIR= "../dataset/" +DATASET_NAME
+    folder_creator(DATASET_DIR, 1)
     currency = "-USD"
-    f = open(CURRDIR +"\crypto.txt", "r")
+    print(os.getcwd())
+    f = open("../web_scraping/crypto_symbols.txt", "r")
     cryptos = f.readlines()
+
     for crypto in cryptos:
         crypto = crypto.replace("\n", "")
         print("getting info about "+ crypto)
         df = yahoo_finance_history(crypto + currency)
-        df.to_csv(dataset_dir+"/"+crypto + ".csv", index=False)
+        df.to_csv(DATASET_DIR+"/"+crypto + ".csv", index=False)

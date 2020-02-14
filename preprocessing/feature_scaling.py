@@ -1,7 +1,8 @@
 from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 
-def normalized(filepath, features_to_exclude, output_path, filename_output):
+
+def normalize(filepath, features_to_exclude, output_path, filename_output):
     data = pd.read_csv(filepath, sep=',')
     scaler = MinMaxScaler()
     for col in data.columns:

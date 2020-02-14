@@ -1,34 +1,43 @@
 import os
 import pandas as pd
 
-from crypto_utility import preprocessing
-from crypto_utility.folder_creator import folder_creator
-from crypto_utility.reader import get_cryptocurrenciesSymbols
+from utility.folder_creator import folder_creator
+from utility.reader import get_crypto_symbols
 
-name_folder = "crypto_preprocessing_indicators"
-raw_data = "crypto_data/data/"
-path = name_folder+"/"+ "step0_data/"
+path_raw_data = "../dataset/original/"
+path_preprocessed = "../dataset/preprocessed"
+#path = path_preprocessed+"/"+ "step_0/"
 
-folder_step_zero = "step0_data"
-folder_step_half = "step0-5_data"
-folder_step_two = "step2_normalized"
-folder_step_one = "step1_indicators"
+dir_step_zero= "step_0"
+dir_step_one = "step_1"
+dir_step_two = "step_2"
+#folder_step_one = "step1_indicators"
 
+def preprocessing(type):
+    CRYPTO_SYMBOLS= get_crypto_symbols()
+    folders_setup()
+    step_0(CRYPTO_SYMBOLS)
+    step_1()
+    """if type=="indexes":
+        step_additionalFeatures()
+        step_normalization_indexes()
+       else:"""
+    # step_normalization_noindexes()
 
 def folders_setup():
-    # PRE PROCESSING
-    # Set the name of folder in which save all intermediate results
-    folder_creator(name_folder,1)
-    folder_creator(name_folder + "/" + folder_step_half,1)
-    folder_creator( name_folder + "/" + folder_step_zero,1)
-    folder_creator(name_folder + "/" + folder_step_two,1)
-    folder_creator(name_folder + "/"+ folder_step_one,1) #indexes
+    # Set the name of folder in which to save all intermediate results
+    folder_creator(path_preprocessed,1)
+    folder_creator(path_preprocessed + "/" + dir_step_zero,1)
+    folder_creator(path_preprocessed + "/" + dir_step_one, 1)
+    folder_creator(path_preprocessed + "/" + dir_step_two,1)
+    #folder_creator(path_preprocessed + "/"+ folder_step_one,1) #indexes
 
 # ------------------------------------------
 # STEP.0: PreProcessData and delete the ones with the older date upper to 05-2016
 # ------------------------------------------
-def step_0(COINS):
-    #Converts data into our format
+def step_0(CRYPTO_SYMBOLS):
+
+    """#Converts data into our format
     output_indicators_path =  name_folder + "/" + folder_step_zero + "/"
 
     #lista degli elementi in step0_data, cambia il nome di ogni file
@@ -38,13 +47,13 @@ def step_0(COINS):
         if name in COINS:
             #prende i raw data di questo coin e li trasforma
             file = raw_data + each_stock
-            preprocessing.generate_normal(file, output_indicators_path, name)
+            preprocessing.generate_normal(file, output_indicators_path, name)"""
 
 # ------------------------------------------
 # STEP.0,5: Convert Values to USD and/or remove Volumes
 # ------------------------------------------
 # Convert Values to USD and/or remove Volumes
-def step_05():
+def step_1():
     USDBTC = []
     #deve per forza leggere questo per primo.
     csv = pd.read_csv(path + "BTC.csv")
@@ -72,14 +81,14 @@ def step_05():
             csv["Close"] = csv["Close"] * USDBTC[:len(csv["Open"])]
             csv["Close"] = csv["Close"].values[::-1]
 
-        csv.to_csv( name_folder + "/" + folder_step_half + "/" + file, index=False)
+        #csv.to_csv( name_folder + "/" + folder_step_half + "/" + file, index=False)
 
 
 # ------------------------------------------
 # STEP.1: Add Additional Features
 # ------------------------------------------
 # Listing all available time series (original data)
-def step_additionalFeatures():
+"""def step_additionalFeatures():
 
     output_indicators_path =  name_folder + "/" + folder_step_one + "/"
     # Execute over all time series in the folder chosen
@@ -91,12 +100,12 @@ def step_additionalFeatures():
         name = each_stock.replace(".csv", "")
         #if name in COINS:
         file = path + each_stock
-        preprocessing.generate_indicators(file, "Close", lookback, output_indicators_path, name)
+        preprocessing.generate_indicators(file, "Close", lookback, output_indicators_path, name)"""
 
 # ------------------------------------------
 # STEP.2: Normalize Data - no indexes
 # ------------------------------------------
-def step_normalization_noindexes():
+"""def step_normalization_noindexes():
     data =  name_folder + "/" + folder_step_half + "/"
     stock_series = os.listdir(data)
     output_normalized_path = name_folder + "/" + folder_step_two + "/"
@@ -105,12 +114,12 @@ def step_normalization_noindexes():
     for each_stock in stock_series:
         name = each_stock.replace(".csv", "")
         file = data + "/" + each_stock
-        preprocessing.normalized(file, excluded_features, output_normalized_path, name)
+        #preprocessing.normalized(file, excluded_features, output_normalized_path, name)"""
 
 # ------------------------------------------
 # STEP.2: Normalize Data - indexes
 # ------------------------------------------
-def step_normalization_indexes():
+"""def step_normalization_indexes():
         with_indicators_data =  name_folder + "/" + folder_step_one + "/"
         with_indicators_stock_series = os.listdir(with_indicators_data)
         output_normalized_path =  name_folder + "/" + folder_step_two + "/"
@@ -119,13 +128,13 @@ def step_normalization_indexes():
         for each_stock_with_indicators in with_indicators_stock_series:
             name = each_stock_with_indicators.replace("_with_indicators.csv", "")
             file = with_indicators_data + "/" + each_stock_with_indicators
-            preprocessing.normalized(file, excluded_features, output_normalized_path, name)
+            preprocessing.normalized(file, excluded_features, output_normalized_path, name)"""
 
 
 # ------------------------------------------
 # Create cut files from specified day for horizontal dataset
 # ------------------------------------------
-def cut_crypto(first_day,cluster,cluster_id,clustering_algorithm,type,folderoutput,preprocessingfolder):
+"""def cut_crypto(first_day,cluster,cluster_id,clustering_algorithm,type,folderoutput,preprocessingfolder):
     #quelli NON normalizzati, perchè tanto li normalizza la LSTM
     name_folder=preprocessingfolder
     if type=="indexes":
@@ -182,22 +191,14 @@ def create_horizontal_from_cut(clustering_algorithm,cluster_id,type,folderoutput
                     colonne=len(line.split(","))
                 file.append(line)
                 i += 1
-
         else:
             for line in fileToRead:
-
                 file[i]=file[i][:-1]+","+line
-
                 split=file[i].split(",",1)
-
                 split[1]=split[1].replace(split[0]+",","")
-
                 file[i]=split[0]+","+split[1]
-
                 i+=1
-
         fileToRead.close()
-
 
     #aggiungi un numero per disambiguare le colonne
     for i in range (n,0, -1):
@@ -212,26 +213,8 @@ def create_horizontal_from_cut(clustering_algorithm,cluster_id,type,folderoutput
     #rimuovi il numero per la prima colonna e aggiungilo all'ultima
     file[0]=file[0].replace("_1,", ",", 1)[:-1]+ "_"+str(n)+"\n"
 
-
     #scrivi l'array nel file
-
     fileToWrite = open(folder_horizontal + filename, "w")
     for line in file:
         fileToWrite.write(line)
-    fileToWrite.close()
-
-
-def run(COINS,type):
-   folders_setup()
-   step_0(COINS)
-   step_05()
-   if type=="indexes":
-     step_additionalFeatures()
-     step_normalization_indexes()
-   else:
-     step_normalization_noindexes()
-
-def preprocessing_main(type):
-    #leggo le criptovalute
-    cryptocurrenciesSymbols= get_cryptocurrenciesSymbols()
-    run(cryptocurrenciesSymbols,type)
+    fileToWrite.close()"""
