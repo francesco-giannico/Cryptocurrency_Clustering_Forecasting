@@ -1,31 +1,57 @@
 import itertools
-import shutil
 import pandas as pd
 import os
-import math
 import matplotlib.pyplot as plt
 import numpy as np
 from pandas.plotting import lag_plot
 from scipy.stats import pearsonr, stats
+from utility.folder_creator import folder_creator
+from utility.reader import get_crypto_symbols
 
 COLUMNS=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
+PATH_DATA_UNDERSTANDING="../data_understanding/output/"
+def missing_values(PATH_DATASET):
+    folder_creator(PATH_DATA_UNDERSTANDING,1)
+    count_missing_values(PATH_DATASET)
+    count_missing_values_by_year(PATH_DATASET)
+
+def count_missing_values_by_year(PATH_DATASET):
+  cryptos = get_crypto_symbols()
+  df_out = pd.DataFrame(0,columns=['2013', '2014', '2015', '2016', '2017', '2018', '2019'], index=cryptos)
+  for crypto in os.listdir(PATH_DATASET):
+    df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0)
+    crypto_name=crypto.replace(".csv","")
+    df = df.set_index("Date")
+    total_null=df.isnull().sum()[1]
+    if(total_null>15):
+        init_date = df.index[0]
+        #get year
+        first_year=int(init_date.split("-")[0])
+        actual_year=first_year
+        while actual_year < 2020:
+            #next year
+            actual_year+=1
+            init_date=str(first_year-1)+"-12-31"
+            fin_date=str(actual_year)+"-01-01"
+            df1 = df.query('index<@fin_date')
+            df1=df1.query('index >@init_date')
+            #number of null of this year
+            null_year=df1.isnull().sum()[1]
+            first_year=actual_year
+            df_out.at[crypto_name,str(first_year-1)] = null_year
+  df_out.to_csv(PATH_DATA_UNDERSTANDING+"missing_by_year.csv", ",")
 
 #generates a file in which, for each cryptocurrency, there is the count of the missing values by column
-def missing_values():
-   crypto=[]
-   for file in os.listdir("../data_acquisition/dataset/with_null_values/"):
-       crypto.append(file.replace(".csv",""))
+def count_missing_values(PATH_DATASET):
+   crypto=get_crypto_symbols()
+   #create a new dataframe
    df = pd.DataFrame(columns=COLUMNS, index=crypto)
-   for file in os.listdir("../data_acquisition/dataset/with_null_values/"):
-    df1 = pd.read_csv("../dataset/with_null_values/"+file, delimiter=',',header=0)
+   for file in os.listdir(PATH_DATASET):
+    df1 = pd.read_csv(PATH_DATASET+file, delimiter=',',header=0)
     df1=df1.set_index("Date")
-    #counting the number of null element, for column
-    # sf=
-    cryptocurrency=file.replace(".csv","")
-    df.loc[cryptocurrency]=df1.isnull().sum()
-    #from series to dataframe
-    #df1=pd.DataFrame({'column': sf.index, 'count': sf.values})
-    df.to_csv("missing_values.csv",",")
+    crypto_name=file.replace(".csv","")
+    df.loc[crypto_name]=df1.isnull().sum() #inserting a series in a dataframe row
+    df.to_csv(PATH_DATA_UNDERSTANDING+"count_missing_values.csv",",")
 
 def describe(df):
     print(df.describe())
@@ -120,7 +146,7 @@ def info_univariate(data, features_name):
     plot_boxnotch_univariateanalysis(data_t, features_name)
     return
 
-#df=pd.read_csv("../dataset/interpolated/time/ARDR.csv", delimiter=',', header=0)
+"""#df=pd.read_csv("../dataset/interpolated/time/ARDR.csv", delimiter=',', header=0)
 df=pd.read_csv("../data_acquisition/dataset/original/BTC.csv", delimiter=',', header=0)
 # Converting the column to DateTime format
 df.Date = pd.to_datetime(df.Date, format='%Y-%m-%d')
@@ -128,6 +154,6 @@ df = df.set_index('Date')
 #log_scaling(df)
 #lag_plot_mine(df)
 #info_bivariate(df.values,df.columns.values)
-"""df=df.drop(['Volume'],axis=1)
-info_univariate(df.values,df.columns.values)"""
-describe(df)
+df=df.drop(['Volume'],axis=1)
+info_univariate(df.values,df.columns.values)
+describe(df)"""

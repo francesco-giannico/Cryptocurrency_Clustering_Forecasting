@@ -2,21 +2,22 @@ from datetime import datetime
 
 from data_preparation.preprocessing import preprocessing
 from data_acquisition.yahoo_finance_history import get_most_important_cryptos
+from data_understanding.data_exploration import missing_values
 
 
 def main():
     #DATA UNDERSTANDING
-
+    PATH_DATASET="../data_acquisition/dataset/original/"
     #COLLECT INITIAL DATA
     #todo data collecting from yahoo finance
     #get_most_important_cryptos(startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
     # EXPLORE DATA
     # todo dataset exploration
-
+    #missing_values(PATH_DATASET)
+    missing_values(PATH_DATASET)
     #DATA PREPARATION
     #SELECT DATA (row selection e feature selection)
-    folderpreprocessing = "../dataset/original"
-    preprocessing("t")
+    #preprocessing("t")
     #CLEAN DATA
     #
     #todo data_preparation
