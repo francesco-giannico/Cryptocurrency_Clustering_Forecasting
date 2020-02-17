@@ -1,4 +1,4 @@
-from data_preparation.preprocessing import preprocessing
+from preparation.preprocessing import preprocessing
 
 """import os
 import sys
@@ -18,7 +18,7 @@ from crypto_utility.reader import get_clusters, get_clusters2
 from crypto_utility import test_set
 from crypto_utility.folder_creator import folder_creator
 from crypto_runner.multitarget_experiment import multi_target
-from crypto_runner.reporting import generate_linechart_png, generate_averagermseForK,overall_report, results_by_cluster, barchartComparison, generate_fileaverageRMSE_byalgorithm
+from crypto_runner.visualization import generate_linechart_png, generate_averagermseForK,overall_report, results_by_cluster, barchartComparison, generate_fileaverageRMSE_byalgorithm
 
 #todo:k_n sarebbero gli algoritmi, chiamalo algorithms
 def experiment(k_n,folderoutput,folderpreprocessing):
@@ -187,7 +187,7 @@ def generate_report():
             cluster_id+=1"""
 
 def main():
-    #todo data_preparation
+    #todo preparation
     folderpreprocessing="../dataset/original"
     preprocessing("t")
     #todo calcolo la matrice delle distanze

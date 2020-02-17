@@ -5,15 +5,25 @@ import matplotlib.pyplot as plt
 import numpy as np
 from pandas.plotting import lag_plot
 from scipy.stats import pearsonr, stats
+
+from visualization.bar_chart import bar_chart
 from utility.folder_creator import folder_creator
 from utility.reader import get_crypto_symbols
 
 COLUMNS=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
-PATH_DATA_UNDERSTANDING="../data_understanding/output/"
+PATH_DATA_UNDERSTANDING= "/output/"
+
 def missing_values(PATH_DATASET):
     folder_creator(PATH_DATA_UNDERSTANDING,1)
+    folder_creator(PATH_DATA_UNDERSTANDING+"missing_values_by_year/", 1)
     count_missing_values(PATH_DATASET)
     count_missing_values_by_year(PATH_DATASET)
+    generate_bar_chart_by_year(PATH_DATA_UNDERSTANDING+"missing_values_by_year/")
+
+def generate_bar_chart_by_year(PATH_TO_SAVE):
+    df = pd.read_csv(PATH_DATA_UNDERSTANDING+"missing_by_year.csv", delimiter=',', header=0)
+    df = df.set_index("Symbol")
+    bar_chart(df,PATH_TO_SAVE)
 
 def count_missing_values_by_year(PATH_DATASET):
   cryptos = get_crypto_symbols()
@@ -23,23 +33,24 @@ def count_missing_values_by_year(PATH_DATASET):
     crypto_name=crypto.replace(".csv","")
     df = df.set_index("Date")
     total_null=df.isnull().sum()[1]
-    if(total_null>15):
-        init_date = df.index[0]
-        #get year
-        first_year=int(init_date.split("-")[0])
-        actual_year=first_year
-        while actual_year < 2020:
-            #next year
-            actual_year+=1
-            init_date=str(first_year-1)+"-12-31"
-            fin_date=str(actual_year)+"-01-01"
-            df1 = df.query('index<@fin_date')
-            df1=df1.query('index >@init_date')
-            #number of null of this year
-            null_year=df1.isnull().sum()[1]
-            first_year=actual_year
-            df_out.at[crypto_name,str(first_year-1)] = null_year
-  df_out.to_csv(PATH_DATA_UNDERSTANDING+"missing_by_year.csv", ",")
+    init_date = df.index[0]
+    #get year
+    first_year=int(init_date.split("-")[0])
+    actual_year=first_year
+    while actual_year < 2020:
+        #next year
+        actual_year+=1
+        start_date=str(first_year-1)+"-12-31"
+        end_date=str(actual_year)+"-01-01"
+        df1 = df.query('index<@end_date')
+        df1=df1.query('index >@start_date')
+        #number of null of this year
+        null_year=df1.isnull().sum()[1]
+        first_year=actual_year
+        df_out.at[crypto_name,str(first_year-1)] = null_year
+  #reset the index, in this way its possibile to have a new column named Symbol
+  df_out= df_out.rename_axis('Symbol').reset_index()
+  df_out.to_csv(PATH_DATA_UNDERSTANDING+"missing_by_year.csv", ",",index=False)
 
 #generates a file in which, for each cryptocurrency, there is the count of the missing values by column
 def count_missing_values(PATH_DATASET):
@@ -147,7 +158,7 @@ def info_univariate(data, features_name):
     return
 
 """#df=pd.read_csv("../dataset/interpolated/time/ARDR.csv", delimiter=',', header=0)
-df=pd.read_csv("../data_acquisition/dataset/original/BTC.csv", delimiter=',', header=0)
+df=pd.read_csv("../acquisition/dataset/original/BTC.csv", delimiter=',', header=0)
 # Converting the column to DateTime format
 df.Date = pd.to_datetime(df.Date, format='%Y-%m-%d')
 df = df.set_index('Date')

@@ -7,23 +7,23 @@ from utility.reader import read_csv
 from utility.folder_creator import folder_creator
 
 """ it Moves the crypto dead before 31-12-2019 in the dead folder """
-
-PATH_MAIN_FOLDER="../data_acquisition/dataset/"
+PATH_MAIN_FOLDER= "../acquisition/dataset/"
+PATH_PREPARATION_FOLDER="../preparation/preprocessed_dataset/"
 def find_by_dead_before():
-    folder_creator(PATH_MAIN_FOLDER+"selected",1)
-    folder_creator(PATH_MAIN_FOLDER + "selected/"+"dead", 1)
+    folder_creator(PATH_PREPARATION_FOLDER+"selected",1)
+    folder_creator(PATH_PREPARATION_FOLDER + "selected/"+"dead", 1)
     for file in os.listdir(PATH_MAIN_FOLDER+"original/"):
         df = pd.read_csv(PATH_MAIN_FOLDER+"original/" + file, delimiter=',', header=0)
         df = df.set_index("Date")
         # dead before
         lastDate = df.index[::-1][0]
         if lastDate != '2019-12-31':
-            shutil.copy(PATH_MAIN_FOLDER+"original/" + file, PATH_MAIN_FOLDER+"selected/dead/" + file)
+            shutil.copy(PATH_MAIN_FOLDER+"original/" + file,PATH_PREPARATION_FOLDER+"selected/dead/" + file)
 
 """ it moves the crypto with null values in the uncomplete folder """
 def find_uncomplete():
-   folder_creator(PATH_MAIN_FOLDER + "selected/" + "uncomplete", 1)
-   folder_creator(PATH_MAIN_FOLDER + "selected/" + "complete", 1)
+   folder_creator(PATH_PREPARATION_FOLDER + "selected/" + "uncomplete", 1)
+   folder_creator(PATH_PREPARATION_FOLDER + "selected/" + "complete", 1)
    #print(df.columns.values.tolist())
    for file in os.listdir(PATH_MAIN_FOLDER+"original/"):
     df = pd.read_csv(PATH_MAIN_FOLDER+"original/"+file, delimiter=',',header=0)
@@ -31,12 +31,12 @@ def find_uncomplete():
     #with null values
     if(df["Open"].isnull().any()):
          try:
-            shutil.copy(PATH_MAIN_FOLDER+"original/"+file, PATH_MAIN_FOLDER+"selected/uncomplete/"+file)
+            shutil.copy(PATH_MAIN_FOLDER+"original/"+file,PATH_PREPARATION_FOLDER+"selected/uncomplete/"+file)
          except:
              pass
     else:
         try:
-            shutil.copy(PATH_MAIN_FOLDER + "original/" + file, PATH_MAIN_FOLDER + "selected/complete/" + file)
+            shutil.copy(PATH_MAIN_FOLDER + "original/" + file, PATH_PREPARATION_FOLDER+ "selected/complete/" + file)
         except:
             pass
 

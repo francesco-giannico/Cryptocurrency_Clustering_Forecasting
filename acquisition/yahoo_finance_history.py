@@ -36,12 +36,12 @@ def get_quote(symbol,session,startdate,enddate):
 
 def get_most_important_cryptos(startdate,enddate):
     DATASET_NAME="original"
-    folder_creator("../data_acquisition/dataset", 1)
-    DATASET_DIR= "../data_acquisition/dataset/" +DATASET_NAME
+    folder_creator("../acquisition/dataset", 1)
+    DATASET_DIR= "../acquisition/dataset/" +DATASET_NAME
     folder_creator(DATASET_DIR, 1)
     currency = "-USD"
     print(os.getcwd())
-    f = open("../data_acquisition/crypto_symbols.txt", "r")
+    f = open("/crypto_symbols.txt", "r")
     cryptos = f.readlines()
     for crypto in cryptos:
         crypto = crypto.replace("\n", "")

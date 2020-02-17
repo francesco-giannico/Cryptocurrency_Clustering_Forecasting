@@ -187,8 +187,6 @@ def barChart(path,pathToSave):
     for avgrmse in final_csv["average_rmse_norm"].values:
         yvals.append(avgrmse)
     rects1 = ax.bar(ind, yvals, width, color='green')
-
-
     # zvals = [0.0600, 0.0522]
     # rects2 = ax.bar(ind + width, zvals, width, color='orange')
 

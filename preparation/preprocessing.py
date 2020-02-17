@@ -1,14 +1,14 @@
 import os
 import pandas as pd
 
-from data_preparation.data_cleaning import remove_uncomplete_rows
-from data_preparation.data_selection import find_by_dead_before, find_uncomplete
+from preparation.data_cleaning import remove_uncomplete_rows_by_range
+from preparation.data_selection import find_by_dead_before, find_uncomplete
 from utility.folder_creator import folder_creator
 from utility.reader import get_crypto_symbols
 
 FEATURES=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
-PATH_RAW_DATA = "../data_acquisition/dataset/original/"
-PATH_PREPROCESSED = "../data_acquisition/dataset/preprocessed"
+PATH_RAW_DATA = "../acquisition/dataset/original/"
+PATH_PREPROCESSED = "../preparation/preprocessed_dataset/"
 #path = path_preprocessed+"/"+ "step_0/"
 
 DIR_STEP_ZERO= "step_0"
@@ -18,7 +18,7 @@ DIR_STEP_TWO = "step_2"
 
 def preprocessing(type):
     CRYPTO_SYMBOLS= get_crypto_symbols()
-    #folders_setup()
+    folders_setup()
     step_0(CRYPTO_SYMBOLS)
     #step_1()
     """if type=="indexes":
@@ -39,9 +39,9 @@ def folders_setup():
 # STEP.0: PreProcessData and delete the ones with the older date upper to 05-2016
 # ------------------------------------------
 def step_0(CRYPTO_SYMBOLS):
-    """find_by_dead_before()
-    find_uncomplete()"""
-    remove_uncomplete_rows()
+    find_by_dead_before()
+    find_uncomplete()
+    remove_uncomplete_rows_by_range("ARDR","2016-01-01","2017-01-01")
     """#Converts data into our format
     output_indicators_path =  name_folder + "/" + folder_step_zero + "/"
 
@@ -52,7 +52,7 @@ def step_0(CRYPTO_SYMBOLS):
         if name in COINS:
             #prende i raw data di questo coin e li trasforma
             file = raw_data + each_stock
-            data_preparation.generate_normal(file, output_indicators_path, name)"""
+            preparation.generate_normal(file, output_indicators_path, name)"""
 
 # ------------------------------------------
 # STEP.0,5: Convert Values to USD and/or remove Volumes
@@ -105,7 +105,7 @@ def step_1():
         name = each_stock.replace(".csv", "")
         #if name in COINS:
         file = path + each_stock
-        data_preparation.generate_indicators(file, "Close", lookback, output_indicators_path, name)"""
+        preparation.generate_indicators(file, "Close", lookback, output_indicators_path, name)"""
 
 # ------------------------------------------
 # STEP.2: Normalize Data - no indexes
@@ -119,7 +119,7 @@ def step_1():
     for each_stock in stock_series:
         name = each_stock.replace(".csv", "")
         file = data + "/" + each_stock
-        #data_preparation.normalized(file, excluded_features, output_normalized_path, name)"""
+        #preparation.normalized(file, excluded_features, output_normalized_path, name)"""
 
 # ------------------------------------------
 # STEP.2: Normalize Data - indexes
@@ -133,7 +133,7 @@ def step_1():
         for each_stock_with_indicators in with_indicators_stock_series:
             name = each_stock_with_indicators.replace("_with_indicators.csv", "")
             file = with_indicators_data + "/" + each_stock_with_indicators
-            data_preparation.normalized(file, excluded_features, output_normalized_path, name)"""
+            preparation.normalized(file, excluded_features, output_normalized_path, name)"""
 
 
 # ------------------------------------------
