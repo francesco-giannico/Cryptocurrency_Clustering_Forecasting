@@ -1,8 +1,9 @@
 import os
 import pandas as pd
 
-from preparation.data_cleaning import remove_uncomplete_rows_by_range
-from preparation.data_selection import find_by_dead_before, find_uncomplete
+from preparation.data_cleaning import remove_uncomplete_rows_by_range, input_missing_values
+from preparation.data_construction import normalize
+from preparation.data_selection import find_by_dead_before, find_uncomplete,remove_features
 from utility.folder_creator import folder_creator
 from utility.reader import get_crypto_symbols
 
@@ -29,19 +30,24 @@ def preprocessing(type):
 
 def folders_setup():
     # Set the name of folder in which to save all intermediate results
-    folder_creator(PATH_PREPROCESSED,1)
-    folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_ZERO,1)
+    #folder_creator(PATH_PREPROCESSED,1)
+    """folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_ZERO,1)
     folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_ONE, 1)
-    folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_TWO,1)
+    folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_TWO,1)"""
     #folder_creator(path_preprocessed + "/"+ folder_step_one,1) #indexes
 
 # ------------------------------------------
 # STEP.0: PreProcessData and delete the ones with the older date upper to 05-2016
 # ------------------------------------------
 def step_0(CRYPTO_SYMBOLS):
+    """remove_features(["Volume"])
     find_by_dead_before()
-    find_uncomplete()
-    remove_uncomplete_rows_by_range("ARDR","2016-01-01","2017-01-01")
+    find_uncomplete()"""
+    """remove_uncomplete_rows_by_range("ARDR","2016-01-01","2017-01-01")
+    remove_uncomplete_rows_by_range("REP", "2015-01-01", "2017-01-01")
+    #todo ricorda che LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
+    input_missing_values()"""
+    normalize()
     """#Converts data into our format
     output_indicators_path =  name_folder + "/" + folder_step_zero + "/"
 

@@ -1,34 +1,51 @@
-# Import the required libraries
-import math
 import os
+import shutil
 
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-
-#todo completare, cioè cambiare algoritmo: quando trova una nulla, allora controlla
 from utility.folder_creator import folder_creator
 
 PATH_PREPROCESSED_FOLDER="../preparation/preprocessed_dataset/"
 PATH_UNCOMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/uncomplete/"
+PATH_COMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/complete/"
+PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/"
+
+
 def remove_uncomplete_rows_by_range(crypto_symbol,start_date,end_date):
- folder_creator(PATH_UNCOMPLETE_FOLDER+"cleaned",1)
- folder_creator(PATH_UNCOMPLETE_FOLDER + "no_missing_values_part1", 1)
+ folder_creator(PATH_CLEANED_FOLDER,0)
+ folder_creator(PATH_CLEANED_FOLDER+"partial", 0)
  df = pd.read_csv(PATH_UNCOMPLETE_FOLDER + crypto_symbol+".csv", delimiter=',', header=0)
  df=df.set_index("Date")
  df1 = df[(df.index <= start_date) | (df.index >= end_date)]
  df1 = df1.reset_index()
- df1.to_csv(PATH_PREPROCESSED_FOLDER+"cleane")
-
-
-
+ df1.to_csv(PATH_CLEANED_FOLDER+"partial/"+crypto_symbol+".csv",sep=",",index=False)
 
 def input_missing_values():
-    # To load the raw data:
-    df = pd.read_csv("../acquisition/dataset/with_null_values/ARDR.csv", delimiter=',', header=0)
+    folder_creator(PATH_CLEANED_FOLDER+"final",1)
+    already_treated=[]
+    for crypto_symbol in os.listdir(PATH_CLEANED_FOLDER+"partial"):
+        df = pd.read_csv(PATH_CLEANED_FOLDER+"partial/"+crypto_symbol, delimiter=',', header=0)
+        already_treated.append(crypto_symbol)
+        df=interpolate_with_time(df)
+        df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto_symbol, sep=",", index=False)
+
+    for crypto_symbol in os.listdir(PATH_UNCOMPLETE_FOLDER):
+        df = pd.read_csv(PATH_UNCOMPLETE_FOLDER+crypto_symbol, delimiter=',', header=0)
+        if crypto_symbol not in already_treated:
+            df=interpolate_with_time(df)
+            df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto_symbol , sep=",", index=False)
+
+    #merge with complete dataset
+    for crypto_symbol in os.listdir(PATH_COMPLETE_FOLDER):
+        shutil.copy(PATH_COMPLETE_FOLDER+ crypto_symbol, PATH_CLEANED_FOLDER+ "final/" + crypto_symbol)
+
+#todo spiegare come mai hai scelto questo metodo di interpolazione... ce ne sono tanti a disposizione
+def interpolate_with_time(df):
     # Converting the column to DateTime format
     df.Date = pd.to_datetime(df.Date, format='%Y-%m-%d')
     df = df.set_index('Date')
     # interpolate with time
     df = df.interpolate(method='time')
-    df.to_csv("../dataset/interpolated/time/ARDR.csv", ",")
+    df = df.reset_index()
+    return df
+
+
