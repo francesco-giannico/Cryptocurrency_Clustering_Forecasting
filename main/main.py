@@ -2,7 +2,7 @@ from datetime import datetime
 
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
-from understanding.data_exploration import missing_values
+from understanding.exploration import missing_values
 
 
 def main():

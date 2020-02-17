@@ -1,9 +1,10 @@
 import os
 import pandas as pd
 
-from preparation.data_cleaning import remove_uncomplete_rows_by_range, input_missing_values
-from preparation.data_construction import normalize
-from preparation.data_selection import find_by_dead_before, find_uncomplete,remove_features
+from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values
+from preparation.construction import normalize
+from preparation.integration import integrate_with_indicators
+from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
 from utility.folder_creator import folder_creator
 from utility.reader import get_crypto_symbols
 
@@ -47,7 +48,8 @@ def step_0(CRYPTO_SYMBOLS):
     remove_uncomplete_rows_by_range("REP", "2015-01-01", "2017-01-01")
     #todo ricorda che LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
     input_missing_values()"""
-    normalize()
+    #normalize()
+    integrate_with_indicators()
     """#Converts data into our format
     output_indicators_path =  name_folder + "/" + folder_step_zero + "/"
 
