@@ -19,12 +19,13 @@ def main():
     #missing_values(PATH_DATASET)
 
     #DATA PREPARATION
-    preprocessing("t")
+    #preprocessing("t")
 
     #clustering
-    #main_clustering()
+    # todo calcolo la matrice delle distanze
+    main_clustering()
 
-     #todo calcolo la matrice delle distanze
+
 
     #todo dynamic time warping
     #compute_distance_matrix("dtw",[],"dtw_allFeatures_noindicators")

@@ -19,11 +19,11 @@ PATH_NORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/normaliz
 
 def main_clustering():
     #todo genero il nuovo crypto_symbols ?
-    #generate_cryptocurrencies_dictionary()
+    generate_cryptocurrencies_dictionary()
     #todo read dict symbol
-    dict_symbol_id= get_dict_symbol_id()
+    """dict_symbol_id= get_dict_symbol_id()
     #todo genero la nuova distance matrix?
-    compute_distance_matrix(dict_symbol_id,"pearson")
+    compute_distance_matrix(dict_symbol_id,"pearson")"""
 
 
 def compute_distance_matrix(dict_symbol_id,distance_measure):

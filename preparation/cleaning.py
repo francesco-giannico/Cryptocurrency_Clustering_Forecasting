@@ -18,7 +18,7 @@ def remove_uncomplete_rows_by_range(crypto_symbol,start_date,end_date):
 
 def input_missing_values():
     folder_creator(PATH_CLEANED_FOLDER+"final",1)
-    already_treated=[]
+    already_treated=['LKK.csv','FAIR.csv']
     for crypto_symbol in os.listdir(PATH_CLEANED_FOLDER+"partial"):
         df = pd.read_csv(PATH_CLEANED_FOLDER+"partial/"+crypto_symbol, delimiter=',', header=0)
         already_treated.append(crypto_symbol)
