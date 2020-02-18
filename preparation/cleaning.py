@@ -2,6 +2,8 @@ import os
 import shutil
 
 import pandas as pd
+
+from utility.cut import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 
 PATH_PREPROCESSED_FOLDER="../preparation/preprocessed_dataset/"
@@ -13,11 +15,8 @@ PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/"
 def remove_uncomplete_rows_by_range(crypto_symbol,start_date,end_date):
  folder_creator(PATH_CLEANED_FOLDER,0)
  folder_creator(PATH_CLEANED_FOLDER+"partial", 0)
- df = pd.read_csv(PATH_UNCOMPLETE_FOLDER + crypto_symbol+".csv", delimiter=',', header=0)
- df=df.set_index("Date")
- df1 = df[(df.index <= start_date) | (df.index >= end_date)]
- df1 = df1.reset_index()
- df1.to_csv(PATH_CLEANED_FOLDER+"partial/"+crypto_symbol+".csv",sep=",",index=False)
+ df=cut_dataset_by_range(PATH_UNCOMPLETE_FOLDER,crypto_symbol,start_date,end_date)
+ df.to_csv(PATH_CLEANED_FOLDER+"partial/"+crypto_symbol+".csv",sep=",",index=False)
 
 def input_missing_values():
     folder_creator(PATH_CLEANED_FOLDER+"final",1)

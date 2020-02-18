@@ -6,7 +6,7 @@ from preparation.construction import normalize
 from preparation.integration import integrate_with_indicators
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
 from utility.folder_creator import folder_creator
-from utility.reader import get_crypto_symbols
+from utility.reader import get_original_crypto_symbols
 
 FEATURES=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 PATH_RAW_DATA = "../acquisition/dataset/original/"
@@ -19,9 +19,9 @@ DIR_STEP_TWO = "step_2"
 #folder_step_one = "step1_indicators"
 
 def preprocessing(type):
-    CRYPTO_SYMBOLS= get_crypto_symbols()
+    ORIGINAL_CRYPTO_SYMBOLS= get_original_crypto_symbols()
     folders_setup()
-    step_0(CRYPTO_SYMBOLS)
+    step_0(ORIGINAL_CRYPTO_SYMBOLS)
     #step_1()
     """if type=="indexes":
         step_additionalFeatures()
@@ -49,7 +49,7 @@ def step_0(CRYPTO_SYMBOLS):
     #todo ricorda che LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
     input_missing_values()"""
     #normalize()
-    integrate_with_indicators()
+    #integrate_with_indicators()
     """#Converts data into our format
     output_indicators_path =  name_folder + "/" + folder_step_zero + "/"
 

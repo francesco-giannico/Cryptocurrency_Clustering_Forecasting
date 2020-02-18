@@ -1,11 +1,16 @@
 import json
 import os
-
 import pandas as pd
 
+fileDir = os.path.dirname(os.path.realpath(__file__))#
+def get_preprocessed_crypto_symbols():
+    crypto_symbols = []
+    for file in os.listdir("../preparation/preprocessed_dataset/integrated/"):
+        crypto = file.replace(".csv","")
+        crypto_symbols.append(crypto)
+    return crypto_symbols
 
-def get_crypto_symbols():
-    print(os.getcwd())
+def get_original_crypto_symbols():
     crypto_symbols= []
     fileToRead = read_file("../acquisition/crypto_symbols.txt")
     for line in fileToRead:
@@ -13,17 +18,17 @@ def get_crypto_symbols():
     fileToRead.close()
     return crypto_symbols
 
-def read_json(path):
-    with open(path, 'r') as f:
+def get_dict_symbol_id():
+    with open('../modelling/techniques/clustering/symbol_id.json','r') as f:
         result = json.load(f)
     f.close()
     return result
 
-def get_clusters(filename):
+"""def get_clusters(filename):
     return read_json('crypto_clustering/results/'+filename+".json")
 
 def get_clusters2(path_experiment,filename):
-    return read_json('crypto_clustering/'+path_experiment+"/clusters/"+filename+".json")
+    return read_json('crypto_clustering/'+path_experiment+"/clusters/"+filename+".json")"""
 
 def read_file(path):
     return open(path, "r")

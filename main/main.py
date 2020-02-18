@@ -1,13 +1,16 @@
 from datetime import datetime
 
+from modelling.techniques.clustering.distance_measures.distance_measures import main_clustering
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
 from understanding.exploration import missing_values
+from utility.cut import cut_dataset_by_range
 
 
 def main():
     #DATA UNDERSTANDING
     PATH_DATASET= "../acquisition/dataset/original/"
+
     #COLLECT INITIAL DATA
     #todo data collecting from yahoo finance
     #get_most_important_cryptos(startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
@@ -15,15 +18,16 @@ def main():
     # todo dataset exploration
     #missing_values(PATH_DATASET)
     #missing_values(PATH_DATASET)
+
+
     #DATA PREPARATION
-    #SELECT DATA (row selection e feature selection)
-    preprocessing("t")
+    #preprocessing("t")
 
-    #CLEAN DATA
-    #
-    #todo preparation
+    #clustering
+    main_clustering()
 
-    #todo calcolo la matrice delle distanze
+     #todo calcolo la matrice delle distanze
+
     #todo dynamic time warping
     #compute_distance_matrix("dtw",[],"dtw_allFeatures_noindicators")
     #compute_distance_matrix("dtw", ['High','Low','Open'], "dtw_close_noindicators")

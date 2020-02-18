@@ -2,7 +2,6 @@ import csv
 import json
 import numpy as np
 from utility.folder_creator import folder_creator
-from utility.reader import read_json
 
 
 def save_clusters(clusters,filename,folderoutput):
@@ -128,14 +127,14 @@ def save_clusters2(clusters,filename):
     fileToWrite2.close()
 
 
-def save_distance_matrix(distance_matrix,name):
-    folder_creator("crypto_clustering/distanceMeasures/distanceMatrices",0)
-    with open('crypto_clustering/distanceMeasures/distanceMatrices/'+name +'.csv', 'w') as writeFile:
+def save_distance_matrix(distance_matrix,filename):
+    folder_creator("../modelling/techniques/clustering/distance_measures/",1)
+    with open("../modelling/techniques/clustering/distance_measures/"+filename +'.csv', 'w') as writeFile:
         writer = csv.writer(writeFile)
         writer.writerows(distance_matrix)
     writeFile.close()
 
-def save_cryptoSymbol_id(dict,name):
-    with open('crypto_clustering/distanceMeasures/distanceMatrices/'+name+'.json', 'w') as fp:
+def save_dict_symbol_id(dict):
+    with open('../modelling/techniques/clustering/symbol_id.json', 'w') as fp:
         json.dump(dict, fp)
     fp.close()
