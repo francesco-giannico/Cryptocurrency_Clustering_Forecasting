@@ -1,149 +1,44 @@
-import os
-import pandas as pd
-
 from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values
 from preparation.construction import normalize
 from preparation.integration import integrate_with_indicators
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
 from utility.folder_creator import folder_creator
-from utility.reader import get_original_crypto_symbols
 
-FEATURES=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
-PATH_RAW_DATA = "../acquisition/dataset/original/"
 PATH_PREPROCESSED = "../preparation/preprocessed_dataset/"
-#path = path_preprocessed+"/"+ "step_0/"
-
-DIR_STEP_ZERO= "step_0"
-DIR_STEP_ONE = "step_1"
-DIR_STEP_TWO = "step_2"
-#folder_step_one = "step1_indicators"
 
 def preprocessing(type):
-    ORIGINAL_CRYPTO_SYMBOLS= get_original_crypto_symbols()
     folders_setup()
-    step_0(ORIGINAL_CRYPTO_SYMBOLS)
-    #step_1()
-    """if type=="indexes":
-        step_additionalFeatures()
-        step_normalization_indexes()
-       else:"""
-    # step_normalization_noindexes()
+    feature_selection()
+    separation()
+    cleaning()
+    construction()
+    integration()
 
 def folders_setup():
     # Set the name of folder in which to save all intermediate results
-    #folder_creator(PATH_PREPROCESSED,1)
-    """folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_ZERO,1)
-    folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_ONE, 1)
-    folder_creator(PATH_PREPROCESSED + "/" + DIR_STEP_TWO,1)"""
-    #folder_creator(path_preprocessed + "/"+ folder_step_one,1) #indexes
+    folder_creator(PATH_PREPROCESSED,0)
 
-# ------------------------------------------
-# STEP.0: PreProcessData and delete the ones with the older date upper to 05-2016
-# ------------------------------------------
-def step_0(CRYPTO_SYMBOLS):
-    """remove_features(["Volume"])
+def feature_selection():
+    remove_features(["Volume"])
+
+def separation():
     find_by_dead_before()
-    find_uncomplete()"""
-    """remove_uncomplete_rows_by_range("ARDR","2016-01-01","2017-01-01")
-    remove_uncomplete_rows_by_range("REP", "2015-01-01", "2017-01-01")
+    find_uncomplete()
+
+def cleaning():
+    remove_uncomplete_rows_by_range("ARDR","2017-01-01","2019-12-31")
+    remove_uncomplete_rows_by_range("REP", "2017-01-01", "2019-12-31")
     #todo ricorda che LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
-    input_missing_values()"""
-    #normalize()
-    #integrate_with_indicators()
-    """#Converts data into our format
-    output_indicators_path =  name_folder + "/" + folder_step_zero + "/"
+    input_missing_values()
 
-    #lista degli elementi in step0_data, cambia il nome di ogni file
-    for each_stock in os.listdir(raw_data):
-        name = each_stock.replace(".csv", "")
-        #recupero il nome del Coin
-        if name in COINS:
-            #prende i raw data di questo coin e li trasforma
-            file = raw_data + each_stock
-            preparation.generate_normal(file, output_indicators_path, name)"""
+def construction():
+    #feature scaling
+    normalize()
 
-# ------------------------------------------
-# STEP.0,5: Convert Values to USD and/or remove Volumes
-# ------------------------------------------
-# Convert Values to USD and/or remove Volumes
-def step_1():
-    USDBTC = []
-    #deve per forza leggere questo per primo.
-    csv = pd.read_csv(path + "BTC.csv")
-    USDBTC = csv["Open"].values[::-1]
+def integration():
+    integrate_with_indicators()
 
-    for file in os.listdir(path):
-        csv = pd.read_csv(path + file)
-        del csv["Volume"]
-        del csv["VolumeBTC"]
-        if file != "BTC.csv":
-            # Optional remove Volumes
-            csv["Open"] = csv["Open"].values[::-1]
-            csv["Open"] = csv["Open"] * USDBTC[:len(csv["Open"])]
-            csv["Open"] = csv["Open"].values[::-1]
-
-            csv["High"] = csv["High"].values[::-1]
-            csv["High"] = csv["High"] * USDBTC[:len(csv["Open"])]
-            csv["High"] = csv["High"].values[::-1]
-
-            csv["Low"] = csv["Low"].values[::-1]
-            csv["Low"] = csv["Low"] * USDBTC[:len(csv["Open"])]
-            csv["Low"] = csv["Low"].values[::-1]
-
-            csv["Close"] = csv["Close"].values[::-1]
-            csv["Close"] = csv["Close"] * USDBTC[:len(csv["Open"])]
-            csv["Close"] = csv["Close"].values[::-1]
-
-        #csv.to_csv( name_folder + "/" + folder_step_half + "/" + file, index=False)
-
-
-# ------------------------------------------
-# STEP.1: Add Additional Features
-# ------------------------------------------
-# Listing all available time series (original data)
-"""def step_additionalFeatures():
-
-    output_indicators_path =  name_folder + "/" + folder_step_one + "/"
-    # Execute over all time series in the folder chosen
-    # Performs indicators: RSI, SMA, EMA
-    # Over 14, 30, 60 previous days
-    lookback = [14, 30, 60]
-    path =  name_folder + "/" + folder_step_half + "/"
-    for each_stock in os.listdir(path):
-        name = each_stock.replace(".csv", "")
-        #if name in COINS:
-        file = path + each_stock
-        preparation.generate_indicators(file, "Close", lookback, output_indicators_path, name)"""
-
-# ------------------------------------------
-# STEP.2: Normalize Data - no indexes
-# ------------------------------------------
-"""def step_normalization_noindexes():
-    data =  name_folder + "/" + folder_step_half + "/"
-    stock_series = os.listdir(data)
-    output_normalized_path = name_folder + "/" + folder_step_two + "/"
-    # Chosen features to exclude in normalizing process
-    excluded_features = ['DateTime', 'Symbol']
-    for each_stock in stock_series:
-        name = each_stock.replace(".csv", "")
-        file = data + "/" + each_stock
-        #preparation.normalized(file, excluded_features, output_normalized_path, name)"""
-
-# ------------------------------------------
-# STEP.2: Normalize Data - indexes
-# ------------------------------------------
-"""def step_normalization_indexes():
-        with_indicators_data =  name_folder + "/" + folder_step_one + "/"
-        with_indicators_stock_series = os.listdir(with_indicators_data)
-        output_normalized_path =  name_folder + "/" + folder_step_two + "/"
-        # Chosen features to exclude in normalizing process
-        excluded_features = ['DateTime', 'Symbol']
-        for each_stock_with_indicators in with_indicators_stock_series:
-            name = each_stock_with_indicators.replace("_with_indicators.csv", "")
-            file = with_indicators_data + "/" + each_stock_with_indicators
-            preparation.normalized(file, excluded_features, output_normalized_path, name)"""
-
-
+#todo manca l'horizontal dataset. Poi vediamo
 # ------------------------------------------
 # Create cut files from specified day for horizontal dataset
 # ------------------------------------------

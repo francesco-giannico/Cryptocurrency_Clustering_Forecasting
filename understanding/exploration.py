@@ -12,7 +12,7 @@ from utility.folder_creator import folder_creator
 
 
 COLUMNS=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
-PATH_DATA_UNDERSTANDING= "/output/"
+PATH_DATA_UNDERSTANDING= "../understanding/output/"
 
 def missing_values(PATH_DATASET):
     folder_creator(PATH_DATA_UNDERSTANDING,1)

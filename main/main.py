@@ -17,14 +17,12 @@ def main():
     # EXPLORE DATA
     # todo dataset exploration
     #missing_values(PATH_DATASET)
-    #missing_values(PATH_DATASET)
-
 
     #DATA PREPARATION
-    #preprocessing("t")
+    preprocessing("t")
 
     #clustering
-    main_clustering()
+    #main_clustering()
 
      #todo calcolo la matrice delle distanze
 

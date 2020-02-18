@@ -9,7 +9,6 @@ from scipy.spatial.distance import minkowski
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 from scipy.spatial.distance import euclidean
-from distance_metrics import lcs
 import sys
 from utility.clustering_utils import generate_cryptocurrencies_dictionary
 from utility.cut import cut_dataset_by_range
