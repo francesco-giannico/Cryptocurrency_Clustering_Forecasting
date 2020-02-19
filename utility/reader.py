@@ -19,10 +19,8 @@ def get_original_crypto_symbols():
     return crypto_symbols
 
 def get_dict_symbol_id():
-    with open('../modelling/techniques/clustering/symbol_id.json','r') as f:
-        result = json.load(f)
-    f.close()
-    return result
+    df=pd.read_csv('../modelling/techniques/clustering/symbol_id.csv',sep=",",header=0,index_col=1)
+    return df
 
 """def get_clusters(filename):
     return read_json('crypto_clustering/results/'+filename+".json")

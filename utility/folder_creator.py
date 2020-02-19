@@ -10,7 +10,8 @@ def folder_creator(folder_name,deleteIfExists):
                 pass
         os.mkdir(folder_name)
     except OSError:
-        print("Creation of the directory %s failed" % folder_name)
+        #print("Creation of the directory %s failed" % folder_name)
+        pass
     else:
         print("Successfully created the directory %s " % folder_name)
 

@@ -12,6 +12,3 @@ def generate_cryptocurrencies_dictionary():
         i+=1
     df = df.rename_axis('symbol').reset_index()
     df.to_csv("../modelling/techniques/clustering/symbol_id.csv",",",index=False)
-    """df=pd.read_csv("../modelling/techniques/clustering/symbol_id.csv",sep=",",header=0,index_col=1)
-    print(df.symbol[103])
-    """

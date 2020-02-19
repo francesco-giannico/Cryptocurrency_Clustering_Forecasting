@@ -1,4 +1,7 @@
 from datetime import datetime
+from math import sqrt
+
+import pandas as pd
 
 from modelling.techniques.clustering.distance_measures.distance_measures import main_clustering
 from preparation.preprocessing import preprocessing
@@ -24,8 +27,6 @@ def main():
     #clustering
     # todo calcolo la matrice delle distanze
     main_clustering()
-
-
 
     #todo dynamic time warping
     #compute_distance_matrix("dtw",[],"dtw_allFeatures_noindicators")
