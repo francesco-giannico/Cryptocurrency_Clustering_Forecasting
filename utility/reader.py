@@ -19,7 +19,7 @@ def get_original_crypto_symbols():
     return crypto_symbols
 
 def get_dict_symbol_id():
-    df=pd.read_csv('../modelling/techniques/clustering/symbol_id.csv',sep=",",header=0,index_col=1)
+    df=pd.read_csv('../modelling/techniques/clustering/output/symbol_id.csv',sep=",",header=0,index_col=1)
     return df
 
 """def get_clusters(filename):

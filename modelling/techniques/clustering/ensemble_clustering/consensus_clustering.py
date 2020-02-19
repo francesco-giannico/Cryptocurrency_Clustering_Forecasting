@@ -15,10 +15,9 @@ from pyclustering.samples.definitions import FCPS_SAMPLES
 from pyclustering.utils import read_sample
 import matplotlib.pyplot as plt
 
-PATH_DISTANCE_MATRIX_PARTIAL="../modelling/techniques/clustering/distance_measures/"
-def consensus_clustering(distance_measure):
-    #folder_creator("../modelling/techniques/clustering/"+distance_measure, 0)
-    df = pd.read_csv(PATH_DISTANCE_MATRIX_PARTIAL+distance_measure+"/distance_matrix.csv", delimiter=',', header=None)
+
+def consensus_clustering(distance_measure,PATH_TO_READ):
+    df = pd.read_csv(PATH_TO_READ+"distance_matrix.csv", delimiter=',', header=None)
     sample = df.values
     #number of elements
     N= len(df.columns)
@@ -64,4 +63,4 @@ def consensus_clustering(distance_measure):
         agglomerative_instance.process()
         # Obtain results of clustering
         clusters = agglomerative_instance.get_clusters()
-        save_clusters(clusters,k,distance_measure)
+        save_clusters(clusters,k,PATH_TO_READ)

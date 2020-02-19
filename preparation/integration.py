@@ -4,7 +4,7 @@ import pandas_ta as panda
 
 from utility.folder_creator import folder_creator
 
-PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/final/"
+PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/constructed/normalized/"
 PATH_INTEGRATED_FOLDER="../preparation/preprocessed_dataset/integrated/"
 FEATURE="Adj Close"
 LOOKBACK = [14, 30, 60]

@@ -1,9 +1,7 @@
 from datetime import datetime
 from math import sqrt
-
 import pandas as pd
-
-from modelling.techniques.clustering.distance_measures.distance_measures import main_clustering
+from modelling.techniques.clustering.clustering import clustering
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
 from understanding.exploration import missing_values
@@ -26,7 +24,7 @@ def main():
 
     #clustering
     # todo calcolo la matrice delle distanze
-    main_clustering()
+    clustering("wasserstain",start_date="2018-01-01",end_date="2019-12-31")
 
     #todo dynamic time warping
     #compute_distance_matrix("dtw",[],"dtw_allFeatures_noindicators")

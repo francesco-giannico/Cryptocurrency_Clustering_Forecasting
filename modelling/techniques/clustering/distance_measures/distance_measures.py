@@ -1,48 +1,24 @@
-import os
 import numpy as np
-import pandas as pd
 from dtaidistance import dtw
-from tqdm import tqdm
-from dtaidistance import dtw_visualisation as dtwvis
-from scipy.spatial.distance import euclidean
-from scipy.spatial.distance import minkowski
-import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
 from scipy.spatial.distance import euclidean
-import sys
-
-from modelling.techniques.clustering.consensus_clustering import consensus_clustering
 from modelling.techniques.clustering.distance_measures.coral_distance import CORAL
-from utility.clustering_utils import generate_cryptocurrencies_dictionary
 from utility.cut import cut_dataset_by_range
-from utility.reader import get_dict_symbol_id
 from utility.writer import save_distance_matrix
 from scipy.stats import wasserstein_distance
 
-PATH_NORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/normalized/"
 
-def main_clustering():
-    #todo genero il nuovo crypto_symbols ?
-    #generate_cryptocurrencies_dictionary()
-    #todo read dict symbol
-    #dict_symbol_id= get_dict_symbol_id()
-    #todo genero la nuova distance matrix?
-    #compute_distance_matrix(dict_symbol_id,"wasserstain")
-    #consensus_clustering
-    consensus_clustering("wasserstain")
-
-def compute_distance_matrix(dict_symbol_id,distance_measure):
+def compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,CLUSTERING_PATH):
     dict_length = dict_symbol_id.symbol.count()
     distance_matrix = np.zeros((dict_length,dict_length))
-    #for i in tqdm(range(length)):
     for i in range(dict_length):
-        df = cut_dataset_by_range(PATH_NORMALIZED_FOLDER, dict_symbol_id.symbol[i],
-                                  "2019-01-01", "2019-12-31")
+        df = cut_dataset_by_range(PATH_NORMALIZED_FOLDER, dict_symbol_id.symbol[i],start_date,end_date)
+        df.to_csv(CLUSTERING_PATH+"cut_dataset/"+dict_symbol_id.symbol[i]+".csv",sep=",",index=False)
         df = df.set_index("Date")
         j=i+1
         while (j < dict_length):
-            df1 = cut_dataset_by_range(PATH_NORMALIZED_FOLDER, dict_symbol_id.symbol[j],
-                                      "2019-01-01", "2019-12-31")
+            df1 = cut_dataset_by_range(PATH_NORMALIZED_FOLDER, dict_symbol_id.symbol[j],start_date,end_date)
+            df1.to_csv(CLUSTERING_PATH + "cut_dataset/" + dict_symbol_id.symbol[j] + ".csv", sep=",", index=False)
             print("working on "+ dict_symbol_id.symbol[i] + "-"+ dict_symbol_id.symbol[j])
             df1=df1.set_index("Date")
             if (distance_measure=="dtw"):
@@ -64,13 +40,6 @@ def compute_distance_matrix(dict_symbol_id,distance_measure):
                  # matrice simmetrica
                  distance_matrix[i][j] = ensemble_distance
                  distance_matrix[j][i] = ensemble_distance
-            elif(distance_measure=="euclidean"):
-                distances = []
-                for col in df.columns:
-                    distance1 = euclidean(np.array(df[col].values).squeeze(), np.array(df[col].values).squeeze())
-                    distance2 = dtw.distance(np.array(df[col].values).squeeze(), np.array(df[col].values).squeeze())
-                    print("euclidean "+str(distance1))
-                    print("\n dtw: "+str(distance2))
             elif (distance_measure == "wasserstain"):
                 distances = []
                 for col in df.columns:
@@ -94,8 +63,8 @@ def compute_distance_matrix(dict_symbol_id,distance_measure):
             else:
                 return "Distance measure is not valid"
             j+=1
-    #salvo la matrice
-    save_distance_matrix(distance_matrix,distance_measure)
+    #save the matrix
+    save_distance_matrix(distance_matrix,CLUSTERING_PATH)
 
 
 
