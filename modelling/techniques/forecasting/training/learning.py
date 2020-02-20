@@ -4,9 +4,7 @@ from keras.models import Sequential
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.layers import LSTM, Dropout, Dense
 from keras.optimizers import Adam
-from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import MinMaxScaler
-
 
 def prepare_input_forecasting(path_series, features_to_exclude):
     data = pd.read_csv(path_series, sep=',')
@@ -99,9 +97,6 @@ def train_model(x_train, y_train, x_test, y_test, lstm_neurons, learning_rate, d
                         verbose=0, shuffle=False, callbacks=callbacks)
     return model, history
 
-
-def get_RMSE(y, prediction):
-    return np.math.sqrt(mean_squared_error(y, prediction))
 
 # TODO - hard constraint
 def getNames(path_data, name_columns):

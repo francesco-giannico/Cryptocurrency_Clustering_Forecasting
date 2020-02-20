@@ -4,7 +4,7 @@ from dtaidistance import dtw
 from scipy.stats import pearsonr
 from scipy.spatial.distance import euclidean
 from modelling.techniques.clustering.distance_measures.coral_distance import CORAL
-from utility.cut import cut_dataset_by_range
+from utility.dataset_utils import cut_dataset_by_range
 from utility.writer import save_distance_matrix
 from scipy.stats import wasserstein_distance
 

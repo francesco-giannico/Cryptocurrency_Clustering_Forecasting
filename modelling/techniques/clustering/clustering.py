@@ -1,7 +1,7 @@
 from modelling.techniques.clustering.ensemble_clustering.consensus_clustering import consensus_clustering
 from modelling.techniques.clustering.distance_measures.distance_measures import compute_distance_matrix
 from utility.clustering_utils import generate_cryptocurrencies_dictionary, prepare_dataset_for_clustering
-from utility.cut import cut_dataset_by_range
+from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 from utility.reader import get_dict_symbol_id
 

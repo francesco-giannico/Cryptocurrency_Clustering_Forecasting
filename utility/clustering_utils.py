@@ -1,6 +1,6 @@
 import os
 
-from utility.cut import cut_dataset_by_range
+from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 from utility.reader import get_preprocessed_crypto_symbols, get_dict_symbol_id
 from utility.writer import save_dict_symbol_id

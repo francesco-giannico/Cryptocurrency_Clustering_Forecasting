@@ -5,7 +5,7 @@ from modelling.techniques.clustering.clustering import clustering
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
 from understanding.exploration import missing_values
-from utility.cut import cut_dataset_by_range
+from utility.dataset_utils import cut_dataset_by_range
 
 
 def main():
@@ -24,7 +24,10 @@ def main():
 
     #clustering
     # todo calcolo la matrice delle distanze
-    clustering("wasserstain",start_date="2018-01-01",end_date="2019-12-31")
+    #clustering("wasserstain",start_date="2018-01-01",end_date="2019-12-31")
+
+    #forecasting
+
 
     #todo dynamic time warping
     #compute_distance_matrix("dtw",[],"dtw_allFeatures_noindicators")

@@ -1,6 +1,3 @@
-# We are sure that all stocks series are observed until 15th of January 2019 (2019-01-15)
-# Due to it's useful create a function that takes the starting and ending date
-# and "number_samples" entries choosed randomly
 import pandas as pd
 import random
 import ast
@@ -9,6 +6,9 @@ import calendar, random
 from datetime import datetime
 
 np.random.seed(0)
+# We are sure that all stocks series are observed until 15th of January 2019 (2019-01-15)
+# Due to it's useful create a function that takes the starting and ending date
+# and "number_samples" entries choosed randomly
 
 
 def generate_testset(start, end, output_path, filename_output):
