@@ -3,9 +3,9 @@ import os
 import pandas as pd
 
 fileDir = os.path.dirname(os.path.realpath(__file__))#
-def get_preprocessed_crypto_symbols():
+def get_preprocessed_crypto_symbols(PATH_SOURCE):
     crypto_symbols = []
-    for file in os.listdir("../preparation/preprocessed_dataset/integrated/"):
+    for file in os.listdir(PATH_SOURCE):
         crypto = file.replace(".csv","")
         crypto_symbols.append(crypto)
     return crypto_symbols
@@ -18,8 +18,8 @@ def get_original_crypto_symbols():
     fileToRead.close()
     return crypto_symbols
 
-def get_dict_symbol_id():
-    df=pd.read_csv('../modelling/techniques/clustering/output/symbol_id.csv',sep=",",header=0,index_col=1)
+def get_dict_symbol_id(PATH):
+    df=pd.read_csv(PATH+"symbol_id.csv",sep=",",header=0,index_col=1)
     return df
 
 """def get_clusters(filename):

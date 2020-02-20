@@ -16,8 +16,8 @@ from pyclustering.utils import read_sample
 import matplotlib.pyplot as plt
 
 
-def consensus_clustering(distance_measure,PATH_TO_READ):
-    df = pd.read_csv(PATH_TO_READ+"distance_matrix.csv", delimiter=',', header=None)
+def consensus_clustering(CLUSTERING_PATH):
+    df = pd.read_csv(CLUSTERING_PATH+"distance_matrix.csv", delimiter=',', header=None)
     sample = df.values
     #number of elements
     N= len(df.columns)
@@ -63,4 +63,4 @@ def consensus_clustering(distance_measure,PATH_TO_READ):
         agglomerative_instance.process()
         # Obtain results of clustering
         clusters = agglomerative_instance.get_clusters()
-        save_clusters(clusters,k,PATH_TO_READ)
+        save_clusters(clusters,k,CLUSTERING_PATH)

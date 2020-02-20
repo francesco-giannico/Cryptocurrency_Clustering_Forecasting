@@ -7,3 +7,4 @@ def cut_dataset_by_range(PATH,crypto_symbol,start_date,end_date):
     df1=df.loc[start_date:end_date,:]
     df1 = df1.reset_index()
     return df1
+

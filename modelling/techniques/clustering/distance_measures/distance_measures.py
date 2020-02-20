@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from dtaidistance import dtw
 from scipy.stats import pearsonr
 from scipy.spatial.distance import euclidean
@@ -12,13 +13,11 @@ def compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,
     dict_length = dict_symbol_id.symbol.count()
     distance_matrix = np.zeros((dict_length,dict_length))
     for i in range(dict_length):
-        df = cut_dataset_by_range(PATH_NORMALIZED_FOLDER, dict_symbol_id.symbol[i],start_date,end_date)
-        df.to_csv(CLUSTERING_PATH+"cut_dataset/"+dict_symbol_id.symbol[i]+".csv",sep=",",index=False)
+        df = pd.read_csv(CLUSTERING_PATH+"cut_datasets/"+dict_symbol_id.symbol[i]+".csv", sep=",",header=0)
         df = df.set_index("Date")
         j=i+1
         while (j < dict_length):
-            df1 = cut_dataset_by_range(PATH_NORMALIZED_FOLDER, dict_symbol_id.symbol[j],start_date,end_date)
-            df1.to_csv(CLUSTERING_PATH + "cut_dataset/" + dict_symbol_id.symbol[j] + ".csv", sep=",", index=False)
+            df1 = pd.read_csv(CLUSTERING_PATH + "cut_datasets/" + dict_symbol_id.symbol[j]+".csv", sep=",", header=0)
             print("working on "+ dict_symbol_id.symbol[i] + "-"+ dict_symbol_id.symbol[j])
             df1=df1.set_index("Date")
             if (distance_measure=="dtw"):
