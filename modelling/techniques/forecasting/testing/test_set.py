@@ -10,6 +10,7 @@ np.random.seed(0)
 # It takes the starting and ending date and "number_samples" entries choosed randomly
 
 def generate_testset(start_date, end_date,output_path):
+    file_to_write= open(output_path + start_date + "_" + end_date + ".txt", 'w')
     start=datetime.strptime(start_date, '%Y-%m-%d')
     end=datetime.strptime(end_date, '%Y-%m-%d')
 
@@ -40,9 +41,7 @@ def generate_testset(start_date, end_date,output_path):
             new_year=start.year+1 #find a new date in the next year
         start=start.replace(year=new_year,month=new_month)
 
-    with open(output_path + start_date+"_"+end_date+ ".txt", 'w') as file:
-        file.write(str(test_set))
-    print("Generated test set : " , test_set)
+    file_to_write.write(str(test_set))
     return
 
 def randomdate(year, month):
@@ -59,6 +58,7 @@ def randomdate(year, month):
 def get_testset(path_file):
     with open(path_file) as td:
         file_test_set = td.read()
+    #todo non è detto che serva fare tutto sto macello. Bisogna verificare se il formato restituito da get_tetsset deve per forza essere cosi.
     test_set = ast.literal_eval(file_test_set)
     test_set = np.array(pd.to_datetime(test_set, yearfirst=True))
     return test_set

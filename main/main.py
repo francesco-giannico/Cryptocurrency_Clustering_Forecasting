@@ -3,7 +3,7 @@ from math import sqrt
 import pandas as pd
 from modelling.techniques.clustering.clustering import clustering
 from modelling.techniques.forecasting.single_target import single_target, single_target1
-from modelling.techniques.forecasting.testing.test_set import generate_testset
+from modelling.techniques.forecasting.testing.test_set import generate_testset, get_testset
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
 from understanding.exploration import missing_values
@@ -37,12 +37,11 @@ def main():
     test_start_date = "2019-01-01"
     test_end_date = "2019-12-31"
     #generate_testset(test_start_date, test_end_date,"../modelling/techniques/forecasting/testing/")
-
+    #READING TEST SET
+    TEST_SET=get_testset("../modelling/techniques/forecasting/testing/"+test_start_date+"_"+test_end_date+".txt")
     temporal_sequence_considered = [30, 100, 200]
     number_neurons_LSTM = [128, 256]
     learning_rate = 0.001
-    #todo
-    TEST_SET="soreta"
     EXPERIMENT_PATH="../modelling/techniques/forecasting/output/"+distance_measure+"/"+start_date+"_"+end_date+"/single_target/"
     DATA_PATH="../modelling/techniques/clustering/output/wasserstain/"+start_date+"_"+end_date+"/cut_datasets/"
     TENSOR_DATA_PATH=EXPERIMENT_PATH+"tensor_data"

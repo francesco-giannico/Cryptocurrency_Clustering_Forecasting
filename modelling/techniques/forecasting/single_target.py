@@ -63,12 +63,14 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
             folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name + "/" + configuration_name + "/" + statistics,1)
 
             #starting from the testing set
-            for date in testing_set:
-                print("Training till: ", pd.to_datetime(date))
-                train, test = get_training_testing_set(features, dataset_tensor_format, date)
-                """train = train[:, :, 1:]
-                test = test[:, :, 1:]"""
-
+            for date_to_predict in testing_set:
+                print("Training till: ", pd.to_datetime(date_to_predict))
+                train, test = get_training_testing_set(dataset_tensor_format, date_to_predict)
+                #1) il test set generato forse non ha senso che sia cosi. Rivedilo.
+                #2) continua da qui
+                train = train[:, :, 1:]
+                test = test[:, :, 1:]
+                break
                 """x_train, y_train = train[:, :-1, :], train[:, -1, features_without_date.index('Close')]
                 x_test, y_test = test[:, :-1, :], test[:, -1, features_without_date.index('Close')]
 
@@ -89,6 +91,8 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
                                                              batch_size=256, dimension_last_layer=1, model=model,
                                                              model_path=EXPERIMENT + "/" + MODELS_PATH + "/" + stock_name + "/" + configuration_name + "/" + best_model + "/")
 """
+            break
+        break
 
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, temporal_sequence, number_neurons, learning_rate,
                 testing_set):

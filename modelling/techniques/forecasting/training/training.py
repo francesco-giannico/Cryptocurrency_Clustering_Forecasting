@@ -67,24 +67,26 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
         return lstm_tensor
 
 
-def get_training_testing_set(features, dataset_tensor_format, single_date):
+def get_training_testing_set(dataset_tensor_format, date_to_predict):
     train = []
     test = []
 
+    index_feature_date = 0
     for sample in dataset_tensor_format:
-        candidate = sample[-1, features.index('Date')]
-        print(candidate)
-        break
-        """candidate = pd.to_datetime(candidate)
-        if candidate == pd.to_datetime(single_date):
-            test.append(sample)
-            # print('candidate', candidate, '--> unused', single_date)
-        elif candidate > pd.to_datetime(single_date):
-            pass
-        else:
-            # print('candidate', candidate, '--> TRAIN', single_date)
-            train.append(sample)"""
+        # Candidate is a date: 2018-01-30, for example.
+        # -1 is used in order to reverse the list.
+        candidate = sample[-1,index_feature_date]
+        candidate = pd.to_datetime(candidate)
 
+        #if the candidate date is equal to the date to predict then it will be in test set.
+        if candidate == pd.to_datetime(date_to_predict):
+            test.append(sample)
+        #if the candidate date is after the date to predict then ignore it.
+        elif candidate > pd.to_datetime(date_to_predict):
+            pass
+        #otherwise,it will be in the training set
+        else:
+            train.append(sample)
     return np.array(train), np.array(test)
 
 
