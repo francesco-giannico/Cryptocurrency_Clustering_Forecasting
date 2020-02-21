@@ -2,6 +2,8 @@ import os
 from itertools import product
 import numpy as np
 import pandas as pd
+from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor
+from utility.folder_creator import folder_creator
 
 np.random.seed(0)
 
@@ -11,36 +13,68 @@ np.random.seed(0)
 # number_neurons_LSTM = [128, 256]
 # features_to_exclude_from_scaling = ['Symbol']
 
-def single_target(EXPERIMENT, DATA_PATH, TENSOR_DATA_PATH, temporal_sequence, number_neurons, learning_rate,
-                  features_to_exclude_from_scaling, testing_set):
-    MODELS_PATH="Models"
+PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
+def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, number_neurons, learning_rate,
+                   testing_set):
+    #################### FOLDER SETUP ####################
+    MODELS_PATH = "models"
+    RESULT_PATH = "result"
+    REPORT_FOLDER_NAME = "report"
+
+    for crypto in os.listdir(DATA_PATH):
+        crypto_name = crypto.replace(".csv", "")
+
+        # create a folder for data
+        folder_creator(TENSOR_DATA_PATH + "/" + crypto_name,1)
+        # create a folder for results
+        folder_creator(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name, 1)
+        folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 1)
+
+        dataset, features, features_without_date, df1=  \
+            prepare_input_forecasting(PREPROCESSED_PATH,DATA_PATH,crypto)
+        """print(dataset['Close'].head())
+        print(scaler_target_feature['Close'].head())"""
+        #print(list(product(temporal_sequence, number_neurons)))
+        #[(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
+        #print(np.array(dataset)[0])#prendo l a prima riga del dataset (2018-... bla bla bal)
+        for window, neurons in product(window_sequence, number_neurons):
+            print("Crypto_symbol", "\t", "Window_sequence", "\t", "Neurons")
+            print(crypto, "\t","\t", window, "\t","\t", neurons)
+            #non prende in input i neuroni questo.
+            dataset_tensor = fromtemporal_totensor(np.array(dataset), window,
+                                                   TENSOR_DATA_PATH + "/" + crypto_name + "/",
+                                                   crypto_name)
+            break
+        break
+
+
+
+
+def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, temporal_sequence, number_neurons, learning_rate,
+                testing_set):
+    #################### FOLDER SETUP ####################
+    MODELS_PATH = "Models"
     RESULT_PATH = "Result"
     REPORT_FOLDER_NAME = "Report"
 
+    """os.makdirs(EXPERIMENT_PATH)
+    #os.makedirs(TENSOR_DATA_PATH, exist_ok=True)
+    os.mkdir(EXPERIMENT_PATH + "/" + RESULT_PATH)
+    os.mkdir(EXPERIMENT_PATH + "/" + MODELS_PATH)"""
+
     cryptos = os.listdir(DATA_PATH)
-
-    # Create Structure of Folder - according to defined path
-    """os.mkdir(EXPERIMENT)
-    os.makedirs(TENSOR_DATA_PATH, exist_ok=True)
-
-    os.mkdir(EXPERIMENT + "/" + RESULT_PATH)
-    os.mkdir(EXPERIMENT + "/" + MODELS_PATH)"""
     for crypto in cryptos:
-        #if DATA_PATH == "../crypto_preprocessing/step1_indicators/":
-            # stock_name = s.replace("_normalized.csv", "")
-        #    stock_name = s.replace("_with_indicators.csv", "")
-        #else:
         crypto_name = crypto.replace(".csv", "")
         # for each crypto
         # create a folder for data
         os.makedirs(TENSOR_DATA_PATH + "/" + crypto_name, exist_ok=True)
         # create a folder for results
-        os.mkdir(EXPERIMENT + "/" + MODELS_PATH + "/" + crypto_name)
-        os.mkdir(EXPERIMENT + "/" + RESULT_PATH + "/" + crypto_name)
+        os.makedirs(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name)
+        os.makedirs(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name)
 
         #QUI PREPARA INPUT PER IL FORECASTING
         data_compliant, features, features_without_date, scaler = \
-            prepare_input_forecasting(DATA_PATH + "/" + crypto,features_to_exclude_from_scaling)
+            prepare_input_forecasting(DATA_PATH + "/" + crypto)
 
         for temporal, neurons in product(temporal_sequence, number_neurons):
             print(crypto, "\t", temporal, "\t", neurons)
@@ -49,7 +83,7 @@ def single_target(EXPERIMENT, DATA_PATH, TENSOR_DATA_PATH, temporal_sequence, nu
                                                                crypto_name)
 
 
-            # Dict for statistics
+            # DIZIONARIO PER STATISTICHE
             predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
                                 'observed_denorm': [],
                                 'predicted_denorm': []}

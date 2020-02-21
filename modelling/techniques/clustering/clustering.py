@@ -17,11 +17,8 @@ def clustering(distance_measure,start_date,end_date):
     consensus_clustering(CLUSTERING_PATH)
 
 def folder_setup(distance_measure,start_date,end_date):
-    PARTIAL_PATH = "../modelling/techniques/clustering/output/"
-    INT_PATH = PARTIAL_PATH + distance_measure + "/"
-    FINAL_PATH = PARTIAL_PATH + distance_measure + "/" + start_date + "_" + end_date + "/"
-    folder_creator(PARTIAL_PATH, 0)
-    folder_creator(INT_PATH, 0)
-    folder_creator(FINAL_PATH, 1)
-    folder_creator(FINAL_PATH + "cut_datasets/", 1)
-    return FINAL_PATH
+    PARTIAL_PATH = \
+        "../modelling/techniques/clustering/output/"+ distance_measure + "/" + start_date + "_" + end_date + "/"
+    folder_creator(PARTIAL_PATH, 1)
+    folder_creator(PARTIAL_PATH + "cut_datasets/", 1)
+    return PARTIAL_PATH
