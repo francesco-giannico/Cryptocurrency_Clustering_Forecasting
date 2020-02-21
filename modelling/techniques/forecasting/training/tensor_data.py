@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 
-from utility.forecasting_utils import fromtemporal_totensor, prepare_input_forecasting
+from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor
 
 
 def generate_tensor_data(path, TENSOR_PATH, temporal_sequence_considered, MultiFeaturesToExclude):

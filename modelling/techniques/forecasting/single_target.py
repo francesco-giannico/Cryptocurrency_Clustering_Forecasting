@@ -2,7 +2,9 @@ import os
 from itertools import product
 import numpy as np
 import pandas as pd
-from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor
+
+from modelling.techniques.forecasting.testing.test_set import generate_testset
+from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor,get_training_testing_set
 from utility.folder_creator import folder_creator
 
 np.random.seed(0)
@@ -16,6 +18,7 @@ np.random.seed(0)
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
 def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, number_neurons, learning_rate,
                    testing_set):
+
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
@@ -24,8 +27,8 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
     for crypto in os.listdir(DATA_PATH):
         crypto_name = crypto.replace(".csv", "")
 
-        # create a folder for data
-        folder_creator(TENSOR_DATA_PATH + "/" + crypto_name,1)
+        # create a folder for data in tensor format
+        folder_creator(TENSOR_DATA_PATH + "/" + crypto_name,0)
         # create a folder for results
         folder_creator(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name, 1)
         folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 1)
@@ -41,14 +44,51 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
             print("Crypto_symbol", "\t", "Window_sequence", "\t", "Neurons")
             print(crypto, "\t","\t", window, "\t","\t", neurons)
             #non prende in input i neuroni questo.
-            dataset_tensor = fromtemporal_totensor(np.array(dataset), window,
+            dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                    TENSOR_DATA_PATH + "/" + crypto_name + "/",
                                                    crypto_name)
-            break
-        break
+            # DICTIONARY FOR STATISTICS
+            predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
+                                'observed_denorm': [],'predicted_denorm': []}
+            errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}
 
+            # define a name for this configuration
+            configuration_name = "LSTM_" + str(neurons) + "_neurons_" + str(window) + "_days"
+            # Create a folder to save
+            # - best model checkpoint
+            # - statistics (results)
+            best_model = "model"
+            statistics = "stats"
+            folder_creator(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name + "/" + configuration_name + "/" + best_model,1)
+            folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name + "/" + configuration_name + "/" + statistics,1)
 
+            #starting from the testing set
+            for date in testing_set:
+                print("Training till: ", pd.to_datetime(date))
+                train, test = get_training_testing_set(features, dataset_tensor_format, date)
+                """train = train[:, :, 1:]
+                test = test[:, :, 1:]"""
 
+                """x_train, y_train = train[:, :-1, :], train[:, -1, features_without_date.index('Close')]
+                x_test, y_test = test[:, :-1, :], test[:, -1, features_without_date.index('Close')]
+
+                # Fare il training
+                if data_tester == testing_set[0]:
+                    model, history = experiments.train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
+                                                             learning_rate=learning_rate,
+                                                             dropout=0.2,
+                                                             epochs=100,
+                                                             batch_size=256,
+                                                             dimension_last_layer=1,
+                                                             model_path=EXPERIMENT + "/" + MODELS_PATH + "/" + stock_name + "/" + configuration_name + "/" + best_model + "/")
+                else:
+                    model, history = experiments.train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
+                                                             learning_rate=learning_rate,
+                                                             dropout=0.2,
+                                                             epochs=100,
+                                                             batch_size=256, dimension_last_layer=1, model=model,
+                                                             model_path=EXPERIMENT + "/" + MODELS_PATH + "/" + stock_name + "/" + configuration_name + "/" + best_model + "/")
+"""
 
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, temporal_sequence, number_neurons, learning_rate,
                 testing_set):
@@ -145,9 +185,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, temporal_sequenc
                 predictions_file['predicted_norm'].append(test_prediction)
                 predictions_file['observed_denorm'].append(y_test_denorm)
                 predictions_file['predicted_denorm'].append(test_prediction_denorm)
-
-
-
 
 
             errors_file['symbol'].append(stock_name)

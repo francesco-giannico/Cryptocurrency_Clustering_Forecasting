@@ -3,6 +3,7 @@ from math import sqrt
 import pandas as pd
 from modelling.techniques.clustering.clustering import clustering
 from modelling.techniques.forecasting.single_target import single_target, single_target1
+from modelling.techniques.forecasting.testing.test_set import generate_testset
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
 from understanding.exploration import missing_values
@@ -31,6 +32,12 @@ def main():
     #clustering("wasserstain",start_date="2018-01-01",end_date="2019-12-31")
 
     #forecasting
+
+    # GENERATING TESTING SET
+    test_start_date = "2019-01-01"
+    test_end_date = "2019-12-31"
+    #generate_testset(test_start_date, test_end_date,"../modelling/techniques/forecasting/testing/")
+
     temporal_sequence_considered = [30, 100, 200]
     number_neurons_LSTM = [128, 256]
     learning_rate = 0.001

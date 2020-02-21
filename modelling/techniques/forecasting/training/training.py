@@ -67,14 +67,15 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
         return lstm_tensor
 
 
-def train_test_split_w_date(features, dataset_tensor_version, single_date):
+def get_training_testing_set(features, dataset_tensor_format, single_date):
     train = []
     test = []
 
-    for sample in dataset_tensor_version:
-        candidate = sample[-1, features.index('DateTime')]
-        # print(candidate)
-        candidate = pd.to_datetime(candidate)
+    for sample in dataset_tensor_format:
+        candidate = sample[-1, features.index('Date')]
+        print(candidate)
+        break
+        """candidate = pd.to_datetime(candidate)
         if candidate == pd.to_datetime(single_date):
             test.append(sample)
             # print('candidate', candidate, '--> unused', single_date)
@@ -82,7 +83,7 @@ def train_test_split_w_date(features, dataset_tensor_version, single_date):
             pass
         else:
             # print('candidate', candidate, '--> TRAIN', single_date)
-            train.append(sample)
+            train.append(sample)"""
 
     return np.array(train), np.array(test)
 
