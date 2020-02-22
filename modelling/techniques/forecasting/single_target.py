@@ -64,18 +64,48 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
 
             #starting from the testing set
             for date_to_predict in testing_set:
+                #todo-balla, in realtà addestro fino a 2 giorni prima della data da predire.
                 print("Training till: ", pd.to_datetime(date_to_predict))
+                """the format of train and test is the following one:
+                 [
+                    [[items],[items]],
+                    [[items],[items]],
+                    ....
+                    [[items],[items]],
+                 ]
+                thus for element accessing there are the following three indexes:
+                  1)e.g [[items],[items]]
+                  2)e.g [items],[items]
+                  3)e.g items
+                """
                 train, test = get_training_testing_set(dataset_tensor_format, date_to_predict)
-                #1) il test set generato forse non ha senso che sia cosi. Rivedilo.
-                #2) continua da qui
+                #todo il test set generato forse non ha senso che sia cosi. Rivedilo.
+
+                # ['2018-01-01' other numbers separated by comma],it removes the date.
                 train = train[:, :, 1:]
                 test = test[:, :, 1:]
-                break
-                """x_train, y_train = train[:, :-1, :], train[:, -1, features_without_date.index('Close')]
-                x_test, y_test = test[:, :-1, :], test[:, -1, features_without_date.index('Close')]
 
-                # Fare il training
-                if data_tester == testing_set[0]:
+                index_of_feature_close=features_without_date.index('Close')
+                #remove the last day before the day to predict:
+                #e.g date to predict 2019-01-07 thus the data about 2019-01-06 will be discarded.
+                #e.g [[items],[items2],[items3]] becames [[items1],[items2]]
+                x_train= train[:, :-1, :]
+                # remove the last day before the day to predict, by doing -1
+                # returns an array with all the values of the feature close
+                y_train =train[:, -1,  index_of_feature_close]
+
+                # NOTE: in the testing set we must have the dates to evaluate the experiment without the date to forecast!!!
+                # remove the day to predict
+                # e.g date to predict 2019-01-07 thus the data about 2019-01-07 will be discarded.
+                # e.g [[items],[items2],[items3]] becames [[items1],[items2]]
+                x_test = test[:, :-1, :]
+                # remove the last day before the day to predict, by doing -1
+                # returns an array with all the values of the feature close to predict!
+                y_test = test[:, -1, index_of_feature_close]
+
+                break
+                # Does the training
+                """if data_tester == testing_set[0]:
                     model, history = experiments.train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
                                                              learning_rate=learning_rate,
                                                              dropout=0.2,
