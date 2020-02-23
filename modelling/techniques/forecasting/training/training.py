@@ -1,12 +1,7 @@
 import numpy as np
 import pandas as pd
-
+import tensorflow as tf
 from utility.dataset_utils import cut_dataset_by_range
-
-"""from keras.models import Sequential
-from keras.callbacks import EarlyStopping, ModelCheckpoint
-from keras.layers import LSTM, Dropout, Dense
-from keras.optimizers import Adam"""
 from sklearn.preprocessing import MinMaxScaler
 
 
@@ -92,22 +87,21 @@ def get_training_testing_set(dataset_tensor_format, date_to_predict):
 
 def train_model(x_train, y_train, x_test, y_test, lstm_neurons, learning_rate, dropout, epochs, batch_size, dimension_last_layer,
                 model_path='', model=None):
+
     callbacks = [
-        # Early stopping sul train o validation set? pperche qui sara' allenato su un solo esempio di unused,
-        # quindi converrebbe controllare la train_loss (loss)
-        EarlyStopping(monitor='loss', patience=4),
-        ModelCheckpoint(
-            # lo stesso qui, modificato il monitor da val_loss a loss (?)
+        tf.keras.callbacks.EarlyStopping(monitor='loss', patience=4),
+        tf.keras.callbacks.ModelCheckpoint(
             monitor='loss', save_best_only=True,
             filepath=model_path + 'lstm_neur{}-do{}-ep{}-bs{}.h5'.format(
                 lstm_neurons, dropout, epochs, batch_size))
     ]
+
     if model is None:
-        model = Sequential()
-        model.add(LSTM(lstm_neurons, input_shape=(x_train.shape[1], x_train.shape[2])))
-        model.add(Dropout(dropout))
-        model.add(Dense(dimension_last_layer))
-        adam=Adam(lr=learning_rate)
+        model = tf.keras.Sequential()
+        model.add(tf.keras.layers.LSTM(lstm_neurons, input_shape=(x_train.shape[1], x_train.shape[2])))
+        model.add(tf.keras.layers.Dropout(dropout))
+        model.add( tf.keras.layers.Dense(dimension_last_layer))
+        adam=tf.keras.optimizers.Adam(learning_rate=learning_rate)
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['acc', 'mae'])
 
     history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),

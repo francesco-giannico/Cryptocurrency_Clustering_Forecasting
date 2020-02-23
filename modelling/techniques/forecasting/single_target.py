@@ -4,7 +4,8 @@ import numpy as np
 import pandas as pd
 
 from modelling.techniques.forecasting.testing.test_set import generate_testset
-from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor,get_training_testing_set
+from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
+    get_training_testing_set, train_model
 from utility.folder_creator import folder_creator
 
 np.random.seed(0)
@@ -103,24 +104,23 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
                 # returns an array with all the values of the feature close to predict!
                 y_test = test[:, -1, index_of_feature_close]
 
-                break
-                # Does the training
-                """if data_tester == testing_set[0]:
-                    model, history = experiments.train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
+                #if the date to predict is the first date in the testing_set
+                MODEL_PATH=EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name + "/" + configuration_name + "/" + best_model + "/"
+                if date_to_predict == testing_set[0]:
+                    model, history = train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
                                                              learning_rate=learning_rate,
                                                              dropout=0.2,
                                                              epochs=100,
                                                              batch_size=256,
                                                              dimension_last_layer=1,
-                                                             model_path=EXPERIMENT + "/" + MODELS_PATH + "/" + stock_name + "/" + configuration_name + "/" + best_model + "/")
+                                                             model_path=MODEL_PATH)
                 else:
-                    model, history = experiments.train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
+                    model, history = train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
                                                              learning_rate=learning_rate,
                                                              dropout=0.2,
                                                              epochs=100,
                                                              batch_size=256, dimension_last_layer=1, model=model,
-                                                             model_path=EXPERIMENT + "/" + MODELS_PATH + "/" + stock_name + "/" + configuration_name + "/" + best_model + "/")
-"""
+                                                             model_path=MODEL_PATH)
             break
         break
 
