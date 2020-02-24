@@ -17,7 +17,7 @@ np.random.seed(0)
 # features_to_exclude_from_scaling = ['Symbol']
 
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
-def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, number_neurons, learning_rate,
+def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, num_neurons, learning_rate,
                    testing_set):
 
     #################### FOLDER SETUP ####################
@@ -41,9 +41,9 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
         #print(list(product(temporal_sequence, number_neurons)))
         #[(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
         #print(np.array(dataset)[0])#prendo l a prima riga del dataset (2018-... bla bla bal)
-        for window, neurons in product(window_sequence, number_neurons):
+        for window, num_neurons in product(window_sequence, num_neurons):
             print("Crypto_symbol", "\t", "Window_sequence", "\t", "Neurons")
-            print(crypto, "\t","\t", window, "\t","\t", neurons)
+            print(crypto, "\t","\t", window, "\t","\t", num_neurons)
             #non prende in input i neuroni questo.
             dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                    TENSOR_DATA_PATH + "/" + crypto_name + "/",
@@ -54,7 +54,7 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
             errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}
 
             # define a name for this configuration
-            configuration_name = "LSTM_" + str(neurons) + "_neurons_" + str(window) + "_days"
+            configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
             # Create a folder to save
             # - best model checkpoint
             # - statistics (results)
@@ -104,8 +104,6 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
                 # returns an array with all the values of the feature close to predict!
                 y_test = test[:, -1, index_of_feature_close]
 
-
-
                 # change the data type, from object to float
                 x_train = x_train.astype('float')
                 y_train = y_train.astype('float')
@@ -116,13 +114,14 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
                 #if the date to predict is the first date in the testing_set
                 MODEL_PATH=EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name + "/" + configuration_name + "/" + best_model + "/"
                 if date_to_predict == testing_set[0]:
-                    model, history = train_model(x_train,y_train,x_test,y_test, lstm_neurons=neurons,
+                    model, history = train_model(x_train,y_train,x_test,y_test, num_neurons=num_neurons,
                                                              learning_rate=learning_rate,
                                                              dropout=0.2,
                                                              epochs=100,
-                                                             batch_size=256,
+                                                             batch_size=500,
                                                              dimension_last_layer=1,
                                                              model_path=MODEL_PATH)
+                break
                 """else:
                     model, history = train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
                                                              learning_rate=learning_rate,

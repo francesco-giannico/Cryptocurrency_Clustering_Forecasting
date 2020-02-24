@@ -34,13 +34,13 @@ def main():
     #forecasting
 
     # GENERATING TESTING SET
-    test_start_date = "2019-01-01"
+    test_start_date = "2019-07-01"
     test_end_date = "2019-12-31"
     #generate_testset(test_start_date, test_end_date,"../modelling/techniques/forecasting/testing/")
     #READING TEST SET
     TEST_SET=get_testset("../modelling/techniques/forecasting/testing/"+test_start_date+"_"+test_end_date+".txt")
-    temporal_sequence_considered = [30, 100, 200]
-    number_neurons_LSTM = [128, 256]
+    temporal_sequence_considered = [30,100,200]
+    number_neurons_LSTM = [128,256]
     learning_rate = 0.001
     EXPERIMENT_PATH="../modelling/techniques/forecasting/output/"+distance_measure+"/"+start_date+"_"+end_date+"/single_target/"
     DATA_PATH="../modelling/techniques/clustering/output/wasserstain/"+start_date+"_"+end_date+"/cut_datasets/"
@@ -49,7 +49,7 @@ def main():
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequence_considered,
-                  number_neurons=number_neurons_LSTM, learning_rate=learning_rate,
+                  num_neurons=number_neurons_LSTM, learning_rate=learning_rate,
                   testing_set=TEST_SET
                   )
     #todo dynamic time warping

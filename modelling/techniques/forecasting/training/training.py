@@ -1,8 +1,16 @@
 import numpy as np
 import pandas as pd
-import tensorflow as tf
-from utility.dataset_utils import cut_dataset_by_range
+from pandas import DataFrame
+
 from sklearn.preprocessing import MinMaxScaler
+
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import Sequential
+from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
+from tensorflow.keras.layers import LSTM,Dropout,Dense
+
+from tensorflow.keras.utils import plot_model
+import matplotlib.pyplot as plt
 
 
 def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto):
@@ -39,9 +47,10 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
         return lstm_tensor
     except FileNotFoundError as e:
         print('LSTM version not found. Creating..')
-        # an array in this format: [[array1,array2,array3,ecc..]]
+        # an array in this format: [ [[items],[items]], [[items],[items]],.....]
         # -num of rows: window_considered
         # -num of columns: "dataset.shape[1]"
+        # 1 is the number of elements in
         lstm_tensor = np.zeros((1, window_considered, dataset.shape[1]))
         # for i between 0 to (num of elements in original array - window + 1)
         for i in range(dataset.shape[0] - window_considered + 1):
@@ -74,6 +83,8 @@ def get_training_testing_set(dataset_tensor_format, date_to_predict):
         candidate = pd.to_datetime(candidate)
 
         #if the candidate date is equal to the date to predict then it will be in test set.
+        #it happens just one time for each date to predict.
+        #Test will be: [[items]] in which the items goes N(30,100,200) days before the date to predict.
         if candidate == pd.to_datetime(date_to_predict):
             test.append(sample)
         #if the candidate date is after the date to predict then ignore it.
@@ -85,25 +96,70 @@ def get_training_testing_set(dataset_tensor_format, date_to_predict):
     return np.array(train), np.array(test)
 
 
-def train_model(x_train, y_train, x_test, y_test, lstm_neurons, learning_rate, dropout, epochs, batch_size, dimension_last_layer,
+
+def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dropout, epochs, batch_size, dimension_last_layer,
                 model_path='', model=None):
 
     callbacks = [
-        tf.keras.callbacks.EarlyStopping(monitor='loss', patience=4),
-        tf.keras.callbacks.ModelCheckpoint(
+        EarlyStopping(monitor='loss', patience=4),
+        ModelCheckpoint(
             monitor='loss', save_best_only=True,
             filepath=model_path + 'lstm_neur{}-do{}-ep{}-bs{}.h5'.format(
-                lstm_neurons, dropout, epochs, batch_size))
+                num_neurons, dropout, epochs, batch_size))
     ]
 
-    if model is None:
-        model = tf.keras.Sequential()
-        model.add(tf.keras.layers.LSTM(lstm_neurons, input_shape=(x_train.shape[1], x_train.shape[2])))
-        model.add(tf.keras.layers.Dropout(dropout))
-        model.add( tf.keras.layers.Dense(dimension_last_layer))
-        adam=tf.keras.optimizers.Adam(learning_rate=learning_rate)
-        model.compile(loss='mean_squared_error', optimizer=adam, metrics=['acc', 'mae'])
 
-    history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
-                        verbose=0, shuffle=False, callbacks=callbacks)
+    if model is None:
+        # collect data across multiple repeats
+        train = DataFrame()
+        val = DataFrame()
+        for i in range(5):
+            model = Sequential()
+            # Add a LSTM layer with 128/256 internal units.
+            model.add(LSTM(num_neurons, input_shape=(x_train.shape[1], x_train.shape[2])))
+            #reduce the overfitting
+            model.add(Dropout(dropout))
+            #number of neurons of the last layer
+            model.add(Dense(dimension_last_layer))
+            #optimizer
+            adam=Adam(learning_rate=learning_rate)
+            #print(model.summary())
+            model.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy', 'mae'])
+            history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
+                                verbose=0, shuffle=False, callbacks=callbacks,use_multiprocessing=True)
+
+            train[str(i)] = pd.Series(history.history['loss'])
+            val[str(i)] = pd.Series(history.history['val_loss'])
+
+
+        # plot train and validation loss across multiple runs
+        plt.plot(train, color='blue', label='train')
+        plt.plot(val, color='orange', label='validation')
+        plt.title('model train vs validation loss')
+        plt.ylabel('loss')
+        plt.xlabel('epoch')
+        plt.show()
+
+    """plot_model(model, to_file='../modelling/techniques/forecasting/model.png', show_shapes=True,
+        show_layer_names=True,expand_nested=True, dpi=150)
+
+    # Plot training & validation accuracy values
+    plt.plot(history.history['accuracy'])
+    plt.plot(history.history['val_acc'])
+
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.show()
+
+    # Plot training & validation loss values
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.show()"""
+
     return model, history
