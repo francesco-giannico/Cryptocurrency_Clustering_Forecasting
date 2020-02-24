@@ -2,7 +2,7 @@ import os
 from itertools import product
 import numpy as np
 import pandas as pd
-
+import tensorflow as tf
 from modelling.techniques.forecasting.testing.test_set import generate_testset
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
     get_training_testing_set, train_model
@@ -104,23 +104,32 @@ def single_target1(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence
                 # returns an array with all the values of the feature close to predict!
                 y_test = test[:, -1, index_of_feature_close]
 
+
+
+                # change the data type, from object to float
+                x_train = x_train.astype('float')
+                y_train = y_train.astype('float')
+                x_test = x_test.astype('float')
+                y_test = y_test.astype('float')
+
+                #x_train= tf.convert_to_tensor(x_train, np.float32)
                 #if the date to predict is the first date in the testing_set
                 MODEL_PATH=EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name + "/" + configuration_name + "/" + best_model + "/"
                 if date_to_predict == testing_set[0]:
-                    model, history = train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
+                    model, history = train_model(x_train,y_train,x_test,y_test, lstm_neurons=neurons,
                                                              learning_rate=learning_rate,
                                                              dropout=0.2,
                                                              epochs=100,
                                                              batch_size=256,
                                                              dimension_last_layer=1,
                                                              model_path=MODEL_PATH)
-                else:
+                """else:
                     model, history = train_model(x_train, y_train, x_test, y_test, lstm_neurons=neurons,
                                                              learning_rate=learning_rate,
                                                              dropout=0.2,
                                                              epochs=100,
                                                              batch_size=256, dimension_last_layer=1, model=model,
-                                                             model_path=MODEL_PATH)
+                                                             model_path=MODEL_PATH)"""
             break
         break
 
