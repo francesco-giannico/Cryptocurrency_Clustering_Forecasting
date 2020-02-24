@@ -14,10 +14,6 @@ import matplotlib.pyplot as plt
 
 
 def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto):
-    # il dataset è quello che hai letto.
-    # le features sono quelle che sono inclusa la data
-    # le features senza data le ottieni in due secondi
-    # la target feature scalata la ottieni facilmente, basta estrarla facendo solo "fit".
     df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto, sep=',',header=0)
     df1 = pd.read_csv(PREPROCESSED_PATH + crypto, sep=',', header=0)
     #cut_dataset_by_range(PATH_SOURCE, crypto.replace(".csv",""), start_date, end_date)
@@ -27,12 +23,12 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto):
 
     scaler_target_feature = MinMaxScaler()
     #scaling solo della colonna "close"
-    #scaler_target_feature.fit(df.loc[:, [col for col in df.columns if col.startswith('Close')]])
-    scaled=scaler_target_feature.fit_transform(df1["Close"].values.reshape(-1,1))
-    df1['Close']=scaled.reshape(-1)
+    scaler_target_feature.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
+    #scaled=scaler_target_feature.fit_transform(df1["Close"].values.reshape(-1,1))
+    #df1['Close']=scaled.reshape(-1)
     # scaler di tutte le features tranne "date"
     #df.loc[:, df.columns != 'Date'] = scaler.fit_transform(df.loc[:, df.columns != 'Date'])
-    return df,df.columns,features_without_date, df1
+    return df,df.columns,features_without_date, scaler_target_feature
 
 
 def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
@@ -43,7 +39,7 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
         #allow_pickle=True else: Object arrays cannot be loaded when allow_pickle=False
         file_path=output_path + "/crypto_TensorFormat_" + output_name + "_" + str(window_considered) + '.npy'
         lstm_tensor = np.load(file_path,allow_pickle=True)
-        print('LSTM Version found!')
+        print('(LSTM Version found!)')
         return lstm_tensor
     except FileNotFoundError as e:
         print('LSTM version not found. Creating..')
@@ -108,7 +104,6 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
                 num_neurons, dropout, epochs, batch_size))
     ]
 
-
     if model is None:
         # collect data across multiple repeats
         train = DataFrame()
@@ -131,7 +126,6 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
             train[str(i)] = pd.Series(history.history['loss'])
             val[str(i)] = pd.Series(history.history['val_loss'])
 
-
         # plot train and validation loss across multiple runs
         plt.plot(train, color='blue', label='train')
         plt.plot(val, color='orange', label='validation')
@@ -139,7 +133,9 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         plt.ylabel('loss')
         plt.xlabel('epoch')
         plt.show()
-
+    else:
+        history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
+                            verbose=0, shuffle=False, callbacks=callbacks, use_multiprocessing=True)
     """plot_model(model, to_file='../modelling/techniques/forecasting/model.png', show_shapes=True,
         show_layer_names=True,expand_nested=True, dpi=150)
 
@@ -161,5 +157,4 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Test'], loc='upper left')
     plt.show()"""
-
     return model, history

@@ -31,7 +31,8 @@ def generate_testset(start_date, end_date,output_path):
             random_day=random_day.replace(day=end.day)
 
         #adding the random day to the list
-        test_set.append(str(random_day))
+        file_to_write.write(str(random_day)+"\n")
+        #test_set.append(str(random_day))
 
         #update the new start date and end date (it generates a date per months!)
         new_year=start.year
@@ -41,7 +42,8 @@ def generate_testset(start_date, end_date,output_path):
             new_year=start.year+1 #find a new date in the next year
         start=start.replace(year=new_year,month=new_month)
 
-    file_to_write.write(str(test_set))
+    #file_to_write.write(str(test_set))
+    file_to_write.close()
     return
 
 def randomdate(year, month):
@@ -54,11 +56,12 @@ def randomdate(year, month):
     return random.choice(dates_of_the_month)
 
 
-#it reads the test set
 def get_testset(path_file):
+    test_set=[]
     with open(path_file) as td:
-        file_test_set = td.read()
-    #todo non è detto che serva fare tutto sto macello. Bisogna verificare se il formato restituito da get_tetsset deve per forza essere cosi.
-    test_set = ast.literal_eval(file_test_set)
-    test_set = np.array(pd.to_datetime(test_set, yearfirst=True))
+        test_dates= td.readlines()
+
+    for test_date in test_dates:
+        test_set.append(pd.to_datetime(test_date, yearfirst=True))
+
     return test_set
