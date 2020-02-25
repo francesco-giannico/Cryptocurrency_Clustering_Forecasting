@@ -3,31 +3,32 @@ import pandas as pd
 from pandas import DataFrame
 
 from sklearn.preprocessing import MinMaxScaler
-
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
 from tensorflow.keras.layers import LSTM,Dropout,Dense
 
-from tensorflow.keras.utils import plot_model
 import matplotlib.pyplot as plt
+from utility.dataset_utils import cut_dataset_by_range
 
 
 def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto):
+    #already normalized
     df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto, sep=',',header=0)
-    df1 = pd.read_csv(PREPROCESSED_PATH + crypto, sep=',', header=0)
-    #cut_dataset_by_range(PATH_SOURCE, crypto.replace(".csv",""), start_date, end_date)
-    #select only the valid features
-    #valid_features = [feature for feature in df.columns if feature not in features_to_exclude]
-    features_without_date = [feature for feature in df.columns if feature!="Date"]
+    df=df.set_index("Date")
+    start_date=df.index[0]
+    end_date=df.index[len(df.index)-1]
 
+    #read not normalized
+    df1=cut_dataset_by_range(PREPROCESSED_PATH, crypto.replace(".csv",""), start_date, end_date)
     scaler_target_feature = MinMaxScaler()
-    #scaling solo della colonna "close"
+    #save the parameters for the trasformation or the inverse_transformation for the feature "close"
     scaler_target_feature.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
-    #scaled=scaler_target_feature.fit_transform(df1["Close"].values.reshape(-1,1))
-    #df1['Close']=scaled.reshape(-1)
-    # scaler di tutte le features tranne "date"
-    #df.loc[:, df.columns != 'Date'] = scaler.fit_transform(df.loc[:, df.columns != 'Date'])
+
+    df = df.reset_index()
+    #exlude the feature "date"
+    features_without_date = [feature for feature in df.columns if feature != "Date"]
+
     return df,df.columns,features_without_date, scaler_target_feature
 
 
@@ -53,11 +54,11 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
             #note (i:i + window_considered) is the rows selection.
             element=dataset[i:i + window_considered, :].reshape(1, window_considered, dataset.shape[1])
             lstm_tensor = np.append(lstm_tensor, element,axis=0)#axis 0 in order to appen on rows
-        #easy explanation:
-            """i:0-701 (730-30+1)
-               i=0; => from day 0 + 30 days 
-               i=1 => from day 1 + 30 days 
-                """
+        """easy explanation through example:
+           i:0-701 (730-30+1)
+           i=0; => from day 0 + 30 days 
+           i=1 => from day 1 + 30 days 
+        """
         #serialization
         output_path += "/crypto_"
         name_tensor = 'TensorFormat_' + output_name + '_' + str(window_considered)
@@ -106,55 +107,35 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
 
     if model is None:
         # collect data across multiple repeats
-        train = DataFrame()
-        val = DataFrame()
-        for i in range(5):
-            model = Sequential()
-            # Add a LSTM layer with 128/256 internal units.
-            model.add(LSTM(num_neurons, input_shape=(x_train.shape[1], x_train.shape[2])))
-            #reduce the overfitting
-            model.add(Dropout(dropout))
-            #number of neurons of the last layer
-            model.add(Dense(dimension_last_layer))
-            #optimizer
-            adam=Adam(learning_rate=learning_rate)
-            #print(model.summary())
-            model.compile(loss='mean_squared_error', optimizer=adam, metrics=['accuracy', 'mae'])
-            history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
-                                verbose=0, shuffle=False, callbacks=callbacks,use_multiprocessing=True)
+        #train = DataFrame()
+        #val = DataFrame()
+        #for i in range(5):
+        model = Sequential()
+        # Add a LSTM layer with 128/256 internal units.
+        model.add(LSTM(num_neurons, input_shape=(x_train.shape[1], x_train.shape[2])))
+        #reduce the overfitting
+        model.add(Dropout(dropout))
+        #number of neurons of the last layer
+        model.add(Dense(dimension_last_layer))
+        #optimizer
+        adam=Adam(learning_rate=learning_rate)
+        #print(model.summary())
+        model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mae','mse','mape'])
+        """ history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
+                            verbose=0, shuffle=False, callbacks=callbacks,use_multiprocessing=True)"""
 
-            train[str(i)] = pd.Series(history.history['loss'])
-            val[str(i)] = pd.Series(history.history['val_loss'])
+        """ train[str(i)] = pd.Series(history.history['loss'])
+            val[str(i)] = pd.Series(history.history['val_loss'])"""
 
-        # plot train and validation loss across multiple runs
+        """# plot train and validation loss across multiple runs
         plt.plot(train, color='blue', label='train')
         plt.plot(val, color='orange', label='validation')
         plt.title('model train vs validation loss')
         plt.ylabel('loss')
         plt.xlabel('epoch')
-        plt.show()
-    else:
-        history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
+        plt.show()"""
+
+    history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
                             verbose=0, shuffle=False, callbacks=callbacks, use_multiprocessing=True)
-    """plot_model(model, to_file='../modelling/techniques/forecasting/model.png', show_shapes=True,
-        show_layer_names=True,expand_nested=True, dpi=150)
 
-    # Plot training & validation accuracy values
-    plt.plot(history.history['accuracy'])
-    plt.plot(history.history['val_acc'])
-
-    plt.title('Model accuracy')
-    plt.ylabel('Accuracy')
-    plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
-    plt.show()
-
-    # Plot training & validation loss values
-    plt.plot(history.history['loss'])
-    plt.plot(history.history['val_loss'])
-    plt.title('Model loss')
-    plt.ylabel('Loss')
-    plt.xlabel('Epoch')
-    plt.legend(['Train', 'Test'], loc='upper left')
-    plt.show()"""
     return model, history

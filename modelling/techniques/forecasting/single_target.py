@@ -2,12 +2,13 @@ import os
 from itertools import product
 import numpy as np
 import pandas as pd
-
-from modelling.techniques.forecasting.evaluation.rmse import get_RMSE
+from tensorflow.keras.utils import plot_model
+from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_r_square
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
     get_training_testing_set, train_model
 from utility.folder_creator import folder_creator
 from datetime import datetime, timedelta
+import matplotlib.pyplot as plt
 np.random.seed(0)
 
 # TENSOR_PATH = "../crypto_TensorData"
@@ -41,7 +42,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
         # DICTIONARY FOR STATISTICS
         predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
                             'observed_denorm': [], 'predicted_denorm': []}
-        errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}
+        errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': [],'r2_norm':[],'r2_denorm':[]}
 
         #print(list(product(temporal_sequence, number_neurons)))
         #[(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
@@ -69,11 +70,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
             folder_creator(model_path,1)
             folder_creator(results_path,1)
 
-
             #starting from the testing set
             for date_to_predict in testing_set:
-                #todo-balla, in realtà addestro fino a 2 giorni prima della data da predire.
-
+                #2 days before the date to predict
                 d = pd.to_datetime(date_to_predict) - timedelta(days=2)
                 print('Date to predict: ', date_to_predict)
                 print("Training until: ", d)
@@ -90,7 +89,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                   3)e.g items
                 """
                 train, test = get_training_testing_set(dataset_tensor_format, date_to_predict)
-                #todo il test set generato forse non ha senso che sia cosi. Rivedilo.
 
                 # ['2018-01-01' other numbers separated by comma],it removes the date.
                 train = train[:, :, 1:]
@@ -120,39 +118,49 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 x_test = x_test.astype('float')
                 y_test = y_test.astype('float')
 
-
-
                 #x_train= tf.convert_to_tensor(x_train, np.float32)
                 #if the date to predict is the first date in the testing_set
                 if date_to_predict == testing_set[0]:
                     model, history = train_model(x_train,y_train,x_test,y_test, num_neurons=num_neurons,
                                                              learning_rate=learning_rate,
-                                                             dropout=0.2,
-                                                             epochs=100,
-                                                             batch_size=250,
+                                                             dropout=0.5,
+                                                             epochs=300,
+                                                             batch_size=1000,
                                                              dimension_last_layer=1,
                                                              model_path=model_path)
                 else:
                     model, history = train_model(x_train, y_train, x_test, y_test, num_neurons=num_neurons,
                                                              learning_rate=learning_rate,
-                                                             dropout=0.2,
-                                                             epochs=100,
-                                                             batch_size=256, dimension_last_layer=1, model=model,
+                                                             dropout=0.5,
+                                                             epochs=300,
+                                                             batch_size=1000, dimension_last_layer=1, model=model,
                                                              model_path=model_path)
 
+                # information about neural network created
+                plot_model(model, to_file=model_path+"neural_network.png", show_shapes=True, show_layer_names=True, expand_nested=True, dpi=150)
+
+                # Plot training & validation loss values
+                plt.plot(history.history['loss'])
+                plt.plot(history.history['val_loss'])
+                plt.title('Model loss')
+                plt.ylabel('Loss')
+                plt.xlabel('Epoch')
+                plt.legend(['Train', 'Test'], loc='upper left')
+                #plt.show()
 
                 #Predict for each date in the validation set
-                test_prediction = model.predict(x_test)
-
+                test_prediction = model.predict(x_test,use_multiprocessing=True)
+                print(test_prediction)
                 print("Predicting for: ", date_to_predict)
-                print("Predicted: ", test_prediction)
+                print("Predicted: ", test_prediction[0])
                 print("Actual: ", y_test)
+
 
                 #denormalization
                 #reshape(-1,1) means that you are not specifing only the column dimension, whist the row dimension is unknown
                 y_test_denorm = scaler_target_feature.inverse_transform(y_test.reshape(-1, 1))
                 test_prediction_denorm = scaler_target_feature.inverse_transform(test_prediction)
-            
+
                 #changing data types
                 #normalized
                 y_test = float(y_test)
@@ -168,26 +176,30 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 predictions_file['predicted_norm'].append(test_prediction)
                 predictions_file['observed_denorm'].append(y_test_denorm)
                 predictions_file['predicted_denorm'].append(test_prediction_denorm)
+                break
 
             #Saving the RMSE into the dictionaries
             errors_file['symbol'].append(crypto_name)
 
             #normalized RMSE
-            rmse = get_RMSE(predictions_file['observed_norm'], predictions_file['predicted_norm'])
+            rmse = get_rmse(predictions_file['observed_norm'], predictions_file['predicted_norm'])
+            r2 = get_r_square(predictions_file['observed_norm'], predictions_file['predicted_norm'])
             errors_file['rmse_norm'].append(rmse)
+            errors_file['r2_norm'].append(r2)
 
             #denormalized RMSE
-            rmse_denorm = get_RMSE(predictions_file['observed_denorm'], predictions_file['predicted_denorm'])
+            rmse_denorm = get_rmse(predictions_file['observed_denorm'], predictions_file['predicted_denorm'])
+            r2_denorm = get_r_square(predictions_file['observed_denorm'], predictions_file['predicted_denorm'])
             errors_file['rmse_denorm'].append(rmse_denorm)
+            errors_file['r2_denorm'].append(r2_denorm)
 
             #serialization
             pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv',index=False)
             pd.DataFrame(data=errors_file).to_csv(results_path  + 'errors.csv',index=False)
+
         break
 
 
-#REPORT
-#to_TEST
 """ report_configurations(temporal_sequence_used=temporal_sequence, neurons_used=number_neurons,
                            name_folder_experiment=EXPERIMENT, name_folder_result_experiment=RESULT_PATH,
                            name_folder_report=REPORT_FOLDER_NAME, name_output_files="overall_report")
