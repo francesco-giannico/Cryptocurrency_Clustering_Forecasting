@@ -96,9 +96,9 @@ def get_training_testing_set(dataset_tensor_format, date_to_predict):
 
 def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dropout, epochs, batch_size, dimension_last_layer,
                 model_path='', model=None):
-
+    #note: it's an incremental way to get a final model.
     callbacks = [
-        EarlyStopping(monitor='loss', patience=4),
+        EarlyStopping(monitor='loss', patience=10),
         ModelCheckpoint(
             monitor='loss', save_best_only=True,
             filepath=model_path + 'lstm_neur{}-do{}-ep{}-bs{}.h5'.format(
@@ -106,10 +106,6 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
     ]
 
     if model is None:
-        # collect data across multiple repeats
-        #train = DataFrame()
-        #val = DataFrame()
-        #for i in range(5):
         model = Sequential()
         # Add a LSTM layer with 128/256 internal units.
         model.add(LSTM(num_neurons, input_shape=(x_train.shape[1], x_train.shape[2])))
@@ -121,21 +117,7 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         adam=Adam(learning_rate=learning_rate)
         #print(model.summary())
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mae','mse','mape'])
-        """ history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
-                            verbose=0, shuffle=False, callbacks=callbacks,use_multiprocessing=True)"""
-
-        """ train[str(i)] = pd.Series(history.history['loss'])
-            val[str(i)] = pd.Series(history.history['val_loss'])"""
-
-        """# plot train and validation loss across multiple runs
-        plt.plot(train, color='blue', label='train')
-        plt.plot(val, color='orange', label='validation')
-        plt.title('model train vs validation loss')
-        plt.ylabel('loss')
-        plt.xlabel('epoch')
-        plt.show()"""
 
     history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
                             verbose=0, shuffle=False, callbacks=callbacks, use_multiprocessing=True)
-
     return model, history

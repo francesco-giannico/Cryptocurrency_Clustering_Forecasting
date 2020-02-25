@@ -1,46 +1,51 @@
-import csv
-import itertools
 import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from itertools import product
+from utility.folder_creator import folder_creator
 
-from crypto_utility import experiments
-from crypto_utility.experiments import get_RMSE
 
-
-def report_configurations(temporal_sequence_used, neurons_used, name_folder_experiment,
-                                       name_folder_result_experiment, name_folder_report, name_output_files):
+def report_configurations(temporal_sequence, num_neurons, experiment_folder,
+                                       results_folder, report_folder, name_output_files):
     kind_of_report = "configurations_oriented"
-    os.makedirs(name_folder_experiment + "/" + name_folder_report + "/", exist_ok=True)
-    os.makedirs(name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/", exist_ok=True)
 
-    stock_series = os.listdir(name_folder_experiment + "/" + name_folder_result_experiment + "/")
+    folder_creator(experiment_folder + "/" + report_folder + "/",1)
+    folder_creator(experiment_folder + "/" + report_folder + "/" + kind_of_report + "/", 1)
+
+    cryptocurrencies = os.listdir(experiment_folder + "/" + results_folder + "/")
 
     overall_report = {'model': [], 'mean_rmse_norm': [], 'mean_rmse_denorm': []}
-    for ts, n in itertools.product(temporal_sequence_used, neurons_used):
-        configuration = "LSTM_{}_neurons_{}_days".format(n, ts)
-        model_report = {'stock_names': [], 'rmse_list_norm': [], 'rmse_list_denorm': []}
-        for s in stock_series:
+
+    for window, num_neurons in product(temporal_sequence,num_neurons):
+        configuration = "LSTM_{}_neurons_{}_days".format(num_neurons,window)
+        model_report = {'crypto_symbol': [], 'rmse_list_norm': [], 'rmse_list_denorm': []}
+
+        for crypto in cryptocurrencies:
             errors_file = pd.read_csv(
-                name_folder_experiment + "/" + name_folder_result_experiment + "/" + s + "/" + configuration + "/stats/errors.csv",
+                experiment_folder + "/" + results_folder + "/" + crypto + "/" + configuration + "/stats/errors.csv",
                 index_col=0, sep=',')
-            model_report['stock_names'].append(s)
+
+            model_report['crypto_symbol'].append(crypto)
             model_report['rmse_list_norm'].append(errors_file["rmse_norm"])
             model_report['rmse_list_denorm'].append(errors_file["rmse_denorm"])
-        os.makedirs(
-            name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/" + configuration + "/",
-            exist_ok=True)
+
+        folder_creator(experiment_folder+"/"+results_folder+ "/" + kind_of_report + "/" + configuration + "/",0)
+
         average_rmse_normalized = np.mean(model_report['rmse_list_norm'])
         average_rmse_denormalized = np.mean(model_report['rmse_list_denorm'])
+
         configuration_report = {"Average_RMSE_norm": [], "Average_RMSE_denorm": []}
         configuration_report["Average_RMSE_norm"].append(average_rmse_normalized)
         configuration_report["Average_RMSE_denorm"].append(average_rmse_denormalized)
+
         pd.DataFrame(configuration_report).to_csv(
-            name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/" + configuration + "/report.csv")
+            experiment_folder + "/" + report_folder + "/" + kind_of_report + "/" + configuration + "/report.csv")
+
         overall_report['model'].append(configuration)
         overall_report['mean_rmse_norm'].append(average_rmse_normalized)
         overall_report['mean_rmse_denorm'].append(average_rmse_denormalized)
+
     pd.DataFrame(overall_report).to_csv(
         name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/" + name_output_files + ".csv")
     plot_report(

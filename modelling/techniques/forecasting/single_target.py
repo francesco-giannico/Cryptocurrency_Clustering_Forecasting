@@ -2,6 +2,7 @@ import os
 from itertools import product
 import numpy as np
 import pandas as pd
+from pandas import DataFrame
 from tensorflow.keras.utils import plot_model
 from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_r_square
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
@@ -9,6 +10,10 @@ from modelling.techniques.forecasting.training.training import prepare_input_for
 from utility.folder_creator import folder_creator
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
+
+from visualization.line_chart import plot_train_and_validation_loss
+from visualization.report_data import report_configurations
+
 np.random.seed(0)
 
 # TENSOR_PATH = "../crypto_TensorData"
@@ -70,6 +75,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
             folder_creator(model_path,1)
             folder_creator(results_path,1)
 
+            train_plot = DataFrame()
+            val_plot = DataFrame()
+            i=0
             #starting from the testing set
             for date_to_predict in testing_set:
                 #2 days before the date to predict
@@ -120,37 +128,40 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
 
                 #x_train= tf.convert_to_tensor(x_train, np.float32)
                 #if the date to predict is the first date in the testing_set
+                DROPOUT=0.2
+                EPOCHS=100
+                BATCH_SIZE=256
+
                 if date_to_predict == testing_set[0]:
-                    model, history = train_model(x_train,y_train,x_test,y_test, num_neurons=num_neurons,
-                                                             learning_rate=learning_rate,
-                                                             dropout=0.5,
-                                                             epochs=300,
-                                                             batch_size=1000,
-                                                             dimension_last_layer=1,
-                                                             model_path=model_path)
+                    model, history = train_model(x_train,y_train,x_test,y_test,
+                                                 num_neurons=num_neurons,
+                                                 learning_rate=learning_rate,
+                                                 dropout=DROPOUT,
+                                                 epochs=EPOCHS,
+                                                 batch_size=BATCH_SIZE,
+                                                 dimension_last_layer=1,
+                                                 model_path=model_path)
+                    # information about neural network created
+                    plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
+                               show_layer_names=True, expand_nested=True, dpi=150)
+
                 else:
-                    model, history = train_model(x_train, y_train, x_test, y_test, num_neurons=num_neurons,
-                                                             learning_rate=learning_rate,
-                                                             dropout=0.5,
-                                                             epochs=300,
-                                                             batch_size=1000, dimension_last_layer=1, model=model,
-                                                             model_path=model_path)
+                    model, history = train_model(x_train, y_train, x_test, y_test,
+                                                 num_neurons=num_neurons,
+                                                 learning_rate=learning_rate,
+                                                 dropout=DROPOUT,
+                                                 epochs=EPOCHS,
+                                                 batch_size=BATCH_SIZE,
+                                                 dimension_last_layer=1,
+                                                 model=model,
+                                                 model_path=model_path)
 
-                # information about neural network created
-                plot_model(model, to_file=model_path+"neural_network.png", show_shapes=True, show_layer_names=True, expand_nested=True, dpi=150)
-
-                # Plot training & validation loss values
-                plt.plot(history.history['loss'])
-                plt.plot(history.history['val_loss'])
-                plt.title('Model loss')
-                plt.ylabel('Loss')
-                plt.xlabel('Epoch')
-                plt.legend(['Train', 'Test'], loc='upper left')
-                #plt.show()
+                train_plot[str(i)] = pd.Series(history.history['loss'])
+                val_plot[str(i)] = pd.Series(history.history['val_loss'])
+                i+=1
 
                 #Predict for each date in the validation set
                 test_prediction = model.predict(x_test,use_multiprocessing=True)
-                print(test_prediction)
                 print("Predicting for: ", date_to_predict)
                 print("Predicted: ", test_prediction[0])
                 print("Actual: ", y_test)
@@ -176,7 +187,11 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 predictions_file['predicted_norm'].append(test_prediction)
                 predictions_file['observed_denorm'].append(y_test_denorm)
                 predictions_file['predicted_denorm'].append(test_prediction_denorm)
-                break
+                #break
+
+
+            # Plot training & validation loss values
+            plot_train_and_validation_loss(train_plot,val_plot,model_path)
 
             #Saving the RMSE into the dictionaries
             errors_file['symbol'].append(crypto_name)
@@ -197,15 +212,14 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
             pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv',index=False)
             pd.DataFrame(data=errors_file).to_csv(results_path  + 'errors.csv',index=False)
 
+        report_configurations(window_sequence, num_neurons,EXPERIMENT_PATH, RESULT_PATH, REPORT_FOLDER_NAME, name_output_files="overall_report")
+
+        """report_stockseries(name_folder_experiment=EXPERIMENT, name_folder_result_experiment=RESULT_PATH,
+                                name_folder_report=REPORT_FOLDER_NAME,
+                                name_files_output="report")"""
         break
 
 
-""" report_configurations(temporal_sequence_used=temporal_sequence, neurons_used=number_neurons,
-                           name_folder_experiment=EXPERIMENT, name_folder_result_experiment=RESULT_PATH,
-                           name_folder_report=REPORT_FOLDER_NAME, name_output_files="overall_report")
 
-report_stockseries(name_folder_experiment=EXPERIMENT, name_folder_result_experiment=RESULT_PATH,
-                        name_folder_report=REPORT_FOLDER_NAME,
-                        name_files_output="report")"""
 
 
