@@ -8,7 +8,7 @@ from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
 from understanding.exploration import missing_values
 from utility.dataset_utils import cut_dataset_by_range
-from visualization.report_data import report_configurations
+from visualization.report_data import report_configurations, report_crypto
 
 
 def main():
@@ -64,7 +64,9 @@ def main():
             report_folder="report",
             output_filename="overall_report")
 
-    """report_stockseries(name_folder_experiment=EXPERIMENT, name_folder_result_experiment=RESULT_PATH,
-                            name_folder_report=REPORT_FOLDER_NAME,
-                            name_files_output="report")"""
+    report_crypto(
+          experiment_folder=EXPERIMENT_PATH,
+          result_folder="result",
+          report_folder="report",
+          output_filename="report")
 main()

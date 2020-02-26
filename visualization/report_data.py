@@ -68,6 +68,61 @@ def report_configurations(temporal_sequence, num_neurons, experiment_folder,
 
     return
 
+def report_crypto(experiment_folder, result_folder, report_folder,output_filename):
+    kind_of_report = "crypto_oriented"
+
+    # Folder creator
+    experiment_and_report_folder = experiment_folder + report_folder + "/"
+    experiment_and_result_folder = experiment_folder + result_folder + "/"
+    folder_creator(experiment_and_report_folder, 0)
+    folder_creator(experiment_and_report_folder + kind_of_report + "/", 0)
+
+    # read cryptocurrencies
+    cryptocurrencies = os.listdir(experiment_and_result_folder)
+
+    # for each crypto:
+    for crypto in cryptocurrencies:
+        #folder creator
+        CRYPTO_FOLDER_PATH = experiment_and_report_folder + kind_of_report + "/" + crypto + "/"
+        folder_creator(CRYPTO_FOLDER_PATH,1)
+
+        #dictionary for report
+        report_dic = {'configuration': [], 'RMSE_normalized': [], 'RMSE_denormalized': []}
+
+        #get the configurations used by the name of their folder
+        configurations = os.listdir(experiment_and_result_folder + crypto + "/")
+        configurations.sort(reverse=True)
+
+        # for each configuration
+        for configuration in configurations:
+            # save the configuration's name in the dictionary
+            report_dic['configuration'].append(configuration)
+
+            #read 'predictions.csv' file
+            errors_file = pd.read_csv(
+               experiment_and_result_folder + crypto + "/" + configuration + "/stats/errors.csv")
+
+            #get the mean of the rmse (normalized)
+            avg_rmse_norm = errors_file["rmse_norm"].mean()
+            #save in the dictionary
+            report_dic['RMSE_normalized'].append(float(avg_rmse_norm))
+
+            # get the mean of the rmse (denormalized)
+            avg_rmse_denorm = errors_file["rmse_denorm"].mean()
+            # save in the dictionary
+            report_dic['RMSE_denormalized'].append(float(avg_rmse_denorm))
+
+        # save as '.csv' the dictionary in CRYPTO_FOLDER_PATH
+        pd.DataFrame(report_dic).to_csv(
+            experiment_and_report_folder + kind_of_report + "/" + crypto + "/" + output_filename + ".csv",index=False)
+
+        plot_report(
+            path_file=experiment_and_report_folder + kind_of_report + "/" + crypto + "/" + output_filename + ".csv",
+            x_data="configuration", column_of_data="RMSE_normalized", label_for_values_column="RMSE (Average)",
+            label_x="Configurations", title_img="Average RMSE - " + str(crypto),
+            destination=experiment_and_report_folder + kind_of_report + "/" + crypto + "/",
+            name_file_output="bargraph_RMSE_" + str(crypto))
+    return
 
 def plot_report(path_file, x_data, column_of_data, label_for_values_column, label_x, title_img, destination,
                 name_file_output):
@@ -99,45 +154,4 @@ def plot_report(path_file, x_data, column_of_data, label_for_values_column, labe
     #serialization
     f.savefig(destination + name_file_output, bbox_inches='tight', pad_inches=0)
     return
-
-
-def report_stockseries(name_folder_experiment, name_folder_result_experiment, name_folder_report,
-                                    name_files_output):
-    kind_of_report = "stockseries_oriented"
-    os.makedirs(name_folder_experiment + "/" + name_folder_report + "/", exist_ok=True)
-    os.makedirs(name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/", exist_ok=True)
-
-    stock_series = os.listdir(name_folder_experiment + "/" + name_folder_result_experiment + "/")
-    # for each stock series:
-    for s in stock_series:
-        STOCK_FOLDER_PATH = name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/" + s + "/"
-        os.makedirs(STOCK_FOLDER_PATH, exist_ok=True)
-        single_series_report_dict = {'configuration': [], 'RMSE_normalized': [], 'RMSE_denormalized': []}
-        configuration_used = os.listdir(name_folder_experiment + "/" + name_folder_result_experiment + "/" + s + "/")
-        configuration_used.sort(reverse=True)
-        # for each configuration:
-        for c in configuration_used:
-            # save name of configuration in dictionary
-            single_series_report_dict['configuration'].append(c)
-            # read 'predictions.csv' file
-            errors_file = pd.read_csv(
-                name_folder_experiment + "/" + name_folder_result_experiment + "/" + s + "/" + c + "/stats/errors.csv")
-            # perform RMSE_norm and save in dictionary
-            avg_rmse_norm = errors_file["rmse_norm"].mean()
-            single_series_report_dict['RMSE_normalized'].append(float(avg_rmse_norm))
-            # print(float(errors_file['rmse_norm']))
-            # perform RMSE_denorm and save in dictionary
-            avg_rmse_denorm = errors_file["rmse_denorm"].mean()
-            single_series_report_dict['RMSE_denormalized'].append(float(avg_rmse_denorm))
-        # save as '.csv' the dictionary in STOCK_FOLDER_PATH
-        pd.DataFrame(single_series_report_dict).to_csv(
-            name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/" + s + "/" + name_files_output + ".csv")
-        plot_report(
-            path_file=name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/" + s + "/" + name_files_output + ".csv",
-            x_data="configuration", column_of_data="RMSE_normalized", label_for_values_column="RMSE (Average)",
-            label_x="Configurations", title_img="Average RMSE - " + str(s),
-            destination=name_folder_experiment + "/" + name_folder_report + "/" + kind_of_report + "/" + s + "/",
-            name_file_output="bargraph_RMSE_" + str(s))
-    return
-
 
