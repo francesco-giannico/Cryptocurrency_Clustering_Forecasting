@@ -8,6 +8,7 @@ from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
 from understanding.exploration import missing_values
 from utility.dataset_utils import cut_dataset_by_range
+from visualization.report_data import report_configurations
 
 
 def main():
@@ -47,11 +48,23 @@ def main():
     DATA_PATH="../modelling/techniques/clustering/output/"+distance_measure+"/"+start_date+"_"+end_date+"/cut_datasets/"
     #DATA_PATH="../preparation/preprocessed_dataset/integrated/"
     TENSOR_DATA_PATH=EXPERIMENT_PATH+"tensor_data"
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequence_considered,
                   num_neurons=number_neurons_LSTM, learning_rate=learning_rate,
                   testing_set=TEST_SET
-                  )
+                  )"""
+
+    report_configurations(
+            temporal_sequence=temporal_sequence_considered,
+            num_neurons=number_neurons_LSTM,
+            experiment_folder=EXPERIMENT_PATH,
+            results_folder="result",
+            report_folder="report",
+            output_filename="overall_report")
+
+    """report_stockseries(name_folder_experiment=EXPERIMENT, name_folder_result_experiment=RESULT_PATH,
+                            name_folder_report=REPORT_FOLDER_NAME,
+                            name_files_output="report")"""
 main()
