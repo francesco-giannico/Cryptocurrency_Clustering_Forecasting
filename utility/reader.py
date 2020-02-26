@@ -2,15 +2,18 @@ import json
 import os
 import pandas as pd
 
-fileDir = os.path.dirname(os.path.realpath(__file__))#
-def get_preprocessed_crypto_symbols(PATH_SOURCE):
+fileDir = os.path.dirname(os.path.realpath(__file__))
+
+
+def get_crypto_symbols_from_folder(PATH_SOURCE):
     crypto_symbols = []
     for file in os.listdir(PATH_SOURCE):
         crypto = file.replace(".csv","")
         crypto_symbols.append(crypto)
     return crypto_symbols
 
-def get_original_crypto_symbols():
+#used only for the original dataset
+def get_crypto_symbols_from_text_file():
     crypto_symbols= []
     fileToRead = read_file("../acquisition/crypto_symbols.txt")
     for line in fileToRead:

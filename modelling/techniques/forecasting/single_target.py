@@ -28,7 +28,11 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
-    REPORT_FOLDER_NAME = "report"
+
+    try:
+        os.remove(EXPERIMENT_PATH+RESULT_PATH+"/merged_predictions.csv")
+    except:
+        pass
 
     for crypto in os.listdir(DATA_PATH):
 
@@ -186,7 +190,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 predictions_file['predicted_norm'].append(test_prediction)
                 predictions_file['observed_denorm'].append(y_test_denorm)
                 predictions_file['predicted_denorm'].append(test_prediction_denorm)
-                break
+                #break
 
 
             # Plot training & validation loss values

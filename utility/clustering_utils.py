@@ -1,7 +1,7 @@
 import os
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
-from utility.reader import get_preprocessed_crypto_symbols, get_dict_symbol_id
+from utility.reader import get_dict_symbol_id, get_crypto_symbols_from_folder
 from utility.writer import save_dict_symbol_id
 import pandas as pd
 PATH_SOURCE = "../preparation/preprocessed_dataset/integrated/"
@@ -9,7 +9,7 @@ PATH_SOURCE = "../preparation/preprocessed_dataset/integrated/"
 
 #Dictionary
 def generate_cryptocurrencies_dictionary(PATH_TO_READ,PATH_OUTPUT):
-    crypto_symbols = get_preprocessed_crypto_symbols(PATH_TO_READ)
+    crypto_symbols = get_crypto_symbols_from_folder(PATH_TO_READ)
     df = pd.DataFrame(columns=['id'],index=crypto_symbols)
     i=0
     for crypto_name in crypto_symbols:
@@ -32,6 +32,56 @@ def prepare_dataset_for_clustering(start_date,end_date,CLUSTERING_PATH):
             pass
 
 #VISUALIZATION
+
+
+#just joins the prediction of all cryptocurrencies. It does no average!!
+def merge_predictions(experiment_folder, result_folder,model_type):
+    experiment_and_result_folder=experiment_folder + result_folder +"/"
+
+    try:
+        os.remove(experiment_and_result_folder+"merged_predictions.csv")
+    except:
+        pass
+
+    cryptocurrencies = os.listdir(experiment_and_result_folder)
+    rows = []
+    for crypto in cryptocurrencies:
+        #get all the configurations
+        configurations = os.listdir(experiment_and_result_folder + crypto + "/")
+        configurations.sort(reverse=True)
+
+        # for each configuration:
+        for config in configurations:
+            cols = ["symbol", "date", "observed_norm", "predicted_norm"]
+            predictions_csv = pd.read_csv(experiment_and_result_folder + crypto + "/" + config + "/stats/predictions.csv", usecols=cols)
+
+            #rename the columns
+            predictions_csv.columns = ["symbol", "date", "observed_value", "predicted_value"]
+
+            #number of predicted days
+            length = int(len(predictions_csv['symbol']))
+            model = [model_type for x in range(length)]
+
+            #parses the configuration name (starting from the folder's name)
+            conf_parsed = config.split("_")
+            neurons = [str(conf_parsed[1]) for x in range(length)]
+            days = [str(conf_parsed[3]) for x in range(length)]
+
+            #inserts new columns
+            predictions_csv.insert(2, "model", model, True)
+            predictions_csv.insert(3, "neurons", neurons, True)
+            predictions_csv.insert(4, "days", days, True)
+
+            #populate the list of values
+            for row in predictions_csv.values:
+                rows.append(row)
+
+    cols= ["symbol", "date", "model", "neurons", "days", "observed_value", "predicted_value"]
+    final_csv = pd.DataFrame(rows, columns=cols)
+    final_csv.to_csv(experiment_and_result_folder+ "merged_predictions.csv",index=False)
+    return
+
+
 def generate_fileaverageRMSE_byalgorithm(path,name_final_file,experiments):
     try:
         os.remove(path + "/" +name_final_file+".csv")
@@ -96,39 +146,3 @@ def generate_averagermseForK(path,num_of_clusters,name_experiment_model):
     pd.DataFrame(all).to_csv(path+"/myresults.csv")
     return
 
-
-def join_predictions(name_folder_experiment, name_folder_result_experiment):
-    try:
-        os.remove(name_folder_experiment + "/" + name_folder_result_experiment + "/joined_predictions.csv")
-    except:
-        pass
-    cryptocurrencies = os.listdir(name_folder_experiment + "/" + name_folder_result_experiment + "/")
-    rows = []
-    for crypto in cryptocurrencies:
-        configuration_used = os.listdir(name_folder_experiment + "/" + name_folder_result_experiment + "/" + crypto + "/")
-        configuration_used.sort(reverse=True)
-        # for each configuration:
-        for conf in configuration_used:
-          cols=["symbol","date","observed_norm","predicted_norm"]
-          predictions_csv = pd.read_csv(name_folder_experiment + "/" + name_folder_result_experiment + "/"+str(crypto)+"/"+conf+"/stats/predictions.csv", usecols = cols)
-          predictions_csv.columns=["cryptostock_name","date","real_value","predicted_value"]
-          #predictions_csv=predictions_csv.dropna(axis=1)
-          length= int(len(predictions_csv['cryptostock_name']))
-          model=["MultiTarget_Data" for x in range(length)]
-
-          conf_parsed = conf.split("_")
-          neurons=[str(conf_parsed[1]) for x in range(length)]
-          days=[str(conf_parsed[3]) for x in range(length)]
-
-          predictions_csv.insert(2,"model",model,True)
-          predictions_csv.insert(3, "neurons", neurons, True)
-          predictions_csv.insert(4, "days", days, True)
-
-          for row in predictions_csv.values:
-            rows.append(row)
-
-    cols_n = ["cryptostock_name","date","model","neurons","days","real_value","predicted_value"]
-    final_csv= pd.DataFrame(rows,columns=cols_n)
-    final_csv.to_csv(name_folder_experiment + "/" + name_folder_result_experiment + "/joined_predictions.csv")
-
-    return

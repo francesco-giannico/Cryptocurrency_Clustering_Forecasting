@@ -5,10 +5,10 @@ def folder_creator(path,deleteIfExists):
     try:
         if deleteIfExists == 1:
             try:
-                shutil.rmtree(path)
+                os.makedirs(path)
             except:
-                pass
-        os.makedirs(path, exist_ok=True)
+                shutil.rmtree(path)
+        os.makedirs(path,exist_ok=True)
     except OSError:
         #print("Creation of the directory %s failed" % folder_name)
         pass

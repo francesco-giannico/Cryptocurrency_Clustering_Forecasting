@@ -6,7 +6,7 @@ import numpy as np
 from pandas.plotting import lag_plot
 from scipy.stats import pearsonr, stats
 
-from utility.reader import get_original_crypto_symbols
+from utility.reader import get_crypto_symbols_from_text_file
 from utility.folder_creator import folder_creator
 from visualization.bar_chart.exploration import missing_values_by_year
 
@@ -26,7 +26,7 @@ def generate_bar_chart_by_year(PATH_TO_SAVE):
     missing_values_by_year(df,PATH_TO_SAVE)
 
 def count_missing_values_by_year(PATH_DATASET):
-  cryptos = get_original_crypto_symbols()
+  cryptos = get_crypto_symbols_from_text_file()
   df_out = pd.DataFrame(0,columns=['2013', '2014', '2015', '2016', '2017', '2018', '2019'], index=cryptos)
   for crypto in os.listdir(PATH_DATASET):
     df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0)
