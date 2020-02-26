@@ -12,7 +12,6 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 
 from visualization.line_chart import plot_train_and_validation_loss
-from visualization.report_data import report_configurations
 
 np.random.seed(0)
 

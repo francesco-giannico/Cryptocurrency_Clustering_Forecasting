@@ -1,14 +1,13 @@
 import os
-
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 from utility.reader import get_preprocessed_crypto_symbols, get_dict_symbol_id
 from utility.writer import save_dict_symbol_id
 import pandas as pd
-
-
 PATH_SOURCE = "../preparation/preprocessed_dataset/integrated/"
 
+
+#Dictionary
 def generate_cryptocurrencies_dictionary(PATH_TO_READ,PATH_OUTPUT):
     crypto_symbols = get_preprocessed_crypto_symbols(PATH_TO_READ)
     df = pd.DataFrame(columns=['id'],index=crypto_symbols)
@@ -18,6 +17,7 @@ def generate_cryptocurrencies_dictionary(PATH_TO_READ,PATH_OUTPUT):
         i+=1
     df = df.rename_axis('symbol').reset_index()
     df.to_csv(PATH_OUTPUT+"symbol_id.csv",",",index=False)
+
 
 #selects only the datasets which cover the period of time of interest.
 def prepare_dataset_for_clustering(start_date,end_date,CLUSTERING_PATH):
@@ -30,3 +30,105 @@ def prepare_dataset_for_clustering(start_date,end_date,CLUSTERING_PATH):
                 df.to_csv(CLUSTERING_PATH + "cut_datasets/" + crypto, sep=",", index=False)
         except:
             pass
+
+#VISUALIZATION
+def generate_fileaverageRMSE_byalgorithm(path,name_final_file,experiments):
+    try:
+        os.remove(path + "/" +name_final_file+".csv")
+    except:
+        pass
+    all = {"k": [], "k_description": [], "average_rmse_norm": []}
+    for experiment in experiments:
+      for algorithm in os.listdir("crypto_clustering/" + experiment + "/"):
+        if (algorithm!="clusters" and algorithm!="cutData" and algorithm!="horizontalDataset" and algorithm!="reports"):
+            #all["k"].append(len(os.listdir(path+"/"+algorithm_k))-1)
+            try:
+              clusters = get_clusters2(experiment,algorithm)
+              all["k"].append(len(clusters))
+              if (experiment == "experiment_common"):
+                all["k_description"].append(algorithm.split("_")[2])
+              else:
+                  name=experiment.split("_")[1]
+                  all["k_description"].append(name+"_"+algorithm.split("_")[2])
+            except:
+                all["k"].append(0)
+                all["k_description"].append("singleTarget")
+            algorithm_results = pd.read_csv("crypto_clustering/"+experiment + "/"+algorithm +"/myresults.csv",usecols=["average_rmse_norm"])
+            rmse=[]
+            for rmseval in algorithm_results.values:
+                rmse.append(rmseval)
+            average=np.average(rmse)
+            all["average_rmse_norm"].append(average)
+    pd.DataFrame(all).to_csv(path+"/"+name_final_file+".csv")
+
+
+
+def generate_averagermseForK(path,num_of_clusters,name_experiment_model):
+    #print(num_of_clusters)
+    try:
+        os.remove(path + "/" +"myresults.csv")
+    except:
+        pass
+    name_folder_result="Result"
+    i=0
+    #nota:average_rmse_norm è la media di tutti gli errori per giorni e hidden neurons
+    all = {"cluster_id": [], "crypto_name": [], "average_rmse_norm": []}
+    while i < num_of_clusters:
+     if (name_experiment_model=="MultiTarget_Data"):
+      completePath=path+"/"+"cluster_"+str(i)+"/"+name_experiment_model+"/"+name_folder_result +"/"
+     else:
+         completePath = path +  "/cluster_0/" + name_experiment_model + "/" + name_folder_result + "/"
+     cryptocurrencies = os.listdir(completePath)
+     for crypto in cryptocurrencies:
+         all["cluster_id"].append(str(i))
+         all["crypto_name"].append(crypto)
+         configuration_used = os.listdir(completePath + crypto + "/")
+         configuration_used.sort(reverse=True)
+         # for each configuration:
+         rmse=[]
+         for conf in configuration_used:
+             #estra solo il valore dell'rmse
+             rmseval = pd.read_csv(completePath +str(crypto) + "/" + conf + "/stats/errors.csv",usecols=["rmse_norm"]).values[0][0]
+             rmse.append(rmseval)
+         average_rmse= np.average(rmse)
+         all["average_rmse_norm"].append(average_rmse)
+     i+=1
+    pd.DataFrame(all).to_csv(path+"/myresults.csv")
+    return
+
+
+def join_predictions(name_folder_experiment, name_folder_result_experiment):
+    try:
+        os.remove(name_folder_experiment + "/" + name_folder_result_experiment + "/joined_predictions.csv")
+    except:
+        pass
+    cryptocurrencies = os.listdir(name_folder_experiment + "/" + name_folder_result_experiment + "/")
+    rows = []
+    for crypto in cryptocurrencies:
+        configuration_used = os.listdir(name_folder_experiment + "/" + name_folder_result_experiment + "/" + crypto + "/")
+        configuration_used.sort(reverse=True)
+        # for each configuration:
+        for conf in configuration_used:
+          cols=["symbol","date","observed_norm","predicted_norm"]
+          predictions_csv = pd.read_csv(name_folder_experiment + "/" + name_folder_result_experiment + "/"+str(crypto)+"/"+conf+"/stats/predictions.csv", usecols = cols)
+          predictions_csv.columns=["cryptostock_name","date","real_value","predicted_value"]
+          #predictions_csv=predictions_csv.dropna(axis=1)
+          length= int(len(predictions_csv['cryptostock_name']))
+          model=["MultiTarget_Data" for x in range(length)]
+
+          conf_parsed = conf.split("_")
+          neurons=[str(conf_parsed[1]) for x in range(length)]
+          days=[str(conf_parsed[3]) for x in range(length)]
+
+          predictions_csv.insert(2,"model",model,True)
+          predictions_csv.insert(3, "neurons", neurons, True)
+          predictions_csv.insert(4, "days", days, True)
+
+          for row in predictions_csv.values:
+            rows.append(row)
+
+    cols_n = ["cryptostock_name","date","model","neurons","days","real_value","predicted_value"]
+    final_csv= pd.DataFrame(rows,columns=cols_n)
+    final_csv.to_csv(name_folder_experiment + "/" + name_folder_result_experiment + "/joined_predictions.csv")
+
+    return

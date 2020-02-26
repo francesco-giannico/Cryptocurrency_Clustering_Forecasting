@@ -1,11 +1,11 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from itertools import product
 import os
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 from utility.folder_creator import folder_creator
 
-
+#for forecasting
 def report_configurations(temporal_sequence, num_neurons, experiment_folder,
                                        results_folder, report_folder, output_filename):
     kind_of_report = "configurations_oriented"
@@ -68,6 +68,7 @@ def report_configurations(temporal_sequence, num_neurons, experiment_folder,
 
     return
 
+#for forecasting
 def report_crypto(experiment_folder, result_folder, report_folder,output_filename):
     kind_of_report = "crypto_oriented"
 
@@ -124,6 +125,7 @@ def report_crypto(experiment_folder, result_folder, report_folder,output_filenam
             name_file_output="bargraph_RMSE_" + str(crypto))
     return
 
+#for forecasting
 def plot_report(path_file, x_data, column_of_data, label_for_values_column, label_x, title_img, destination,
                 name_file_output):
 

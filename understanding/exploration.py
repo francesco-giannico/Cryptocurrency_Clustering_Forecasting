@@ -7,9 +7,8 @@ from pandas.plotting import lag_plot
 from scipy.stats import pearsonr, stats
 
 from utility.reader import get_original_crypto_symbols
-from visualization.bar_chart import bar_chart
 from utility.folder_creator import folder_creator
-
+from visualization.bar_chart.exploration import missing_values_by_year
 
 COLUMNS=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 PATH_DATA_UNDERSTANDING= "../understanding/output/"
@@ -24,7 +23,7 @@ def missing_values(PATH_DATASET):
 def generate_bar_chart_by_year(PATH_TO_SAVE):
     df = pd.read_csv(PATH_DATA_UNDERSTANDING+"missing_by_year.csv", delimiter=',', header=0)
     df = df.set_index("Symbol")
-    bar_chart(df,PATH_TO_SAVE)
+    missing_values_by_year(df,PATH_TO_SAVE)
 
 def count_missing_values_by_year(PATH_DATASET):
   cryptos = get_original_crypto_symbols()

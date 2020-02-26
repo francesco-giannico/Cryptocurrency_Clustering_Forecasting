@@ -1,10 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
+from itertools import product
+import os
+from utility.folder_creator import folder_creator
 
-
-def bar_chart(df,PATH_TO_SAVE):
+#for missing values
+def missing_values_by_year(df,PATH_TO_SAVE):
     #set the x-axis labels
     x_axis_values = df.columns.values
     for crypto in df.index:
