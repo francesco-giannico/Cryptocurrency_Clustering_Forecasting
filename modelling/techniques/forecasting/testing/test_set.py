@@ -62,6 +62,6 @@ def get_testset(path_file):
         test_dates= td.readlines()
 
     for test_date in test_dates:
-        test_set.append(pd.to_datetime(test_date, yearfirst=True))
+        test_set.append(test_date.replace("\n",""))
 
     return test_set

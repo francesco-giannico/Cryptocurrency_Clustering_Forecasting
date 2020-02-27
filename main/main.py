@@ -1,6 +1,8 @@
 from datetime import datetime
 from math import sqrt
 import pandas as pd
+
+from modelling.techniques.baseline.simple_prediction.simple_prediction import simple_prediction
 from modelling.techniques.clustering.clustering import clustering
 from modelling.techniques.forecasting.single_target import single_target
 from modelling.techniques.forecasting.testing.test_set import generate_testset, get_testset
@@ -50,7 +52,8 @@ def main():
     DATA_PATH="../modelling/techniques/clustering/output/"+distance_measure+"/"+start_date+"_"+end_date+"/cut_datasets/"
     #DATA_PATH="../preparation/preprocessed_dataset/integrated/"
     TENSOR_DATA_PATH=EXPERIMENT_PATH+"tensor_data"
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    simple_prediction(DATA_PATH,TEST_SET)
+    """ single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequences,
@@ -66,7 +69,7 @@ def main():
     report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
 
 
-    generate_line_chart(EXPERIMENT_PATH,"ADA",temporal_sequences,number_neurons,["single_target"])
+    generate_line_chart(EXPERIMENT_PATH,"ADA",temporal_sequences,number_neurons,["single_target"])"""
 
 
 main()
