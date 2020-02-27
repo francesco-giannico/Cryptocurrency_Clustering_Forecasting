@@ -15,11 +15,6 @@ from visualization.line_chart import plot_train_and_validation_loss
 
 np.random.seed(0)
 
-# TENSOR_PATH = "../crypto_TensorData"
-# Parameters of experiments
-# temporal_sequence_considered = [30, 100, 200]
-# number_neurons_LSTM = [128, 256]
-# features_to_exclude_from_scaling = ['Symbol']
 
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, num_neurons, learning_rate,

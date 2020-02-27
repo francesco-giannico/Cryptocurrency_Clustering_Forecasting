@@ -23,4 +23,31 @@ def normalize():
             if col not in excluded_features:
                 normalized = scaler.fit_transform(df[col].values.reshape(-1, 1))
                 df[col] = pd.Series(normalized.reshape(-1))
-        df.to_csv( PATH_NORMALIZED_FOLDER+crypto,sep=",", index=False)
+        df.to_csv(PATH_NORMALIZED_FOLDER+crypto,sep=",", index=False)
+
+#creates the horizontal dataset
+def create_horizontal_dataset(data_path,output_path):
+    folder_creator(output_path+"horizontal_dataset/",1)
+    dataframes=[]
+    cryptocurrencies=os.listdir(data_path)
+
+    #take just the date column one time
+    for crypto in cryptocurrencies:
+        df_date=pd.read_csv(data_path+crypto,usecols=['Date'])
+        dataframes.append(df_date)
+        break
+
+    #concat horizontally all the dataframes
+    i=1
+    for crypto in os.listdir(data_path):
+        df=pd.read_csv(data_path+crypto)
+        df=df.drop('Date',axis=1)
+        df=df.add_suffix('_'+str(i)) #creates Close_1,Open_1 ecc..
+        i+=1
+        dataframes.append(df)
+    horizontal = pd.concat(dataframes, axis=1)
+
+    #serialization
+    horizontal.to_csv(output_path+"horizontal_dataset/horizontal.csv",sep=",",index=False)
+
+

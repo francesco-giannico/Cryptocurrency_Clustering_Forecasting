@@ -34,3 +34,4 @@ def get_SMA(data_series_of_feature,lookback_value):
 
 def get_EMA(data_series_of_feature,lookback_value):
     return panda.ema(data_series_of_feature, length=lookback_value)
+

@@ -2,26 +2,17 @@ import os
 import numpy as np
 import pandas as pd
 from itertools import product
-from crypto_utility import experiments
-from crypto_utility.report_data import report_configurations, report_stockseries
-
 np.random.seed(0)
 
-
-# TENSOR_PATH = "../crypto_TensorData"
-
-# Parameters of experiments
-# series = os.listdir(DATA_PATH)
-# temporal_sequence_considered = [30, 100, 200]
-# number_neurons_LSTM = [128, 256]
-# Testing_Set = test_set.get_testset("../crypto_testset/from_2016_07_01_until_2017_06_26/test_set.txt")
 # features_to_exclude_from_scaling = ['Symbol_1','Symbol_2','Symbol_3','Symbol_4','Symbol_5','Symbol_6','Symbol_7','Symbol_8']
 
-def multi_target(EXPERIMENT, DATA_PATH, TENSOR_DATA_PATH, temporal_sequence, number_neurons, learning_rate,dimension_last_layer,
-                 features_to_exclude_from_scaling, testing_set,type):
-    MODELS_PATH="Models"
-    RESULT_PATH = "Result"
-    REPORT_FOLDER_NAME = "Report"
+PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
+def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, num_neurons, learning_rate,,dimension_last_layer,testing_set,type):
+
+    #################### FOLDER SETUP ####################
+    MODELS_PATH = "models"
+    RESULT_PATH = "result"
+
 
     # Create Structure of Folder - according to defined path
     os.makedirs(EXPERIMENT, exist_ok=True)
