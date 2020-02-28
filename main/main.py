@@ -3,6 +3,7 @@ from math import sqrt
 import pandas as pd
 
 from modelling.techniques.baseline.simple_prediction.simple_prediction import simple_prediction
+from modelling.techniques.baseline.vector_autoregression.vector_autoregression import vector_autoregression
 from modelling.techniques.clustering.clustering import clustering
 from modelling.techniques.forecasting.single_target import single_target
 from modelling.techniques.forecasting.testing.test_set import generate_testset, get_testset
@@ -85,10 +86,10 @@ def main():
     #create horizontal dataset
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
     #datapath invariato
-    create_horizontal_dataset(DATA_PATH, EXPERIMENT_PATH)
+    #create_horizontal_dataset(DATA_PATH, EXPERIMENT_PATH)
 
     #VECTOR AUTOREGRESSION
-
+    vector_autoregression(EXPERIMENT_PATH+"horizontal_dataset/horizontal.csv",TEST_SET)
 
     #MULTITARGET LSTM
 main()

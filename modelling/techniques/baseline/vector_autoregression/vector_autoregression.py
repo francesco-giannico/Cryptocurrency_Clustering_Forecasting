@@ -7,113 +7,110 @@ import os
 from statsmodels.tsa.api import VAR
 import warnings
 
+from modelling.techniques.forecasting.evaluation.error_measures import get_rmse
 from utility.folder_creator import folder_creator
 
 warnings.filterwarnings("ignore")
 
-
 # # Utility functions
-def str_to_datetime(inp_dt):
-    # return dt.strptime(inp_dt, '%Y-%m-%d')
-    return dt.strptime(inp_dt, '%d/%m/%y')
-
-
-def str_to_datetime2(inp_dt):
-    return dt.strptime(inp_dt, '%Y-%m-%d')
-
+def str_to_datetime(date):
+    return dt.strptime(date, '%Y-%m-%d')
 
 def datetime_to_str(inp_dt):
     return inp_dt.strftime('%Y-%m-%d')
-    # return inp_dt.strftime('%d/%m/%y')
 
 
-def datetime_to_str2(inp_dt):
-    return inp_dt.strftime('%d/%m/%y')
-
-
-def scale_data(old_val, old_min, old_max, new_min, new_max):
-    return float((((old_val - old_min) / (old_max - old_min)) * (new_max - new_min)) + new_min)
-
-
-# def check_date_exist(dt_to_check):
-#     return True if dt_to_check in timeframe_list_dt else False
-def check_date_exist(dt_to_check):
-    return True  # modificare becera che non controlla la data da testare
-
-result_folder="../modelling/techniques/baseline/simple_prediction/output/"
+result_folder="../modelling/techniques/baseline/vector_autoregression/output/"
 partial_folder="predictions"
 final_folder="average_rmse"
 
-
-#PER IL MULTITARGET!!!!
 def vector_autoregression(data_path,test_set):
     folder_creator(result_folder+partial_folder+"/",1)
     folder_creator(result_folder+final_folder,1)
 
-    csv="../../crypto_preprocessing/step5_horizontal/horizontal.csv"
+    df = pd.read_csv(data_path, sep=',', header=0)
+    df=df.set_index('Date')
 
-    stock_df = pd.read_csv(csv, sep=',', decimal='.', header=0)
-    stock_df['DateTime'] = stock_df['DateTime'].apply(lambda x: str_to_datetime2(x))
-    stock_df.set_index('DateTime', inplace=True)
-    stock_df.sort_index(inplace=True)
+    #it takes only "Close_X" columns (note that Date is not cut off since it is an index)
+    features = df.columns
+    features = [feature for feature in features if feature.startswith('Close')]
+    df = df[features]
 
-    print(stock_df.columns)
-    print(stock_df.index)
-    features = stock_df.columns
-    features = [f for f in features if f.startswith('Close')]
-    new_model = stock_df[features]
-    new_model = new_model.apply(lambda x: (x - x.min()) / (x.max() - x.min()))
-    print(new_model.head())
+    #min max normalization, sono già normalizzati secondo me non ha senso rifare la normalizzazione
+    #df = df.apply(lambda x: (x - x.min()) / (x.max() - x.min()))
+    """ print(df.head())
     print('features:', len(features))
-    print('sono:', features)
+    print('they are:', features)"""
+    #we are using only the features "Close_X"
+    #todo bisogna controllare che siano stazionarie, tutte le Close
 
-    for date in test_set:
-
+    for test_date in test_set:
         try:
-            test_tf = str_to_datetime2(date_pred)
-            train_tf = test_tf - timedelta(days=1)
+            test_date = str_to_datetime(test_date)
+            #get previous day (just 1)
+            train_date= test_date - timedelta(days=1)
 
-            if not check_date_exist(train_tf):
-                train_tf = train_tf - timedelta(days=1)
+            train_date=datetime_to_str(train_date)
+            test_date=datetime_to_str(test_date)
+            print('Last training day: {}'.format(train_date))
+            print('Testing day: {}'.format(test_date))
 
-                if not check_date_exist(train_tf):
-                    train_tf = train_tf - timedelta(days=1)
+            #splitting the dataset in test and train set, based on the date index
+            df_train = df[:train_date]
+            #select the row of the dataframe subject to test
+            df_test= df[test_date:test_date].values[0]
 
-                    if not check_date_exist(train_tf):
-                        print('Error while trying yo get train/test timeframe.')
-                        continue
+            model = VAR(df_train)
+            #todo scelta del miglior lag...
+            """for i in [1, 2, 3, 4]:
+                results = model.fit(maxlags=i)
+                print('Lag Order =', i)
+                print('AIC : ', results.aic)
+                print('BIC : ', results.bic)
+                print('FPE : ', results.fpe)
+                print('HQIC: ', results.hqic, '\n')"""
 
-            print('Last Train day: {}'.format(datetime_to_str(train_tf)))
-            print('Test day: {}'.format(date_pred))
-
-            train_model = new_model[:train_tf]
-            train_model.fillna(0, inplace=True)
-            y_test = new_model[test_tf:test_tf].values[0]
-
-            model = VAR(train_model)
-            results = model.fit(maxlags=3, ic='aic')
+            results = model.fit(maxlags=4, ic='aic')
+            #get the lag order
             lag_order = results.k_ar
-            y_predicted = results.forecast(train_model.values[-lag_order:], 1)[0]
+            #print(lag_order)
+            #data to forecast, note that "values" transform a dataframe in a nparray
+            #takes the last 4 elements..
+            #in order to forecast it expects up to the lag order number of observations from the past data
+            data_for_forecasting=df_train.values[-lag_order:]
+            #print(data_for_forecasting.shape)
+            num_of_days_to_predict=1
+            y_predicted = results.forecast(data_for_forecasting,steps=num_of_days_to_predict)[0]
 
-            os.makedirs(out_path, exist_ok=True)
-            with open(os.path.join(out_path,partial_folder,'var_model_norm_{}.csv'.format(date_pred)), 'w') as vf:
-                vf.write('Real,Predicted\n')
-                for k in range(len(y_test)):
-                    vf.write('{},{}\n'.format(y_test[k], y_predicted[k]))
-
-
+            #serialization, for each date
+            filename=os.path.join(result_folder, partial_folder, '{}.csv'.format(test_date))
+            df_out=pd.DataFrame()
+            df_out['observed_value']=df_test
+            df_out['predicted_value'] = y_predicted
+            df_out.to_csv(filename, sep=",", index=False)
         except Exception as e:
             print('Error, possible cause: {}'.format(e))
 
+    # serialization
+    rmses = []
+    for test_date in os.listdir(result_folder + partial_folder + "/"):
+        df1 = pd.read_csv(result_folder + partial_folder + "/" + test_date)
+        # get rmse for each crypto
+        rmses.append(get_rmse(df1['predicted_value'], df1['observed_value']))
 
-    errors=[]
-
-    for csv in os.listdir(os.path.join(out_path,partial_folder)):
-        res = pd.read_csv(os.path.join(out_path,partial_folder,csv))
-        error = res['Real'] - res['Predicted']
-        sq_error = error ** 2
-        errors.append(np.mean(sq_error))
-
-    with open(os.path.join(out_path,final_folder,"RMSE.txt"), 'w+') as out:
-        final = math.sqrt(np.mean(errors))
+    with open(os.path.join(result_folder, final_folder, "average_rmse.txt"), 'w+') as out:
+        final = np.mean(rmses)
         out.write(str(final))
+
+"""  errors = []
+
+for csv in os.listdir(os.path.join(result_folder, partial_folder)):
+    res = pd.read_csv(os.path.join(result_folder, partial_folder, csv))
+    error = res['Real'] - res['Predicted']
+    sq_error = error ** 2
+    errors.append(np.mean(sq_error))
+
+with open(os.path.join(result_folder, final_folder, "RMSE.txt"), 'w+') as out:
+    final = math.sqrt(np.mean(errors))
+    out.write(str(final))"""
+
