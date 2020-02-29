@@ -1,0 +1,2 @@
+configuration,RMSE_normalized,RMSE_denormalized
+LSTM_128_neurons_30_days,0.008893206453143097,0.009656651883862624

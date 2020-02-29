@@ -1,0 +1,21 @@
+cluster_id,cryptos
+0,"['ADA', 'ARK', 'STRAT']"
+1,"['ADX', 'VERI', 'BCN', 'DNT', 'XRP', 'DGB', 'NANO', 'SNM', 'STORJ', 'SYS']"
+2,"['AE', 'BCH', 'ETC', 'TAAS', 'DGD']"
+3,"['ANT', 'KNC', 'NEO']"
+4,"['ARDR', 'GNT', 'ICX', 'ZEC', 'SC', 'MLN', 'QTUM']"
+5,"['ATB', 'NLC2', 'NXT', 'EDG', 'SMART', 'GAME', 'FRST']"
+6,"['BAT', 'MCO', 'RLC', 'DCR', 'EOS', 'TRX']"
+7,"['BLOCK', 'GBYTE', 'WINGS', 'XCP', 'IOC', 'MIOTA', 'VTC', 'XUC', 'XVG', 'LRC', 'NXS', 'CVC', 'NEBL', 'NAV', 'FCT', 'PART', 'SNGLS', 'MTL', 'FUN', 'QRL']"
+8,"['BNB', 'LINK']"
+9,"['BNT', 'LSK', 'MONA', 'QASH', 'BTS', 'DASH']"
+10,['BTC']
+11,"['BTG', 'PAY']"
+12,['DCN']
+13,"['DOGE', 'ZEN', 'ZRX', 'ETH', 'LTC', 'ETP', 'REP', 'XLM', 'XMR']"
+14,"['GAS', 'HC', 'SNT', 'PIVX', 'STEEM', 'GNO', 'OMG', 'XZC', 'WAVES', 'WTC']"
+15,"['KIN', 'XEM']"
+16,['KMD']
+17,['MAID']
+18,"['MGO', 'SUB', 'PPT', 'UBQ', 'SALT']"
+19,['USDT']

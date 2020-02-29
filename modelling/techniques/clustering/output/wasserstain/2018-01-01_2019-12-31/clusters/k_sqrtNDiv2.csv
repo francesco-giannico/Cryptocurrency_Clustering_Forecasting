@@ -1,0 +1,8 @@
+cluster_id,cryptos
+0,"['ADA', 'ARK', 'STRAT', 'ARDR', 'GNT', 'ICX', 'ZEC', 'SC', 'MLN', 'QTUM', 'GAS', 'HC', 'SNT', 'PIVX', 'STEEM', 'GNO', 'OMG', 'XZC', 'WAVES', 'WTC']"
+1,"['ADX', 'VERI', 'BCN', 'DNT', 'XRP', 'DGB', 'NANO', 'SNM', 'STORJ', 'SYS', 'BLOCK', 'GBYTE', 'WINGS', 'XCP', 'IOC', 'MIOTA', 'VTC', 'XUC', 'XVG', 'LRC', 'NXS', 'CVC', 'NEBL', 'NAV', 'FCT', 'PART', 'SNGLS', 'MTL', 'FUN', 'QRL', 'DCN']"
+2,"['AE', 'BCH', 'ETC', 'TAAS', 'DGD', 'KMD']"
+3,"['ANT', 'KNC', 'NEO', 'DOGE', 'ZEN', 'ZRX', 'ETH', 'LTC', 'ETP', 'REP', 'XLM', 'XMR']"
+4,"['ATB', 'NLC2', 'NXT', 'EDG', 'SMART', 'GAME', 'FRST', 'KIN', 'XEM', 'MGO', 'SUB', 'PPT', 'UBQ', 'SALT']"
+5,"['BAT', 'MCO', 'RLC', 'DCR', 'EOS', 'TRX', 'MAID', 'BNB', 'LINK', 'BTC', 'BTG', 'PAY', 'USDT']"
+6,"['BNT', 'LSK', 'MONA', 'QASH', 'BTS', 'DASH']"
