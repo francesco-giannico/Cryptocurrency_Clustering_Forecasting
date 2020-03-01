@@ -17,7 +17,7 @@ np.random.seed(0)
 
 
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
-def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, num_neurons, learning_rate,
+def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, list_num_neurons, learning_rate,
                    testing_set):
 
     #################### FOLDER SETUP ####################
@@ -28,6 +28,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
         os.remove(EXPERIMENT_PATH+RESULT_PATH+"/merged_predictions.csv")
     except:
         pass
+
+    #windows_and_neurons=
 
     for crypto in os.listdir(DATA_PATH):
 
@@ -47,10 +49,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                             'observed_denorm': [], 'predicted_denorm': []}
         errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': [],'r2_norm':[],'r2_denorm':[]}
 
-        #print(list(product(temporal_sequence, number_neurons)))
         #[(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
         #print(np.array(dataset)[0]), takes the first row of the dataset (2018-01 2020...etc.)
-        for window, num_neurons in product(window_sequence, num_neurons):
+        for window, num_neurons in product(window_sequence, list_num_neurons):
             print('Current configuration: ')
             print("Crypto_symbol: ",crypto,"\t", "Window_sequence: ",window,"\t", "Neurons: ",num_neurons)
 
@@ -208,9 +209,10 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
 
             #serialization
             pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv',index=False)
-            pd.DataFrame(data=errors_file).to_csv(results_path  + 'errors.csv',index=False)
+            pd.DataFrame(data=errors_file).to_csv(results_path + 'errors.csv',index=False)
 
-        break
+
+
 
 
 

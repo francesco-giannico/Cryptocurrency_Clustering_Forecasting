@@ -1,4 +1,5 @@
 from datetime import datetime
+from itertools import product
 from math import sqrt
 import pandas as pd
 
@@ -16,6 +17,7 @@ from utility.dataset_utils import cut_dataset_by_range
 from visualization.bar_chart.forecasting import report_configurations, report_crypto
 from visualization.line_chart import generate_line_chart
 
+import numpy as np
 
 def main():
     #DATA UNDERSTANDING
@@ -56,23 +58,26 @@ def main():
     #DATA_PATH="../preparation/preprocessed_dataset/integrated/"
 
     #SIMPLE PREDICTION
-    simple_prediction(DATA_PATH,TEST_SET)
+    #simple_prediction(DATA_PATH,TEST_SET)
 
     #SINGLE TARGET LSTM
     temporal_sequences = [30]
     number_neurons = [128]
     learning_rate = 0.001
+    """for i in range(5):
+        for win,temp in product(temporal_sequences,number_neurons):
+            print('hello')"""
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
-    """ single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequences,
-                  num_neurons=number_neurons, learning_rate=learning_rate,
+                  list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET
                   )
 
     #visualization
-    report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
+    """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH,results_folder="result",
                           report_folder="report",output_filename="overall_report")
 
@@ -84,12 +89,12 @@ def main():
 
     #MULTITARGET
     #create horizontal dataset
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
+    #EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
     #datapath invariato
     #create_horizontal_dataset(DATA_PATH, EXPERIMENT_PATH)
 
     #VECTOR AUTOREGRESSION
-    vector_autoregression(EXPERIMENT_PATH+"horizontal_dataset/horizontal.csv",TEST_SET)
+    #vector_autoregression(EXPERIMENT_PATH+"horizontal_dataset/horizontal.csv",TEST_SET)
 
     #MULTITARGET LSTM
 main()
