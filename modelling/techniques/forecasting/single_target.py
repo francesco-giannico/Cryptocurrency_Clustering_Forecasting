@@ -10,7 +10,6 @@ from modelling.techniques.forecasting.training.training import prepare_input_for
 from utility.folder_creator import folder_creator
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-
 from visualization.line_chart import plot_train_and_validation_loss
 
 np.random.seed(0)
@@ -29,8 +28,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
     except:
         pass
 
-    #windows_and_neurons=
-
     for crypto in os.listdir(DATA_PATH):
 
         crypto_name = crypto.replace(".csv", "")
@@ -44,11 +41,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
         dataset, features, features_without_date, scaler_target_feature=  \
             prepare_input_forecasting(PREPROCESSED_PATH,DATA_PATH,crypto)
 
-        # DICTIONARY FOR STATISTICS
-        predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
-                            'observed_denorm': [], 'predicted_denorm': []}
-        errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': [],'r2_norm':[],'r2_denorm':[]}
-
         #[(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
         #print(np.array(dataset)[0]), takes the first row of the dataset (2018-01 2020...etc.)
         for window, num_neurons in product(window_sequence, list_num_neurons):
@@ -59,8 +51,10 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
             dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                    TENSOR_DATA_PATH + "/" + crypto_name + "/",
                                                    crypto_name)
-
-
+            # DICTIONARY FOR STATISTICS
+            predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
+                                'observed_denorm': [], 'predicted_denorm': []}
+            errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': [], 'r2_norm': [], 'r2_denorm': []}
 
             #New folders for this configuration
             configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
@@ -101,14 +95,14 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 train = train[:, :, 1:]
                 test = test[:, :, 1:]
 
-                index_of_feature_close=features_without_date.index('Close')
+                index_of_target_feature=features_without_date.index('Close')
                 #remove the last day before the day to predict:
                 #e.g date to predict 2019-01-07 thus the data about 2019-01-06 will be discarded.
                 #e.g [[items],[items2],[items3]] becames [[items1],[items2]]
                 x_train= train[:, :-1, :]
                 # remove the last day before the day to predict, by doing -1
                 # returns an array with all the values of the feature close
-                y_train =train[:, -1,  index_of_feature_close]
+                y_train =train[:, -1,  index_of_target_feature]
 
                 # NOTE: in the testing set we must have the dates to evaluate the experiment without the date to forecast!!!
                 # remove the day to predict
@@ -117,7 +111,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 x_test = test[:, :-1, :]
                 # remove the last day before the day to predict, by doing -1
                 # returns an array with all the values of the feature close to predict!
-                y_test = test[:, -1, index_of_feature_close]
+                y_test = test[:, -1, index_of_target_feature]
 
                 # change the data type, from object to float
                 x_train = x_train.astype('float')
@@ -125,12 +119,12 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 x_test = x_test.astype('float')
                 y_test = y_test.astype('float')
 
-                #x_train= tf.convert_to_tensor(x_train, np.float32)
-                #if the date to predict is the first date in the testing_set
+                #General parameters
                 DROPOUT=0.2
                 EPOCHS=100
                 BATCH_SIZE=256
 
+                # if the date to predict is the first date in the testing_set
                 if date_to_predict == testing_set[0]:
                     model, history = train_model(x_train,y_train,x_test,y_test,
                                                  num_neurons=num_neurons,

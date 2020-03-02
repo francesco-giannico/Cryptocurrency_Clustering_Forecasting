@@ -6,7 +6,7 @@ from utility.folder_creator import folder_creator
 
 PATH_PREPROCESSED = "../preparation/preprocessed_dataset/"
 
-def preprocessing(type):
+def preprocessing():
     folders_setup()
     feature_selection()
     separation()

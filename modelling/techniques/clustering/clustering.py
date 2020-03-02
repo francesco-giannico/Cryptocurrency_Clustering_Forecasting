@@ -10,7 +10,7 @@ from utility.reader import get_dict_symbol_id
 def clustering(distance_measure,start_date,end_date):
     CLUSTERING_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/"
 
-    """folder_setup(CLUSTERING_PATH,distance_measure,start_date,end_date)
+    folder_setup(CLUSTERING_PATH,distance_measure,start_date,end_date)
 
     prepare_dataset_for_clustering(start_date,end_date,CLUSTERING_PATH)
     
@@ -18,9 +18,9 @@ def clustering(distance_measure,start_date,end_date):
     
     dict_symbol_id = get_dict_symbol_id(CLUSTERING_PATH)
     
-    compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,CLUSTERING_PATH)"""
+    #compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,CLUSTERING_PATH)
     
-    consensus_clustering(CLUSTERING_PATH)
+    #consensus_clustering(CLUSTERING_PATH)
 
 
 def folder_setup(CLUSTERING_PATH,distance_measure,start_date,end_date):

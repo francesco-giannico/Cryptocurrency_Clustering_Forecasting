@@ -1,0 +1,21 @@
+cluster_id,cryptos
+0,"['ADA', 'ARDR', 'SC', 'STRAT']"
+1,"['ADX', 'VERI', 'BCN', 'DNT', 'NANO', 'DGB', 'XRP']"
+2,"['AE', 'BCH', 'ETC', 'TAAS', 'DGD']"
+3,"['ANT', 'REP', 'XLM', 'KNC', 'NEO']"
+4,"['ARK', 'ICX', 'ZEC', 'GNT', 'MLN', 'QTUM']"
+5,"['ATB', 'SALT', 'NLC2', 'NXT', 'KIN', 'XEM']"
+6,"['BAT', 'RLC', 'MCO', 'DCR', 'EOS', 'TRX', 'BTC']"
+7,"['BLOCK', 'GBYTE', 'WINGS', 'XCP', 'LRC', 'NXS', 'XVG', 'XUC', 'VTC', 'IOC', 'MIOTA', 'CVC', 'NEBL', 'NAV', 'FCT', 'QRL', 'PART', 'SNM', 'FUN', 'MTL', 'SNGLS', 'STORJ', 'SYS']"
+8,"['BNB', 'LINK']"
+9,"['BNT', 'QASH', 'LSK', 'MONA']"
+10,['BTG']
+11,"['BTS', 'DASH', 'OMG', 'WAVES', 'XZC', 'WTC', 'GAS', 'HC', 'STEEM', 'PIVX', 'SNT', 'GNO']"
+12,['DCN']
+13,"['DOGE', 'ZEN', 'ZRX', 'XMR', 'ETH', 'ETP', 'LTC']"
+14,"['EDG', 'SMART', 'GAME', 'FRST']"
+15,['KMD']
+16,['MAID']
+17,"['MGO', 'SUB', 'PPT', 'UBQ']"
+18,['PAY']
+19,['USDT']
