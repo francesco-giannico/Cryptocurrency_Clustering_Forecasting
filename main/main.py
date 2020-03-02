@@ -38,7 +38,7 @@ def main():
     distance_measure="wasserstain"
     start_date = "2018-01-01"
     end_date = "2019-12-31"
-    #clustering("wasserstain",start_date="2018-01-01",end_date="2019-12-31")
+    clustering("wasserstain",start_date="2018-01-01",end_date="2019-12-31")
 
     #forecasting
 
@@ -68,13 +68,13 @@ def main():
         for win,temp in product(temporal_sequences,number_neurons):
             print('hello')"""
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET
-                  )
+                  )"""
 
     #visualization
     """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,

@@ -5,6 +5,7 @@ import pandas as pd
 fileDir = os.path.dirname(os.path.realpath(__file__))
 
 
+#get a list of crypto starting from a specific folder
 def get_crypto_symbols_from_folder(PATH_SOURCE):
     crypto_symbols = []
     for file in os.listdir(PATH_SOURCE):
@@ -12,7 +13,7 @@ def get_crypto_symbols_from_folder(PATH_SOURCE):
         crypto_symbols.append(crypto)
     return crypto_symbols
 
-#used only for the original dataset
+#get a list of crypto starting from a specific text file
 def get_crypto_symbols_from_text_file():
     crypto_symbols= []
     fileToRead = read_file("../acquisition/crypto_symbols.txt")

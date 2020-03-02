@@ -31,9 +31,16 @@ def prepare_dataset_for_clustering(start_date,end_date,CLUSTERING_PATH):
         except:
             pass
 
+#todo dopo cambiamo il nome
+def separate_folders(CLUSTERING_PATH):
+    for k_used in os.listdir(CLUSTERING_PATH+"clusters/"):
+        df= pd.read_csv(k_used,sep=",",header=0,index_col=0)
+        print(df[0])
+
+
+
+
 #VISUALIZATION
-
-
 #just joins the prediction of all cryptocurrencies. It does no average!!
 def merge_predictions(experiment_folder, result_folder,model_type):
     experiment_and_result_folder=experiment_folder + result_folder +"/"
