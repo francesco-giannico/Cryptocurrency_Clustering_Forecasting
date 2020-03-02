@@ -1,3 +1,4 @@
+import ast
 import os
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
@@ -34,8 +35,10 @@ def prepare_dataset_for_clustering(start_date,end_date,CLUSTERING_PATH):
 #todo dopo cambiamo il nome
 def separate_folders(CLUSTERING_PATH):
     for k_used in os.listdir(CLUSTERING_PATH+"clusters/"):
-        df= pd.read_csv(k_used,sep=",",header=0,index_col=0)
-        print(df[0])
+        df= pd.read_csv(CLUSTERING_PATH+"clusters/"+k_used,sep=",",header=0,index_col=0)
+        for str in ast.literal_eval(df.loc[0,'cryptos']):
+            pass
+
 
 
 
