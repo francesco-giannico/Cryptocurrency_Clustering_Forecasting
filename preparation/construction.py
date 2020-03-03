@@ -30,6 +30,7 @@ def create_horizontal_dataset(data_path,output_path):
     folder_creator(output_path+"horizontal_dataset/",1)
     dataframes=[]
     cryptocurrencies=os.listdir(data_path)
+    cryptos_in_the_cluster=[]
 
     #take just the date column one time
     for crypto in cryptocurrencies:
@@ -37,17 +38,22 @@ def create_horizontal_dataset(data_path,output_path):
         dataframes.append(df_date)
         break
 
-    #concat horizontally all the dataframes
+    # creates Close_1,Open_1 ecc for each dataframe
     i=1
     for crypto in os.listdir(data_path):
         df=pd.read_csv(data_path+crypto)
+        cryptos_in_the_cluster.append(crypto.replace(".csv",""))
         df=df.drop('Date',axis=1)
-        df=df.add_suffix('_'+str(i)) #creates Close_1,Open_1 ecc..
+        df=df.add_suffix('_'+str(i))
         i+=1
         dataframes.append(df)
+
+    #concat horizontally all the dataframes
     horizontal = pd.concat(dataframes, axis=1)
 
     #serialization
     horizontal.to_csv(output_path+"horizontal_dataset/horizontal.csv",sep=",",index=False)
+
+    return cryptos_in_the_cluster
 
 

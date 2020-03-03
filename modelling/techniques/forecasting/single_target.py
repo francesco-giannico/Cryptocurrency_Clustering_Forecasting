@@ -61,9 +61,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
             # Create a folder to save
             # - best model checkpoint
             # - statistics (results)
-            best_model = "model"
             statistics = "stats"
-            model_path = EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name + "/" + configuration_name + "/" + best_model+"/"
+            model_path = EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name + "/" + configuration_name + "/"
             results_path = EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name + "/" + configuration_name + "/" + statistics +"/"
             folder_creator(model_path,1)
             folder_creator(results_path,1)

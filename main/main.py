@@ -39,9 +39,9 @@ def main():
     #clustering
     # todo compute distance matrix
     distance_measure="wasserstain"
-    start_date = "2017-07-01"
+    start_date = "2016-01-01"
     end_date = "2019-12-31"
-    clustering("wasserstain",start_date=start_date,end_date=end_date)
+    #clustering("wasserstain",start_date=start_date,end_date=end_date)
 
     #forecasting
     # GENERATING TESTING SET
@@ -94,27 +94,27 @@ def main():
     #MULTITARGET LSTM
     DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
-    TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
-    #dimension_last_layer=
 
 
     #folder_creator(EXPERIMENT_PATH + "clusters", 0)
     #reads each k used (folders'name)
     for k_used in os.listdir(DATA_PATH):
-        folder_creator(EXPERIMENT_PATH + "clusters"+"/"+k_used, 1)
+        folder_creator(EXPERIMENT_PATH + "clusters"+"/"+k_used, 0)
         for cluster in os.listdir(DATA_PATH+k_used):
             if cluster.startswith("cluster_"):
-                folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/", 1)
+                folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/", 0)
                 #generate horizontal dataset
-                create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
+                # leggere le criptovalute in questo dataset.
+                cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
 
                 dim_last_layer= len(os.listdir(DATA_PATH+k_used+"/"+cluster+"/"))
                 #todo rivedere i path, sono errati
-                multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
-                                  DATA_PATH=DATA_PATH+k_used+"/"+cluster+"/",
-                                  TENSOR_DATA_PATH=TENSOR_DATA_PATH,
+                multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
+                                  DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
+                                  TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
                                   window_sequence=temporal_sequences,
                                   list_num_neurons=number_neurons, learning_rate=learning_rate,
-                                  dimension_last_layer=dim_last_layer,testing_set=TEST_SET)
-
+                                  dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster)
+            break
+        break
 main()
