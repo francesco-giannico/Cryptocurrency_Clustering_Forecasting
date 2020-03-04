@@ -24,14 +24,16 @@ def plot_train_and_validation_loss(train,test,output_folder):
 
 #plot the actual value and the predicted value
 def plot_actual_vs_predicted(
-        input_data, cryptocurrencies, models_type, list_neurons, list_temporal_sequences, output_path):
+        input_data,cryptocurrencies, crypto, list_neurons, list_temporal_sequences, output_path):
 
     #reads the csv
     data = pd.read_csv(input_data)
 
-    for crypto, neurons, days in product(cryptocurrencies, list_neurons, list_temporal_sequences):
-        #read a specific line from the file
-        data_cut = data[(data["symbol"] == crypto) & (data["neurons"] == neurons) & (data["days"] == days)]
+    #for crypto, neurons, days in product(cryptocurrencies, list_neurons, list_temporal_sequences):
+    #read a specific line from the file
+    data_cut = data[(data["symbol"] == crypto)]
+    for neurons, days in product(list_neurons, list_temporal_sequences):
+        data_cut=data_cut[(data_cut["neurons"] == neurons) & (data["days"] == days)]
 
         #create a figure
         fig = plt.figure(figsize=(12, 7),dpi=150)
@@ -42,16 +44,14 @@ def plot_actual_vs_predicted(
         plt.ylabel('Value')
 
         labels = []
-        for model, i in product(models_type,range(0, len(models_type))):
-            #model oriented information
-            data_cut_model_oriented = data_cut[data["model"] == model]
-            if (i == 0):
-                ax.plot(range(0, len(data_cut_model_oriented["date"]), 1),data_cut_model_oriented["observed_value"])
-                labels.append("REAL")
-            ax.plot(range(0, len(data_cut_model_oriented["date"]), 1), data_cut_model_oriented["predicted_value"])
-            labels.append("PREDICTED_" + str(model))
+        #model oriented information
+        #data_cut_model_oriented = data_cut[data["model"] == model]
+        ax.plot(range(0, len(data_cut["date"]), 1),data_cut["observed_value"])
+        labels.append("REAL")
+        ax.plot(range(0, len(data_cut["date"]), 1), data_cut["predicted_value"])
+        labels.append("PREDICTED")
 
-        plt.xticks(np.arange(12), data_cut_model_oriented["date"], rotation=65)
+        plt.xticks(np.arange(12), data_cut["date"], rotation=65)
         plt.legend(labels, loc=4)
         plt.grid()
         fig.tight_layout()
@@ -61,20 +61,17 @@ def plot_actual_vs_predicted(
 
 
 #todo sistemare... work in progress
-def generate_line_chart(experiment_folder,crypto_name,list_temporal_sequences,list_neurons,model_type):
+def generate_line_chart(experiment_folder,list_temporal_sequences,list_neurons):
     cryptocurrencies = get_crypto_symbols_from_folder(experiment_folder + "result/")
 
-    merge_predictions(experiment_folder, "result",model_type[0])
+    merge_predictions(experiment_folder, "result")
 
-    #clustering
-    """for id in cluster:
-        for crypto in cluster[id]:
-            cryptocurrenciesSymbol.append(crypto)"""
     #create the folder which will contain the line chart
-    folder_creator(experiment_folder+"/report/line_chart_images/"+crypto_name,1)
-    plot_actual_vs_predicted(experiment_folder+"/result/merged_predictions.csv",
-                             cryptocurrencies,
-                             ["single_target"],
-                             list_neurons,
-                             list_temporal_sequences,
-                             experiment_folder+"/report/line_chart_images/"+ crypto_name+"/")
+    for crypto in cryptocurrencies:
+        folder_creator(experiment_folder+"/report/line_chart_images/"+crypto,1)
+        plot_actual_vs_predicted(experiment_folder+"/result/merged_predictions.csv",
+                                 cryptocurrencies,
+                                 crypto,
+                                 list_neurons,
+                                 list_temporal_sequences,
+                                 experiment_folder+"/report/line_chart_images/"+ crypto+"/")

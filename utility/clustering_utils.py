@@ -45,7 +45,7 @@ def separate_folders(CLUSTERING_PATH):
 
 #VISUALIZATION
 #just joins the prediction of all cryptocurrencies. It does no average!!
-def merge_predictions(experiment_folder, result_folder,model_type):
+def merge_predictions(experiment_folder, result_folder):
     experiment_and_result_folder=experiment_folder + result_folder +"/"
 
     try:
@@ -70,7 +70,6 @@ def merge_predictions(experiment_folder, result_folder,model_type):
 
             #number of predicted days
             length = int(len(predictions_csv['symbol']))
-            model = [model_type for x in range(length)]
 
             #parses the configuration name (starting from the folder's name)
             conf_parsed = config.split("_")
@@ -78,15 +77,14 @@ def merge_predictions(experiment_folder, result_folder,model_type):
             days = [str(conf_parsed[3]) for x in range(length)]
 
             #inserts new columns
-            predictions_csv.insert(2, "model", model, True)
-            predictions_csv.insert(3, "neurons", neurons, True)
-            predictions_csv.insert(4, "days", days, True)
+            predictions_csv.insert(2, "neurons", neurons, True)
+            predictions_csv.insert(3, "days", days, True)
 
             #populate the list of values
             for row in predictions_csv.values:
                 rows.append(row)
 
-    cols= ["symbol", "date", "model", "neurons", "days", "observed_value", "predicted_value"]
+    cols= ["symbol", "date", "neurons", "days", "observed_value", "predicted_value"]
     final_csv = pd.DataFrame(rows, columns=cols)
     final_csv.to_csv(experiment_and_result_folder+ "merged_predictions.csv",index=False)
     return

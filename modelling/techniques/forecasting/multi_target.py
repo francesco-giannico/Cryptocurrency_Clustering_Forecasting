@@ -160,50 +160,47 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             predictions_file['symbol'].append(horizontal_name)
             predictions_file['date'].append(date_to_predict)
 
-            for n, v in zip(cryptos, y_test[0]):
-                n=str(n)
-                predictions_file[n + "_observed_norm"].append(float(v))
+            for crypto, observed in zip(cryptos, y_test[0]):
+                predictions_file[crypto + "_observed_norm"].append(float(observed))
 
-            for n, v in zip(cryptos, test_prediction[0]):
-                n = str(n)
-                predictions_file[n + "_predicted_norm"].append(float(v))
+            for crypto,predicted in zip(cryptos, test_prediction[0]):
+                predictions_file[crypto + "_predicted_norm"].append(float(predicted))
 
-            for n, v in zip(cryptos, y_test_denorm[0]):
-                n = str(n)
-                predictions_file[n + "_observed_denorm"].append(float(v))
+            for crypto, observed in zip(cryptos, y_test_denorm[0]):
+                predictions_file[crypto + "_observed_denorm"].append(float(observed))
 
-            for n, v in zip(cryptos, test_prediction_denorm[0]):
-                n = str(n)
-                predictions_file[n + "_predicted_denorm"].append(float(v))
+            for crypto,predicted in zip(cryptos, test_prediction_denorm[0]):
+                predictions_file[crypto + "_predicted_denorm"].append(float(predicted))
             break
+
+
         # Plot training & validation loss values
         plot_train_and_validation_loss(train_plot, val_plot, model_path)
 
+        #divides results by crypto.
         for crypto in cryptos:
-            crypto = str(crypto)
             PATH_CRYPTO=EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto+"/"+configuration_name+"/"+statistics+"/"
             folder_creator(PATH_CRYPTO, 0)
 
-            new_pred_file = {}
+            crypto_prediction_file = {}
+            """crypto_prediction_file['symbol'] = []
+            for i in range(0, len(predictions_file['symbol'])): 
+                crypto_prediction_file['symbol'].append(crypto)"""
+            crypto_prediction_file['date'] = predictions_file['date']
+            crypto_prediction_file['observed_norm'] = predictions_file[crypto + '_observed_norm']
+            crypto_prediction_file['predicted_norm'] = predictions_file[crypto + '_predicted_norm']
+            crypto_prediction_file['observed_denorm'] = predictions_file[crypto + '_observed_denorm']
+            crypto_prediction_file['predicted_denorm'] = predictions_file[crypto + '_predicted_denorm']
 
-            new_pred_file['symbol'] = []
-            for i in range(0, len(predictions_file['symbol'])): new_pred_file['symbol'].append(crypto)
-            new_pred_file['date'] = predictions_file['date']
-            new_pred_file['observed_norm'] = predictions_file[crypto + '_observed_norm']
-            new_pred_file['predicted_norm'] = predictions_file[crypto + '_predicted_norm']
-            new_pred_file['observed_denorm'] = predictions_file[crypto + '_observed_denorm']
-            new_pred_file['predicted_denorm'] = predictions_file[crypto + '_predicted_denorm']
+            crypto_errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}
+            crypto_errors_file['symbol'].append(crypto)
+            rmse = get_rmse(crypto_prediction_file['observed_norm'], crypto_prediction_file['predicted_norm'])
+            rmse_denorm = get_rmse(crypto_prediction_file['observed_denorm'], crypto_prediction_file['predicted_denorm'])
+            crypto_errors_file['rmse_norm'].append(rmse)
+            crypto_errors_file['rmse_denorm'].append(rmse_denorm)
 
-            errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}
-            errors_file['symbol'].append(crypto)
-            rmse = get_rmse(new_pred_file['observed_norm'], new_pred_file['predicted_norm'])
-            rmse_denorm = get_rmse(new_pred_file['observed_denorm'], new_pred_file['predicted_denorm'])
-            errors_file['rmse_norm'].append(rmse)
-            errors_file['rmse_denorm'].append(rmse_denorm)
-
-            pd.DataFrame(data=new_pred_file).to_csv(
-                PATH_CRYPTO+ 'predictions.csv')
-            pd.DataFrame(data=errors_file).to_csv(
-                PATH_CRYPTO  + 'errors.csv')
+            #serialization
+            pd.DataFrame(data=crypto_prediction_file).to_csv(PATH_CRYPTO + 'predictions.csv',index=False)
+            pd.DataFrame(data=crypto_errors_file).to_csv(PATH_CRYPTO + 'errors.csv',index=False)
 
     return

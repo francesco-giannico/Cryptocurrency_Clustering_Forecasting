@@ -74,27 +74,18 @@ def main():
     #visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH,results_folder="result",
-                          report_folder="report",output_filename="overall_report")
+                          report_folder="report",output_filename="overall_report")"""
 
-    report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
+    #report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
 
 
-    generate_line_chart(EXPERIMENT_PATH,"ADA",temporal_sequences,number_neurons,["single_target"])"""
+    #generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)
 
 
     #MULTITARGET
-    #create horizontal dataset
-    #EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
-    #datapath invariato
-    #create_horizontal_dataset(DATA_PATH, EXPERIMENT_PATH)
 
-    #VECTOR AUTOREGRESSION
-    #vector_autoregression(EXPERIMENT_PATH+"horizontal_dataset/horizontal.csv",TEST_SET)
-
-    #MULTITARGET LSTM
     DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
-
 
     #folder_creator(EXPERIMENT_PATH + "clusters", 0)
     #reads each k used (folders'name)
@@ -105,16 +96,29 @@ def main():
                 folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/", 0)
                 #generate horizontal dataset
                 # leggere le criptovalute in questo dataset.
-                cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
+                #cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
 
+                # Baseline - VECTOR AUTOREGRESSION
+                # vector_autoregression(EXPERIMENT_PATH+"horizontal_dataset/horizontal.csv",TEST_SET)
+
+                # LSTM
                 dim_last_layer= len(os.listdir(DATA_PATH+k_used+"/"+cluster+"/"))
-                #todo rivedere i path, sono errati
-                multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
+                """multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
                                   DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
                                   TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
                                   window_sequence=temporal_sequences,
                                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                                   dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster)
-            break
+                """
+                """ report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
+                                        experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
+                                        report_folder="report",output_filename="overall_report")
+"""
+                #report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
+
+
+                generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
+                break
         break
+
 main()

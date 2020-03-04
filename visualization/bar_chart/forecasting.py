@@ -4,16 +4,18 @@ import pandas as pd
 from itertools import product
 import os
 from utility.folder_creator import folder_creator
+from pathlib import Path
 
 #for forecasting
 def report_configurations(temporal_sequence, num_neurons, experiment_folder,
                                        results_folder, report_folder, output_filename):
-    kind_of_report = "configurations_oriented"
-
-    #Folder creator
+    # Folder creator
     experiment_and_report_folder = experiment_folder + report_folder + "/"
     experiment_and_result_folder = experiment_folder + results_folder + "/"
-    folder_creator(experiment_and_report_folder,1)
+    folder_creator(experiment_and_report_folder, 1)
+
+    #if exp_type=="single_target":
+    kind_of_report = "configurations_oriented"
     folder_creator(experiment_and_report_folder + kind_of_report + "/", 1)
 
     #read cryptocurrencies
@@ -154,6 +156,6 @@ def plot_report(path_file, x_data, column_of_data, label_for_values_column, labe
     plt.xticks(index, configurations, fontsize=7, rotation=90)
 
     #serialization
-    f.savefig(destination + name_file_output, bbox_inches='tight', pad_inches=0)
+    f.savefig(destination+name_file_output, bbox_inches='tight', pad_inches=0)
     return
 

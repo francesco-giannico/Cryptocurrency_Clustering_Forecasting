@@ -179,7 +179,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 predictions_file['predicted_norm'].append(test_prediction)
                 predictions_file['observed_denorm'].append(y_test_denorm)
                 predictions_file['predicted_denorm'].append(test_prediction_denorm)
-                #break
+                break
 
 
             # Plot training & validation loss values
@@ -204,6 +204,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
             pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv',index=False)
             pd.DataFrame(data=errors_file).to_csv(results_path + 'errors.csv',index=False)
 
+    return
 
 
 
