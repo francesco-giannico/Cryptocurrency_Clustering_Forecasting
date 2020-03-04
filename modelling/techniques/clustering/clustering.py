@@ -18,9 +18,9 @@ def clustering(distance_measure,start_date,end_date):
     
     dict_symbol_id = get_dict_symbol_id(CLUSTERING_PATH)
     
-    #compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,CLUSTERING_PATH)
+    compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,CLUSTERING_PATH)
     
-    #consensus_clustering(CLUSTERING_PATH)
+    consensus_clustering(CLUSTERING_PATH)
 
 
 def folder_setup(CLUSTERING_PATH,distance_measure,start_date,end_date):

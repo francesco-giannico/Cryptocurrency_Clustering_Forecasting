@@ -63,13 +63,13 @@ def main():
     learning_rate = 0.001
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
-    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET
-                  )"""
+                  )
 
     #visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
@@ -116,8 +116,10 @@ def main():
 """
                 #report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
 
+                #generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
 
-                generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
+                #other charts for clustering
+
                 break
         break
 
