@@ -1,0 +1,9 @@
+cluster_id,cryptos
+0,"['BCN', 'SYS']"
+1,['BTC']
+2,"['BTS', 'NXT', 'XRP']"
+3,"['DASH', 'GAME', 'DOGE', 'MONA', 'XLM']"
+4,"['DGB', 'UBQ', 'XCP', 'MAID', 'NAV']"
+5,['IOC']
+6,"['LTC', 'XMR']"
+7,['VTC']

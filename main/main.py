@@ -22,7 +22,8 @@ from visualization.line_chart import generate_line_chart
 
 import numpy as np
 
-def main():
+
+def data_understanding():
     #DATA UNDERSTANDING
     PATH_DATASET= "../acquisition/dataset/original/"
 
@@ -33,33 +34,31 @@ def main():
     # todo dataset exploration
     #missing_values(PATH_DATASET)
 
-    #DATA PREPARATION
-    #preprocessing()
+def clustering_main(distance_measure,start_date,end_date):
+    # clustering
+    clustering(distance_measure, start_date=start_date, end_date=end_date)
 
-    #clustering
-    # todo compute distance matrix
-    distance_measure="wasserstain"
-    start_date = "2016-01-01"
-    end_date = "2019-12-31"
-    #clustering("wasserstain",start_date=start_date,end_date=end_date)
+def testing_set():
+    test_start_date="2019-01-01"
+    test_end_date="2019-12-31"
+    try:
+        TEST_SET = get_testset(
+            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
+    except:
+      # Test set HAS TO BE EQUAL AMONG ALL THE EXPERIMENTS!!!
+      generate_testset(test_start_date, test_end_date,"../modelling/techniques/forecasting/testing/")
+      TEST_SET = get_testset(
+          "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
+    return TEST_SET
 
-    #forecasting
-    # GENERATING TESTING SET
-    test_start_date = "2019-07-01"
-    test_end_date = "2019-12-31"
-    #todo THE TEST SET HAS TO BE EQUAL AMONG ALL THE EXPERIMENTS!!!
-    #generate_testset(test_start_date, test_end_date,"../modelling/techniques/forecasting/testing/")
-    #READING TEST SET
-    TEST_SET=get_testset("../modelling/techniques/forecasting/testing/"+test_start_date+"_"+test_end_date+".txt")
+def single_target_main(distance_measure,start_date,end_date,TEST_SET):
+    DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/cut_datasets/"
+    # SIMPLE PREDICTION
+    # simple_prediction(DATA_PATH,TEST_SET)
 
-    #MODELLING
-    DATA_PATH="../modelling/techniques/clustering/output/"+distance_measure+"/"+start_date+"_"+end_date+"/cut_datasets/"
-    #SIMPLE PREDICTION
-    #simple_prediction(DATA_PATH,TEST_SET)
-
-    #SINGLE TARGET LSTM
-    temporal_sequences = [30]
-    number_neurons = [128]
+    # SINGLE TARGET LSTM
+    temporal_sequences = [30,100,200]
+    number_neurons = [128,256]
     learning_rate = 0.001
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
@@ -71,38 +70,35 @@ def main():
                   testing_set=TEST_SET
                   )
 
-    #visualization single_target
-    """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
+    # visualization single_target
+    report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH,results_folder="result",
-                          report_folder="report",output_filename="overall_report")"""
+                          report_folder="report",output_filename="overall_report")
 
-    #report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
+    report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
 
+    generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)
 
-    #generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)
-
-
-    #MULTITARGET
-
+def multi_target_main(distance_measure,start_date,end_date,TEST_SET):
     DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
 
-    #folder_creator(EXPERIMENT_PATH + "clusters", 0)
-    #reads each k used (folders'name)
+    # folder_creator(EXPERIMENT_PATH + "clusters", 0)
+    # reads each k used (folders'name)
     for k_used in os.listdir(DATA_PATH):
-        folder_creator(EXPERIMENT_PATH + "clusters"+"/"+k_used, 0)
-        for cluster in os.listdir(DATA_PATH+k_used):
+        folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used, 0)
+        for cluster in os.listdir(DATA_PATH + k_used):
             if cluster.startswith("cluster_"):
-                folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/", 0)
-                #generate horizontal dataset
+                folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used + "/" + cluster + "/", 0)
+                # generate horizontal dataset
                 # leggere le criptovalute in questo dataset.
-                #cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
+                # cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
 
                 # Baseline - VECTOR AUTOREGRESSION
                 # vector_autoregression(EXPERIMENT_PATH+"horizontal_dataset/horizontal.csv",TEST_SET)
 
                 # LSTM
-                dim_last_layer= len(os.listdir(DATA_PATH+k_used+"/"+cluster+"/"))
+                dim_last_layer = len(os.listdir(DATA_PATH + k_used + "/" + cluster + "/"))
                 """multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
                                   DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
                                   TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
@@ -113,14 +109,34 @@ def main():
                 """ report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                                         experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
                                         report_folder="report",output_filename="overall_report")
-"""
-                #report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
+                """
+                # report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
 
-                #generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
+                # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
 
-                #other charts for clustering
+                # other charts for clustering
 
                 break
         break
+def main():
+    #DATA UNDERSTANDING
+    #data_understanding()
+
+    #DATA PREPARATION
+    #preprocessing()
+
+    #CLUSTERING
+    start_date = "2014-10-01"
+    end_date = "2019-12-31"
+    distance_measure = "wasserstain"
+    #clustering_main(distance_measure,start_date,end_date)
+
+    #TESTING SET
+    TEST_SET=testing_set()
+
+    #MODELLING
+    single_target_main(distance_measure,start_date,end_date,TEST_SET)
+    #MULTITARGET
+    #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
 main()

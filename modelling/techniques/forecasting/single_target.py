@@ -121,7 +121,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 #General parameters
                 DROPOUT=0.2
                 EPOCHS=100
-                BATCH_SIZE=1000
+                BATCH_SIZE=600
 
                 # if the date to predict is the first date in the testing_set
                 if date_to_predict == testing_set[0]:
