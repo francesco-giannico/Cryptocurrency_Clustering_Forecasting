@@ -9,7 +9,7 @@ from utility.writer import save_distance_matrix
 from scipy.stats import wasserstein_distance
 
 
-def compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,CLUSTERING_PATH):
+def compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH):
     dict_length = dict_symbol_id.symbol.count()
     distance_matrix = np.zeros((dict_length,dict_length))
     for i in range(dict_length):
@@ -45,7 +45,7 @@ def compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,
                     distance = wasserstein_distance(df[col].to_numpy(dtype="float"),df1[col].to_numpy(dtype="float"))
                     distances.append(distance)
                 ensemble_distance = np.average(distances)
-                # matrice simmetrica
+                # since the matrix is simmetric then:
                 distance_matrix[i][j] = ensemble_distance
                 distance_matrix[j][i] = ensemble_distance
             elif (distance_measure == "coral"):
@@ -54,7 +54,6 @@ def compute_distance_matrix(dict_symbol_id,distance_measure,start_date,end_date,
                 for col in df.columns:
                     distance = coral.fit(df[col].to_numpy(dtype="float"),df1[col].to_numpy(dtype="float"))
                     distances.append(distance)
-                    print(distance)
                 ensemble_distance = np.average(distances)
                 # matrice simmetrica
                 distance_matrix[i][j] = ensemble_distance

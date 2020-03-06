@@ -25,11 +25,11 @@ def consensus_clustering(CLUSTERING_PATH):
     N= len(df.columns)
 
     #rule of thumbs for k
-    df1= pd.DataFrame(columns=['value'],index=['k_sqrtN','k_sqrtNDiv2','k_sqrtNBy2','k_sqrtNDiv4','k_sqrtNBy4'])
+    df1= pd.DataFrame(columns=['value'],index=['k_sqrtNDiv4','k_sqrtNDiv2','k_sqrtN','k_sqrtNBy2','k_sqrtNBy4'])
     #df1.at['k_1','value']= 1
     df1.at['k_sqrtN','value']= int(sqrt(N))
-    df1.at['k_sqrtNDiv2', 'value'] = int(sqrt(N / 2))
-    df1.at['k_sqrtNBy2', 'value'] = int(sqrt(N * 2))
+    df1.at['k_sqrtNDiv2', 'value'] = int(sqrt(N/ 2))
+    df1.at['k_sqrtNBy2', 'value'] = int(sqrt(N* 2))
     df1.at['k_sqrtNDiv4', 'value'] = int(sqrt(N / 4))
     df1.at['k_sqrtNBy4', 'value'] = int(sqrt(N * 4))
 
@@ -38,7 +38,7 @@ def consensus_clustering(CLUSTERING_PATH):
     #initialization
     iterations=20
     weight1 = 1 / iterations
-    weight2 = 1 / len(df1.index)
+    weight2 = 1 / len(df1.index)#the amount of  k values used
     consensus_matrix = np.zeros((N, N))
 
     for k in df1.index:
@@ -49,25 +49,32 @@ def consensus_clustering(CLUSTERING_PATH):
             kmedoids_instance = kmedoids(sample, initial_medoids,data_type="distance_matrix")
             kmedoids_instance.process()
             clusters = kmedoids_instance.get_clusters()
-            coassociations_matrix_new= np.zeros((N, N))
+            coassociations_matrix= np.zeros((N, N))
             for cluster in clusters:
                 for crypto in cluster:
                     #set the diagonal elements with value 1
-                    coassociations_matrix_new[crypto][crypto] = 1
+                    coassociations_matrix[crypto][crypto] = 1
                     for crypto1 in cluster:
-                        coassociations_matrix_new[crypto][crypto1]= 1
-                        coassociations_matrix_new[crypto1][crypto] = 1
+                        coassociations_matrix[crypto][crypto1]= 1
+                        coassociations_matrix[crypto1][crypto] = 1
             #sum the two matrices
-            consensus_matrix=consensus_matrix+coassociations_matrix_new
+            consensus_matrix=consensus_matrix+coassociations_matrix
     consensus_matrix = consensus_matrix*weight1*weight2
     #now, by doing (1 - consensus_matrix) we get the dissimilarity/distance matrix
     distance_matrix= 1-consensus_matrix
+    df = pd.DataFrame(data=distance_matrix)
+    df.to_csv(CLUSTERING_PATH+"consensus_matrix(distance).csv",sep=",")
 
     #Hierarchical clustering
     for k in df1.index:
         k_value = int(df1.loc[k].values[0])
-        agglomerative_instance = agglomerative(distance_matrix,k_value, type_link.COMPLETE_LINK)
+        initial_medoids = kmeans_plusplus_initializer(distance_matrix, k_value).initialize(return_index=True)
+        kmedoids_instance = kmedoids(distance_matrix, initial_medoids, data_type="distance_matrix")
+        kmedoids_instance.process()
+        clusters = kmedoids_instance.get_clusters()
+
+        """agglomerative_instance = agglomerative(distance_matrix,k_value, type_link.AVERAGE_LINK)
         agglomerative_instance.process()
         # Obtain results of clustering
-        clusters = agglomerative_instance.get_clusters()
+        clusters = agglomerative_instance.get_clusters()"""
         save_clusters(clusters,k,CLUSTERING_PATH)

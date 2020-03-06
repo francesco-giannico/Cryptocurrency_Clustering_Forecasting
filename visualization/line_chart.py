@@ -26,7 +26,7 @@ def plot_train_and_validation_loss(train,test,output_folder):
 def plot_actual_vs_predicted(
         input_data,cryptocurrencies, crypto, list_neurons, list_temporal_sequences, output_path):
 
-    #reads the csv
+    #reads the csv (merged_predictions.csv)
     data = pd.read_csv(input_data)
 
     #for crypto, neurons, days in product(cryptocurrencies, list_neurons, list_temporal_sequences):
@@ -60,7 +60,6 @@ def plot_actual_vs_predicted(
     return
 
 
-#todo sistemare... work in progress
 def generate_line_chart(experiment_folder,list_temporal_sequences,list_neurons):
     cryptocurrencies = get_crypto_symbols_from_folder(experiment_folder + "result/")
 
