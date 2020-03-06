@@ -9,7 +9,6 @@ PATH_UNCOMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/uncomplete/
 PATH_COMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/complete/"
 PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/"
 
-
 def remove_uncomplete_rows_by_range(crypto_symbol,start_date,end_date):
  folder_creator(PATH_CLEANED_FOLDER,0)
  folder_creator(PATH_CLEANED_FOLDER+"partial", 0)

@@ -1,80 +1,86 @@
 import itertools
-import pandas as pd
 import os
+
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from pandas.plotting import lag_plot
 from scipy.stats import pearsonr, stats
-
-from utility.reader import get_crypto_symbols_from_text_file
+from understanding.missing_values import  count_missing_values, count_missing_values_by_year, \
+    generate_bar_chart_by_year
 from utility.folder_creator import folder_creator
-from visualization.bar_chart.exploration import missing_values_by_year
 
 COLUMNS=['Open', 'High', 'Low', 'Close', 'Adj Close', 'Volume']
 PATH_DATA_UNDERSTANDING= "../understanding/output/"
 
+#check if there are missing values, generate some charts and reports about it.
 def missing_values(PATH_DATASET):
-    folder_creator(PATH_DATA_UNDERSTANDING,1)
-    folder_creator(PATH_DATA_UNDERSTANDING+"missing_values_by_year/", 1)
+    folder_creator(PATH_DATA_UNDERSTANDING, 1)
+    folder_creator(PATH_DATA_UNDERSTANDING + "missing_values_by_year/", 1)
     count_missing_values(PATH_DATASET)
     count_missing_values_by_year(PATH_DATASET)
-    generate_bar_chart_by_year(PATH_DATA_UNDERSTANDING+"missing_values_by_year/")
+    generate_bar_chart_by_year(PATH_DATA_UNDERSTANDING + "missing_values_by_year/")
 
-def generate_bar_chart_by_year(PATH_TO_SAVE):
-    df = pd.read_csv(PATH_DATA_UNDERSTANDING+"missing_by_year.csv", delimiter=',', header=0)
-    df = df.set_index("Symbol")
-    missing_values_by_year(df,PATH_TO_SAVE)
+"""few statistics that give some perspective on the nature of the distribution of the data.
+-count the larger this number, the more credibility all the stats have.
+-mean is the average and is the "expected" value of the distribution. On average, you'd expect to get this number.
+it's affected by outliers.
+-std (how a set of values spread out from their mean).
+A low SD shows that the values are close to the mean and a high SD shows a high diversion from the mean.
+SD is affected by outliers as its calculation is based on the mean
+If SD is zero, all the numbers in a dataset share the same value
+-50% is also the median and it's difference from the mean gives information on the skew of the distribution. It's also another definition of average that is robust to outliers in the data.
+-25% percentile is the value below which 25% of the observations may be found
+-75%  percentile is the value below which 75% of the observations may be found
+-min, max, max - min, 75% - 25% are all alternatives to perspectives on how big of swings the data takes relative to the mean
+"""
+import seaborn as sns
+def describe(PATH_DATASET):
+    """x = [1, 2, 3, 4, 5]
+    x = pd.DataFrame(x)
+    print(x.describe())"""
+    folder_creator(PATH_DATA_UNDERSTANDING+"descriptions",1)
+    for crypto in os.listdir(PATH_DATASET):
+        df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0,usecols=["Open","Close"])
+        df.describe().to_csv(PATH_DATA_UNDERSTANDING+"descriptions/"+crypto,sep=",")
 
-def count_missing_values_by_year(PATH_DATASET):
-  cryptos = get_crypto_symbols_from_text_file()
-  df_out = pd.DataFrame(0,columns=['2013', '2014', '2015', '2016', '2017', '2018', '2019'], index=cryptos)
-  for crypto in os.listdir(PATH_DATASET):
-    df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0)
-    crypto_name=crypto.replace(".csv","")
-    df = df.set_index("Date")
-    total_null=df.isnull().sum()[1]
-    init_date = df.index[0]
-    #get year
-    first_year=int(init_date.split("-")[0])
-    actual_year=first_year
-    while actual_year < 2020:
-        #next year
-        actual_year+=1
-        start_date=str(first_year-1)+"-12-31"
-        end_date=str(actual_year)+"-01-01"
-        df1 = df.query('index<@end_date')
-        df1=df1.query('index >@start_date')
-        #number of null of this year
-        null_year=df1.isnull().sum()[1]
-        first_year=actual_year
-        df_out.at[crypto_name,str(first_year-1)] = null_year
-  #reset the index, in this way its possibile to have a new column named Symbol
-  df_out= df_out.rename_axis('Symbol').reset_index()
-  df_out.to_csv(PATH_DATA_UNDERSTANDING+"missing_by_year.csv", ",",index=False)
+        crypto_name=crypto.replace(".csv","")
+        if(crypto_name=="BCN"):
+            #stationary_test(PATH_DATASET + crypto)
+            #log_scaling(df)
+            lag_plot_mine(df)
+            """ax = sns.boxplot(x='Close',data=df, orient="v")
+            ax.set_title(crypto_name)
+            plt.show()
+            filter_data = df.dropna(subset=['Open'])
+            plt.figure(figsize=(14, 8))
+            sns.distplot(filter_data['Open'], kde=False)
+            plt.show()"""
 
-#generates a file in which, for each cryptocurrency, there is the count of the missing values by column
-def count_missing_values(PATH_DATASET):
-   crypto=get_original_crypto_symbols()
-   #create a new dataframe
-   df = pd.DataFrame(columns=COLUMNS, index=crypto)
-   for file in os.listdir(PATH_DATASET):
-    df1 = pd.read_csv(PATH_DATASET+file, delimiter=',',header=0)
-    df1=df1.set_index("Date")
-    crypto_name=file.replace(".csv","")
-    df.loc[crypto_name]=df1.isnull().sum() #inserting a series in a dataframe row
-    df.to_csv(PATH_DATA_UNDERSTANDING+"count_missing_values.csv",",")
 
-def describe(df):
-    print(df.describe())
-    pass
+
+from statsmodels.tsa.stattools import adfuller
+
+def stationary_test(path):
+    series = pd.read_csv(path, header=0, usecols=["Close"])
+    series = series.dropna(subset=['Close'])
+    X = series.values
+    result = adfuller(X)
+    print('ADF Statistic: %f' % result[0])
+    print('p-value: %f' % result[1])
+    print('Critical Values:')
+    for key, value in result[4].items():
+        print('\t%s: %.3f' % (key, value))
 
 def log_scaling(df):
-    feature = "Adj Close"
-    plt.figure(num=None, figsize=(20, 6))
+    feature = "Close"
+    df = df.dropna(subset=['Close'])
+
+    plt.figure(figsize=(20, 6))
     plt.subplot(1, 2, 1)
     ax = df[feature].plot(style=['-'])
     ax.lines[0].set_alpha(0.3)
-    ax.set_ylim(0, np.max(df[feature]+0.3))
+    ax.set_ylim(-0.01, np.max(df[feature]))
     plt.xticks(rotation=90)
     plt.title("No scaling")
     ax.legend()
@@ -87,13 +93,11 @@ def log_scaling(df):
     plt.xticks(rotation=90)
     plt.title("logarithmic scale")
     ax.legend()
-    #plt.show()
-
-
     plt.show()
 
 def lag_plot_mine(df):
-    feature = "Adj Close"
+    feature = "Close"
+    df = df.dropna(subset=['Close'])
     lag_plot(df[feature])
     plt.show()
 

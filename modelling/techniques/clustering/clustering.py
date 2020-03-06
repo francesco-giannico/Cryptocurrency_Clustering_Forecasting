@@ -9,10 +9,12 @@ from utility.reader import get_dict_symbol_id
 
 def clustering(distance_measure,start_date,end_date):
     CLUSTERING_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/"
+    PATH_SOURCE = "../preparation/preprocessed_dataset/constructed/normalized/"
+    #PATH_SOURCE = "../preparation/preprocessed_dataset/integrated/"
 
     folder_setup(CLUSTERING_PATH,distance_measure,start_date,end_date)
 
-    prepare_dataset_for_clustering(start_date,end_date,CLUSTERING_PATH)
+    prepare_dataset_for_clustering(start_date,end_date,input_path=PATH_SOURCE,output_path=CLUSTERING_PATH)
     
     generate_cryptocurrencies_dictionary(CLUSTERING_PATH+"cut_datasets/",CLUSTERING_PATH)
     

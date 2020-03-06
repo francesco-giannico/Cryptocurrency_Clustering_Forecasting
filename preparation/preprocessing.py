@@ -12,14 +12,14 @@ def preprocessing():
     separation()
     cleaning()
     construction()
-    integration()
+    #integration()#todo devi normalizzare.
 
 def folders_setup():
     # Set the name of folder in which to save all intermediate results
     folder_creator(PATH_PREPROCESSED,0)
 
 def feature_selection():
-    remove_features(["Volume"])
+    remove_features(["Open","High","Adj Close","Low","Volume"])
 
 def separation():
     find_by_dead_before()
@@ -28,7 +28,7 @@ def separation():
 def cleaning():
     remove_uncomplete_rows_by_range("ARDR","2017-01-01","2019-12-31")
     remove_uncomplete_rows_by_range("REP", "2017-01-01", "2019-12-31")
-    #todo ricorda che LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
+    #todo LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
     input_missing_values()
 
 def construction():

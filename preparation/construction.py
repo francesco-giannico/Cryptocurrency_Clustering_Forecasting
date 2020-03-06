@@ -5,7 +5,6 @@ from utility.folder_creator import folder_creator
 
 PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/final/"
 PATH_NORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/normalized/"
-
 #SCALING
 """Normalization is the process of scaling individual samples to have unit norm. 
 This process can be useful if you plan to use a quadratic form such 

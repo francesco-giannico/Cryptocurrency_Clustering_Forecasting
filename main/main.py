@@ -12,7 +12,7 @@ from modelling.techniques.forecasting.testing.test_set import generate_testset, 
 from preparation.construction import create_horizontal_dataset
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
-from understanding.exploration import missing_values
+from understanding.exploration import missing_values, describe
 from utility.clustering_utils import merge_predictions
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
@@ -22,7 +22,7 @@ import numpy as np
 
 def main():
     #DATA UNDERSTANDING
-    #data_understanding()
+    data_understanding()
 
     #DATA PREPARATION
     #preprocessing()
@@ -34,10 +34,10 @@ def main():
     #clustering_main(distance_measure,start_date,end_date)
 
     #TESTING SET
-    TEST_SET=testing_set()
+    #TEST_SET=testing_set()
 
     #MODELLING
-    single_target_main(distance_measure,start_date,end_date,TEST_SET)
+    #single_target_main(distance_measure,start_date,end_date,TEST_SET)
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
@@ -49,15 +49,16 @@ def data_understanding():
     #todo data collecting from yahoo finance
     #get_most_important_cryptos(startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
     # EXPLORE DATA
-    # todo dataset exploration
     #missing_values(PATH_DATASET)
+    #describe dataframes
+    describe(PATH_DATASET)
 
 def clustering_main(distance_measure,start_date,end_date):
     # clustering
     clustering(distance_measure, start_date=start_date, end_date=end_date)
 
 def testing_set():
-    test_start_date="2019-01-01"
+    test_start_date="2019-08-01"
     test_end_date="2019-12-31"
     try:
         TEST_SET = get_testset(
@@ -70,32 +71,32 @@ def testing_set():
     return TEST_SET
 
 def single_target_main(distance_measure,start_date,end_date,TEST_SET):
-    DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/cut_datasets/"
+    DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/cut_dataset_oring/"
     # SIMPLE PREDICTION
-    simple_prediction(DATA_PATH,TEST_SET)
+    #simple_prediction(DATA_PATH,TEST_SET)
 
     # SINGLE TARGET LSTM
     temporal_sequences = [100]
-    number_neurons = [256]
+    number_neurons = [128]
     learning_rate = 0.001
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
-    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET
-                  )"""
+                  )
 
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH,results_folder="result",
                           report_folder="report",output_filename="overall_report")"""
 
-    #report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
+    report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
 
-    generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)
+    #generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)"""
 
 def multi_target_main(distance_measure,start_date,end_date,TEST_SET):
     DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/"

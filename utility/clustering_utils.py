@@ -5,8 +5,6 @@ from utility.folder_creator import folder_creator
 from utility.reader import get_dict_symbol_id, get_crypto_symbols_from_folder
 from utility.writer import save_dict_symbol_id
 import pandas as pd
-PATH_SOURCE = "../preparation/preprocessed_dataset/integrated/"
-
 
 #Dictionary
 def generate_cryptocurrencies_dictionary(PATH_TO_READ,PATH_OUTPUT):
@@ -21,14 +19,14 @@ def generate_cryptocurrencies_dictionary(PATH_TO_READ,PATH_OUTPUT):
 
 
 #selects only the datasets which cover the period of time of interest.
-def prepare_dataset_for_clustering(start_date,end_date,CLUSTERING_PATH):
-    for crypto in os.listdir(PATH_SOURCE):
+def prepare_dataset_for_clustering(start_date,end_date,input_path,output_path):
+    for crypto in os.listdir(input_path):
         try:
-            df = cut_dataset_by_range(PATH_SOURCE, crypto.replace(".csv",""), start_date, end_date)
+            df = cut_dataset_by_range(input_path, crypto.replace(".csv",""), start_date, end_date)
             df = df.set_index("Date")
             if (df.index[0] == start_date):
                 df = df.reset_index()
-                df.to_csv(CLUSTERING_PATH + "cut_datasets/" + crypto, sep=",", index=False)
+                df.to_csv(output_path + "cut_datasets/" + crypto, sep=",", index=False)
         except:
             pass
 
