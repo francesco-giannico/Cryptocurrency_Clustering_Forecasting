@@ -20,15 +20,14 @@ def datetime_to_str(inp_dt):
     return inp_dt.strftime('%Y-%m-%d')
 
 
-result_folder="../modelling/techniques/baseline/vector_autoregression/output/"
+#result_folder="../modelling/techniques/baseline/vector_autoregression/output/"
 partial_folder="predictions"
 final_folder="average_rmse"
+def vector_autoregression(input_path,test_set,output_path):
+    folder_creator(output_path+partial_folder+"/",1)
+    folder_creator(output_path+final_folder,1)
 
-def vector_autoregression(data_path,test_set):
-    folder_creator(result_folder+partial_folder+"/",1)
-    folder_creator(result_folder+final_folder,1)
-
-    df = pd.read_csv(data_path, sep=',', header=0)
+    df = pd.read_csv(input_path, sep=',', header=0)
     df=df.set_index('Date')
 
     #it takes only "Close_X" columns (note that Date is not cut off since it is an index)
@@ -83,7 +82,7 @@ def vector_autoregression(data_path,test_set):
             y_predicted = results.forecast(data_for_forecasting,steps=num_of_days_to_predict)[0]
 
             #serialization, for each date
-            filename=os.path.join(result_folder, partial_folder, '{}.csv'.format(test_date))
+            filename=os.path.join(output_path, partial_folder, '{}.csv'.format(test_date))
             df_out=pd.DataFrame()
             df_out['observed_value']=df_test
             df_out['predicted_value'] = y_predicted
@@ -93,12 +92,12 @@ def vector_autoregression(data_path,test_set):
 
     # serialization
     rmses = []
-    for test_date in os.listdir(result_folder + partial_folder + "/"):
-        df1 = pd.read_csv(result_folder + partial_folder + "/" + test_date)
+    for test_date in os.listdir(output_path + partial_folder + "/"):
+        df1 = pd.read_csv(output_path + partial_folder + "/" + test_date)
         # get rmse for each crypto
         rmses.append(get_rmse(df1['predicted_value'], df1['observed_value']))
 
-    with open(os.path.join(result_folder, final_folder, "average_rmse.txt"), 'w+') as out:
+    with open(os.path.join(output_path, final_folder, "average_rmse.txt"), 'w+') as out:
         final = np.mean(rmses)
         out.write(str(final))
 

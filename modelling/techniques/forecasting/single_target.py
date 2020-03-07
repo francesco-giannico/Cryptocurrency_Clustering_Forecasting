@@ -14,11 +14,9 @@ from visualization.line_chart import plot_train_and_validation_loss
 
 np.random.seed(0)
 
-
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, list_num_neurons, learning_rate,
                    testing_set):
-
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
@@ -89,7 +87,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                   3)e.g items
                 """
                 train, test = get_training_testing_set(dataset_tensor_format, date_to_predict)
-
                 # ['2018-01-01' other numbers separated by comma],it removes the date.
                 train = train[:, :, 1:]
                 test = test[:, :, 1:]
@@ -122,7 +119,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 DROPOUT=0.4
                 EPOCHS=500
                 BATCH_SIZE=1000
-
                 # if the date to predict is the first date in the testing_set
                 if date_to_predict == testing_set[0]:
                     model, history = train_model(x_train,y_train,x_test,y_test,

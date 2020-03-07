@@ -25,7 +25,7 @@ def consensus_clustering(CLUSTERING_PATH):
     N= len(df.columns)
 
     #rule of thumbs for k
-    df1= pd.DataFrame(columns=['value'],index=['k_sqrtNDiv4','k_sqrtNDiv2','k_sqrtN','k_sqrtNBy2','k_sqrtNBy4'])
+    df1= pd.DataFrame(columns=['value'],index=['k_sqrtNBy4','k_sqrtNDiv4','k_sqrtNDiv2','k_sqrtNBy2','k_sqrtN',])
     #df1.at['k_1','value']= 1
     df1.at['k_sqrtN','value']= int(sqrt(N))
     df1.at['k_sqrtNDiv2', 'value'] = int(sqrt(N/ 2))
@@ -68,13 +68,8 @@ def consensus_clustering(CLUSTERING_PATH):
     #Hierarchical clustering
     for k in df1.index:
         k_value = int(df1.loc[k].values[0])
-        initial_medoids = kmeans_plusplus_initializer(distance_matrix, k_value).initialize(return_index=True)
-        kmedoids_instance = kmedoids(distance_matrix, initial_medoids, data_type="distance_matrix")
-        kmedoids_instance.process()
-        clusters = kmedoids_instance.get_clusters()
-
-        """agglomerative_instance = agglomerative(distance_matrix,k_value, type_link.AVERAGE_LINK)
+        agglomerative_instance = agglomerative(distance_matrix,k_value, type_link.AVERAGE_LINK)
         agglomerative_instance.process()
         # Obtain results of clustering
-        clusters = agglomerative_instance.get_clusters()"""
+        clusters = agglomerative_instance.get_clusters()
         save_clusters(clusters,k,CLUSTERING_PATH)

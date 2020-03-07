@@ -115,9 +115,9 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             y_test = y_test.astype('float')
 
             # General parameters
-            DROPOUT = 0.2
-            EPOCHS = 100
-            BATCH_SIZE = 256
+            DROPOUT = 0.4
+            EPOCHS = 500
+            BATCH_SIZE = 1000
 
             # if the date to predict is the first date in the testing_set
             if date_to_predict == testing_set[0]:
@@ -171,7 +171,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
 
             for crypto,predicted in zip(cryptos, test_prediction_denorm[0]):
                 predictions_file[crypto + "_predicted_denorm"].append(float(predicted))
-            break
+            #break
 
 
         # Plot training & validation loss values

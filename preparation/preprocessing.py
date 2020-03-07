@@ -12,15 +12,15 @@ def preprocessing():
     separation()
     cleaning()
     construction()
-    #integration()#todo devi normalizzare.
+    integration()
 
 def folders_setup():
     # Set the name of folder in which to save all intermediate results
     folder_creator(PATH_PREPROCESSED,0)
 
 def feature_selection():
-    remove_features(["Open","High","Adj Close","Low","Volume"])
-
+    #remove_features(["Open","High","Adj Close","Low","Volume"])
+    remove_features(["Adj Close","Volume"])
 def separation():
     find_by_dead_before()
     find_uncomplete()

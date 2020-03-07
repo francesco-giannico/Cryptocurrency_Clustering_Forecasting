@@ -9,10 +9,10 @@ from utility.reader import get_dict_symbol_id
 
 def clustering(distance_measure,start_date,end_date):
     CLUSTERING_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/"
-    PATH_SOURCE = "../preparation/preprocessed_dataset/constructed/normalized/"
-    #PATH_SOURCE = "../preparation/preprocessed_dataset/integrated/"
+    #PATH_SOURCE = "../preparation/preprocessed_dataset/constructed/normalized/"
+    PATH_SOURCE = "../preparation/preprocessed_dataset/integrated/"
 
-    folder_setup(CLUSTERING_PATH,distance_measure,start_date,end_date)
+    folder_setup(CLUSTERING_PATH)
 
     prepare_dataset_for_clustering(start_date,end_date,input_path=PATH_SOURCE,output_path=CLUSTERING_PATH)
     
@@ -25,7 +25,7 @@ def clustering(distance_measure,start_date,end_date):
     consensus_clustering(CLUSTERING_PATH)
 
 
-def folder_setup(CLUSTERING_PATH,distance_measure,start_date,end_date):
+def folder_setup(CLUSTERING_PATH):
     folder_creator(CLUSTERING_PATH, 1)
     folder_creator(CLUSTERING_PATH + "cut_datasets/", 1)
     return

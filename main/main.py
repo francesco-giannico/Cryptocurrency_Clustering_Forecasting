@@ -22,7 +22,7 @@ import numpy as np
 
 def main():
     #DATA UNDERSTANDING
-    data_understanding()
+    #data_understanding()
 
     #DATA PREPARATION
     #preprocessing()
@@ -34,12 +34,12 @@ def main():
     #clustering_main(distance_measure,start_date,end_date)
 
     #TESTING SET
-    #TEST_SET=testing_set()
+    TEST_SET=testing_set()
 
     #MODELLING
     #single_target_main(distance_measure,start_date,end_date,TEST_SET)
     #MULTITARGET
-    #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
+    multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
 def data_understanding():
     #DATA UNDERSTANDING
@@ -58,7 +58,7 @@ def clustering_main(distance_measure,start_date,end_date):
     clustering(distance_measure, start_date=start_date, end_date=end_date)
 
 def testing_set():
-    test_start_date="2019-08-01"
+    test_start_date="2019-01-01"
     test_end_date="2019-12-31"
     try:
         TEST_SET = get_testset(
@@ -73,11 +73,11 @@ def testing_set():
 def single_target_main(distance_measure,start_date,end_date,TEST_SET):
     DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/cut_dataset_oring/"
     # SIMPLE PREDICTION
-    #simple_prediction(DATA_PATH,TEST_SET)
+    simple_prediction(DATA_PATH,TEST_SET)
 
     # SINGLE TARGET LSTM
-    temporal_sequences = [100]
-    number_neurons = [128]
+    temporal_sequences = [30,100]
+    number_neurons = [128,256]
     learning_rate = 0.001
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
@@ -101,41 +101,44 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET):
 def multi_target_main(distance_measure,start_date,end_date,TEST_SET):
     DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
-
+    # SINGLE TARGET LSTM
+    temporal_sequences = [30, 100]
+    number_neurons = [128, 256]
+    learning_rate = 0.001
     # folder_creator(EXPERIMENT_PATH + "clusters", 0)
     # reads each k used (folders'name)
     for k_used in os.listdir(DATA_PATH):
-        folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used, 0)
-        for cluster in os.listdir(DATA_PATH + k_used):
-            if cluster.startswith("cluster_"):
-                folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used + "/" + cluster + "/", 0)
-                # generate horizontal dataset
-                # leggere le criptovalute in questo dataset.
-                # cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
+        #todo remove this one
+        if k_used=="k_sqrtNDiv2":
+            folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used, 0)
+            for cluster in os.listdir(DATA_PATH + k_used):
+                if cluster.startswith("cluster_"):
+                    folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used + "/" + cluster + "/", 0)
+                    # generate horizontal dataset
+                    # leggere le criptovalute in questo dataset.
+                    cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
 
-                # Baseline - VECTOR AUTOREGRESSION
-                # vector_autoregression(EXPERIMENT_PATH+"horizontal_dataset/horizontal.csv",TEST_SET)
+                    # Baseline - VECTOR AUTOREGRESSION
+                    OUTPUT_FOLDER_VAR="../modelling/techniques/baseline/vector_autoregression/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/" + k_used+"/"+cluster+"/"
+                    #vector_autoregression(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/horizontal.csv",TEST_SET, OUTPUT_FOLDER_VAR)
 
-                # LSTM
-                dim_last_layer = len(os.listdir(DATA_PATH + k_used + "/" + cluster + "/"))
-                """multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
-                                  DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
-                                  TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
-                                  window_sequence=temporal_sequences,
-                                  list_num_neurons=number_neurons, learning_rate=learning_rate,
-                                  dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster)
-                """
-                """ report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
-                                        experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
-                                        report_folder="report",output_filename="overall_report")
-                """
-                # report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
+                    # LSTM
+                    dim_last_layer = len(os.listdir(DATA_PATH + k_used + "/" + cluster + "/"))
+                    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
+                                      DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
+                                      TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
+                                      window_sequence=temporal_sequences,
+                                      list_num_neurons=number_neurons, learning_rate=learning_rate,
+                                      dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster)
 
-                # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
+                    """ report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
+                                            experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
+                                            report_folder="report",output_filename="overall_report")
+                    """
+                    # report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
 
-                # other charts for clustering
+                    # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
 
-                break
-        break
+                    # other charts for clustering
 
 main()
