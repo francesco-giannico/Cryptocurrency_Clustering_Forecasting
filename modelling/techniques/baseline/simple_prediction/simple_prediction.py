@@ -34,7 +34,10 @@ def simple_prediction(data_path,test_set):
     for crypto in os.listdir(result_folder+partial_folder+"/"):
         df = pd.read_csv(result_folder+partial_folder+"/"+crypto)
         #get rmse for each crypto
-        rmses.append(get_rmse(df['predicted_value'],df['observed_value']))
+        rmse = get_rmse(df['observed_value'], df['predicted_value'])
+        rmses.append(get_rmse(rmse))
+        with open(os.path.join(result_folder,final_folder, crypto.replace(".csv","")), 'w+') as out:
+            out.write(str(rmse))
 
     with open(os.path.join(result_folder,final_folder,"average_rmse.txt"), 'w+') as out:
         final = np.mean(rmses)

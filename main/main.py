@@ -120,17 +120,20 @@ def multi_target_main(distance_measure,start_date,end_date,TEST_SET):
 
                     # Baseline - VECTOR AUTOREGRESSION
                     OUTPUT_FOLDER_VAR="../modelling/techniques/baseline/vector_autoregression/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/" + k_used+"/"+cluster+"/"
-                    #vector_autoregression(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/horizontal.csv",TEST_SET, OUTPUT_FOLDER_VAR)
+                    vector_autoregression(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/horizontal.csv",TEST_SET, OUTPUT_FOLDER_VAR,cryptos_in_the_cluster)
 
                     # LSTM
-                    dim_last_layer = len(os.listdir(DATA_PATH + k_used + "/" + cluster + "/"))
-                    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
+                    dim_last_layer = len(cryptos_in_the_cluster)
+                    features_to_use=['Date']
+                    for i in range(len(cryptos_in_the_cluster)):
+                        features_to_use.append("Close_"+str(i+1))
+                    """multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
                                       DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
                                       TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
                                       window_sequence=temporal_sequences,
                                       list_num_neurons=number_neurons, learning_rate=learning_rate,
-                                      dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster)
-
+                                      dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster,features_to_use=features_to_use)
+"""
                     """ report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                                             experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
                                             report_folder="report",output_filename="overall_report")

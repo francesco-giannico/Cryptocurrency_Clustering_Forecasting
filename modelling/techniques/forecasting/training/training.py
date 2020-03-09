@@ -21,13 +21,16 @@ def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
     scaler_target_features.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
     return scaler_target_features
 
-def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cryptos=None):
+def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cryptos=None,features_to_use=None):
     #already normalized
-    df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto, sep=',',header=0)
+    if features_to_use!=None:
+        df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto, sep=',',header=0,usecols=features_to_use)
+    else:
+        df = pd.read_csv(CLUSTERING_CRYPTO_PATH + crypto, sep=',', header=0)
+
     df=df.set_index("Date")
     start_date=df.index[0]
     end_date=df.index[len(df.index)-1]
-
 
     if cryptos!=None:
         #multitarget_case

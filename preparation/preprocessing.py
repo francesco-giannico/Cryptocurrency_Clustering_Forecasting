@@ -21,6 +21,7 @@ def folders_setup():
 def feature_selection():
     #remove_features(["Open","High","Adj Close","Low","Volume"])
     remove_features(["Adj Close","Volume"])
+
 def separation():
     find_by_dead_before()
     find_uncomplete()
