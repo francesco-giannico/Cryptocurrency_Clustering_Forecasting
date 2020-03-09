@@ -11,12 +11,13 @@ from utility.folder_creator import folder_creator
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from visualization.line_chart import plot_train_and_validation_loss
-
-np.random.seed(0)
+import tensorflow_core as tf
+#np.random.seed(1)
+tf.random.set_seed(1)
 
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, list_num_neurons, learning_rate,
-                   testing_set):
+                   testing_set,features_to_use):
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
@@ -37,7 +38,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
         folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 1)
 
         dataset, features, features_without_date, scaler_target_feature=  \
-            prepare_input_forecasting(PREPROCESSED_PATH,DATA_PATH,crypto)
+            prepare_input_forecasting(PREPROCESSED_PATH,DATA_PATH,crypto,None,features_to_use)
 
         #[(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
         #print(np.array(dataset)[0]), takes the first row of the dataset (2018-01 2020...etc.)
@@ -116,8 +117,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 y_test = y_test.astype('float')
 
                 #General parameters
-                DROPOUT=0.4
-                EPOCHS=500
+                DROPOUT=0.3
+                EPOCHS=1000
                 BATCH_SIZE=1000
                 # if the date to predict is the first date in the testing_set
                 if date_to_predict == testing_set[0]:

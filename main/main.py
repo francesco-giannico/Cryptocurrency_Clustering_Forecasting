@@ -37,9 +37,9 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    #single_target_main(distance_measure,start_date,end_date,TEST_SET)
+    single_target_main(distance_measure,start_date,end_date,TEST_SET)
     #MULTITARGET
-    multi_target_main(distance_measure,start_date,end_date,TEST_SET)
+    #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
 def data_understanding():
     #DATA UNDERSTANDING
@@ -71,13 +71,13 @@ def testing_set():
     return TEST_SET
 
 def single_target_main(distance_measure,start_date,end_date,TEST_SET):
-    DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/cut_dataset_oring/"
+    DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/cut_datasets/"
     # SIMPLE PREDICTION
     simple_prediction(DATA_PATH,TEST_SET)
 
     # SINGLE TARGET LSTM
-    temporal_sequences = [30,100]
-    number_neurons = [128,256]
+    temporal_sequences = [30]
+    number_neurons = [30]
     learning_rate = 0.001
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
@@ -86,7 +86,7 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET):
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
-                  testing_set=TEST_SET
+                  testing_set=TEST_SET,features_to_use=['Date','Close']
                   )
 
     # visualization single_target

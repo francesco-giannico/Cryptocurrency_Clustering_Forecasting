@@ -35,7 +35,7 @@ def simple_prediction(data_path,test_set):
         df = pd.read_csv(result_folder+partial_folder+"/"+crypto)
         #get rmse for each crypto
         rmse = get_rmse(df['observed_value'], df['predicted_value'])
-        rmses.append(get_rmse(rmse))
+        rmses.append(rmse)
         with open(os.path.join(result_folder,final_folder, crypto.replace(".csv","")), 'w+') as out:
             out.write(str(rmse))
 
