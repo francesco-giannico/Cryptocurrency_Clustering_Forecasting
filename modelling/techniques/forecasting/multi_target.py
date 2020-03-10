@@ -11,8 +11,9 @@ from modelling.techniques.forecasting.training.training import prepare_input_for
     get_training_testing_set, train_model
 from utility.folder_creator import folder_creator
 from visualization.line_chart import plot_train_and_validation_loss
-
-np.random.seed(0)
+import tensorflow_core as tf_core
+#np.random.seed(0)
+tf_core.random.set_seed(1)
 
 # features_to_exclude_from_scaling = ['Symbol_1','Symbol_2','Symbol_3','Symbol_4','Symbol_5','Symbol_6','Symbol_7','Symbol_8']
 

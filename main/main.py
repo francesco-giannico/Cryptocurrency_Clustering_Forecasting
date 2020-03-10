@@ -12,7 +12,6 @@ from modelling.techniques.forecasting.testing.test_set import generate_testset, 
 from preparation.construction import create_horizontal_dataset
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
-from understanding.exploration import missing_values, describe
 from utility.clustering_utils import merge_predictions
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
@@ -20,12 +19,22 @@ from visualization.bar_chart.forecasting import report_configurations, report_cr
 from visualization.line_chart import generate_line_chart
 import numpy as np
 
+from visualization.utility import describe
+
+
 def main():
     #DATA UNDERSTANDING
     #data_understanding()
 
     #DATA PREPARATION
     #preprocessing()
+
+    #Description after
+    type="standardized"
+    describe(PATH_DATASET="../preparation/preprocessed_dataset/integrated/"+type+"/",
+             output_path="../preparation/preprocessed_dataset/",
+             name_folder_res=type,
+             features_to_use=['Open','Low','High','Close'])
 
     #CLUSTERING
     start_date = "2014-10-01"
@@ -37,7 +46,7 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    single_target_main(distance_measure,start_date,end_date,TEST_SET)
+    #single_target_main(distance_measure,start_date,end_date,TEST_SET)
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
@@ -71,15 +80,19 @@ def testing_set():
     return TEST_SET
 
 def single_target_main(distance_measure,start_date,end_date,TEST_SET):
-    DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/cut_datasets/"
+    NAME_OUTPUT_FOLDER="output_standardized"
+    DATA_PATH = "../preparation/preprocessed_dataset/integrated/standardized/"
+    #DATA_PATH="../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date
     # SIMPLE PREDICTION
     simple_prediction(DATA_PATH,TEST_SET)
 
     # SINGLE TARGET LSTM
     temporal_sequences = [30]
-    number_neurons = [30]
+    number_neurons = [700]
     learning_rate = 0.001
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
+    """EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
+    TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"""
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/"+NAME_OUTPUT_FOLDER+"/"+ "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
     single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,

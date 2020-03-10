@@ -90,8 +90,8 @@ def report_crypto(experiment_folder, result_folder, report_folder,output_filenam
         folder_creator(CRYPTO_FOLDER_PATH,1)
 
         #dictionary for report
-        report_dic = {'configuration': [], 'RMSE_normalized': [], 'RMSE_denormalized': []}
-
+        #report_dic = {'configuration': [], 'RMSE_normalized': [], 'RMSE_denormalized': []}
+        report_dic = {'configuration': [], 'RMSE_normalized': []}
         #get the configurations used by the name of their folder
         configurations = os.listdir(experiment_and_result_folder + crypto + "/")
         configurations.sort(reverse=True)
@@ -111,9 +111,9 @@ def report_crypto(experiment_folder, result_folder, report_folder,output_filenam
             report_dic['RMSE_normalized'].append(float(avg_rmse_norm))
 
             # get the mean of the rmse (denormalized)
-            avg_rmse_denorm = errors_file["rmse_denorm"].mean()
+            #avg_rmse_denorm = errors_file["rmse_denorm"].mean()
             # save in the dictionary
-            report_dic['RMSE_denormalized'].append(float(avg_rmse_denorm))
+            #report_dic['RMSE_denormalized'].append(float(avg_rmse_denorm))
 
         # save as '.csv' the dictionary in CRYPTO_FOLDER_PATH
         pd.DataFrame(report_dic).to_csv(

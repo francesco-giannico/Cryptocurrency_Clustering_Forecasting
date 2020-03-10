@@ -16,6 +16,7 @@ from utility.dataset_utils import cut_dataset_by_range
 
 def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
     df1 = cut_dataset_by_range(PREPROCESSED_PATH, crypto.replace(".csv", ""), start_date, end_date)
+    #todo non è detto che sia il minmax... va be.. tanto è per denormalizzare.
     scaler_target_features = MinMaxScaler()
     # save the parameters for the trasformation or the inverse_transformation for the feature "close"
     scaler_target_features.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
@@ -32,7 +33,7 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cr
     start_date=df.index[0]
     end_date=df.index[len(df.index)-1]
 
-    if cryptos!=None:
+    """if cryptos!=None:
         #multitarget_case
         for crypto in cryptos:
             # read not normalized
@@ -40,13 +41,13 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cr
     else:
         #single target case
         #read not normalized
-        scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
+        scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)"""
 
     df = df.reset_index()
     #exlude the feature "date"
     features_without_date = [feature for feature in df.columns if feature != "Date"]
 
-    return df,df.columns,features_without_date, scaler_target_features
+    return df,df.columns,features_without_date
 
 
 def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
@@ -113,7 +114,7 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
                 model_path='', model=None):
     #note: it's an incremental way to get a final model.
     callbacks = [
-        EarlyStopping(monitor='loss', patience=15),
+        EarlyStopping(monitor='loss', patience=100),
         ModelCheckpoint(
             monitor='loss', save_best_only=True,
             filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}.h5'.format(
@@ -123,19 +124,23 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
     if model is None:
         model = Sequential()
         # Add a LSTM layer with 128/256 internal units.
-        model.add(LSTM(units=num_neurons,return_sequences=True, input_shape=(x_train.shape[1], x_train.shape[2])))
+        model.add(LSTM(units=num_neurons,return_sequences=True,input_shape=(x_train.shape[1], x_train.shape[2])))
         #reduce the overfitting
         model.add(Dropout(dropout))
+
         model.add(LSTM(units=num_neurons))
         # reduce the overfitting
         model.add(Dropout(dropout))
+
         #number of neurons of the last layer
         model.add(Dense(units=dimension_last_layer))
+
         #optimizer
         adam=Adam(learning_rate=learning_rate)
+        model.add(Activation('linear'))
         #print(model.summary())
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
 
     history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
-                            verbose=0, shuffle=False,callbacks=callbacks, use_multiprocessing=True)
+                       verbose=0,shuffle=False,callbacks=callbacks, use_multiprocessing=True)
     return model, history
