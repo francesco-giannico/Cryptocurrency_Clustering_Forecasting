@@ -33,13 +33,14 @@ def describe(PATH_DATASET,output_path,name_folder_res,features_to_use):
     folder_creator(PATH_OUT,1)
     for crypto in os.listdir(PATH_DATASET):
         crypto_name = crypto.replace(".csv", "")
-        df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0,usecols=features_to_use)
-        if(crypto_name=="ADA"):
+        features_to_read=features_to_use+['Date']
+        df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0,usecols=features_to_read)
+        if(crypto_name=="BTC"):
             PATH_CRYPTO=PATH_OUT+crypto_name+"/"
             for feature in features_to_use:
                 # mean,quantile ecc..
-                folder_creator(PATH_CRYPTO + "some_stats/",0)
-                df.describe().to_csv(PATH_CRYPTO + "some_stats/"+crypto, sep=",")
+                """folder_creator(PATH_CRYPTO + "general_stats/",0)
+                df.describe().to_csv(PATH_CRYPTO + "general_stats/"+crypto, sep=",")
 
                 folder_creator(PATH_CRYPTO + "noscaling_vs_logscaling/", 0)
                 no_scaling_vs_log_scaling(df,feature,crypto_name,PATH_CRYPTO+"noscaling_vs_logscaling/")
@@ -51,31 +52,36 @@ def describe(PATH_DATASET,output_path,name_folder_res,features_to_use):
                 box_plot(df,feature,crypto_name,PATH_CRYPTO + "box_plot/")
 
                 folder_creator(PATH_CRYPTO + "distribution_plot/", 0)
-                distribution_plot(df,feature,crypto_name,PATH_CRYPTO + "distribution_plot/")
+                distribution_plot(df,feature,crypto_name,PATH_CRYPTO + "distribution_plot/")"""
 
-            folder_creator(PATH_CRYPTO + "stationary_test/", 0)
-            stationary_test(df,features_to_use,crypto_name,PATH_CRYPTO + "stationary_test/")
+            folder_creator(PATH_CRYPTO + "correlation_heatmap/", 0)
+            correlation_matrix(df,crypto_name,PATH_CRYPTO + "correlation_heatmap/")
 
-def no_scaling_vs_log_scaling(df,feature_to_use,crypto_name,output_path):
-    df = df.dropna(subset=[feature_to_use])
-    plt.figure(figsize=(20, 6))
+            """folder_creator(PATH_CRYPTO + "stationary_test/", 0)
+            stationary_test(df,features_to_use,crypto_name,PATH_CRYPTO + "stationary_test/")"""
+
+def no_scaling_vs_log_scaling(df,feature,crypto_name,output_path):
+    df=df.set_index('Date')
+    df[feature] = df[feature] - df[feature].shift(1)
+    df = df.dropna(subset=[feature])
+    plt.figure(figsize=(20, 7))
     plt.subplot(1, 2, 1)
-    ax = df[feature_to_use].plot(style=['-'])
+    ax = df[feature].plot(style=['-'])
     ax.lines[0].set_alpha(0.3)
-    ax.set_ylim(-0.01, np.max(df[feature_to_use]))
-    plt.xticks(rotation=90)
+    ax.set_ylim(-0.01, np.max(df[feature]))
+    plt.xticks(rotation=30)
     plt.title("No scaling")
     ax.legend()
 
     plt.subplot(1, 2, 2)
-    ax = df[feature_to_use].plot(style=['-'])
+    ax = df[feature].plot(style=['-'])
     ax.lines[0].set_alpha(0.3)
     ax.set_yscale('log')
     #ax.set_ylim(0, np.max(df['Close']+1))
-    plt.xticks(rotation=90)
+    plt.xticks(rotation=30)
     plt.title("logarithmic scale")
     ax.legend()
-    plt.savefig(output_path+crypto_name+"_"+feature_to_use+".png",dpi=120)
+    plt.savefig(output_path+crypto_name+"_"+feature+".png",dpi=120)
 
 def lag_plott(df,feature,crypto_name,output_path):
     df = df.dropna(subset=[feature])
@@ -97,10 +103,28 @@ def distribution_plot(df,feature,crypto_name,output_path):
     ax.set_title("distribution_plot_" + feature + "_" + crypto_name)
     plt.savefig(output_path + crypto_name + "_" + feature + ".png", dpi=120)
 
+
+"""
+In a stationary time series, statistical properties such as mean and variance are constant over time. 
+In a non-stationary series, these properties are dependent on time.
+Most statistical forecasting methods assume that the time series is approximately stationary. 
+In a Stationary time series, there is no visible trend.
+we will use the ADF test which is a type of unit root test. Unit roots are a cause for non-stationarity, the ADF test will test if unit root is present.
+Null Hypothesis states there is the presence of a unit root.
+Alternate Hypothesis states there is no unit root. In other words, Stationarity exists.
+If statistical test is upper then 5% then we reject H0 and accept H1.
+
+
+Note:Correcting for non-stationarities in an ARIMA model is necessary because it is one of the fundamental assumptions 
+that you make about that particular model. LSTMs do not make that assumption. So you don't have to do it with an LSTM.
+But it easier for the neural network to learn, So although you don't need to do it, it may still be a good idea and give you a boost in performance.
+"""
 def stationary_test(df,features,crypto_name,output_path):
     significance_level=0.05
     res = {'feature': [], 'adf_statistics': [], 'p-value': [],'1%':[],'5%':[],'10%':[],'is_stationary':[]}
     for feature in features:
+        #trasform to be stationary
+        df[feature] = df[feature] - df[feature].shift(1)
         df = df.dropna(subset=[feature])
         X = df[feature].values
         result = adfuller(X,autolag='AIC')
@@ -116,27 +140,37 @@ def stationary_test(df,features,crypto_name,output_path):
             res['is_stationary'].append('False')
     pd.DataFrame(data=res).to_csv(output_path + crypto_name +".csv",sep=",",index=False)
 
-def info_bivariate(data, features_name):
-    thre = 0.4
-    d = np.array(data)
-    data_t = np.transpose(d)
-    el = np.arange(0, len(data_t))
+def correlation_matrix(df,crypto_name,output_path):
+    df=df.set_index('Date')
+    plt.figure(figsize=(5, 5))
+    corr = df.corr()
+    ax=sns.heatmap(corr)
+    plt.savefig(output_path + crypto_name  + ".png", dpi=120)
+
+def bivariate_plot(df, features_name):
+    threshold = 1.0
+    df=df.set_index('Date')
+    d = np.array(df)
+    df_transposed = np.transpose(d)
+
+    el = np.arange(0, len(df_transposed))
     combo_index = list(itertools.product(el, repeat=2))
-    fig3 = plt.figure(figsize=[300, 500], dpi=100, facecolor='w', edgecolor='black')
+
+    fig = plt.figure(figsize=[20,20], dpi=100, facecolor='w', edgecolor='black')
     i = 1
     for e in combo_index:
         ind1 = e.__getitem__(0)
         ind2 = e.__getitem__(1)
-        c, t = pearsonr(data_t[ind1], data_t[ind2])
-        titolo = '\n{} - {}\nP: --> {}'.format(features_name[ind1], features_name[ind2], round(c, 2))
-        #print(titolo)
-        if c < thre and c > -thre:
-             plot_correlationbtw2V(titolo, data_t[ind1], data_t[ind2], len(data_t), len(data_t), i, 'r*')
+
+        correlation_coeff, p_value = pearsonr(df_transposed[ind1], df_transposed[ind2])
+        title = '\n{}-{}\nCorrelation:{}\nP_value:{}'.format(features_name[ind1], features_name[ind2], round(correlation_coeff, 10),round(p_value,10))
+        print(title)
+        if correlation_coeff < threshold and correlation_coeff > -threshold:
+             plot_correlationbtw2V(title, df_transposed[ind1], df_transposed[ind2], len(df_transposed), len(df_transposed), i, 'r*')
         else:
-             plot_correlationbtw2V(titolo, data_t[ind1], data_t[ind2], len(data_t), len(data_t), i, 'g.')
+             plot_correlationbtw2V(title, df_transposed[ind1], df_transposed[ind2], len(df_transposed), len(df_transposed), i, 'g.')
         i = i + 1
-    fig3.show()
-    plt.show()
+    #plt.show()
     return
 
 def plot_correlationbtw2V(title, data1, data2, righe, colonne, indice, cm):
@@ -162,28 +196,16 @@ def plot_boxnotch_univariateanalysis(data, features_name):
     return
 
 def info_univariate(data, features_name):
-    d = np.array(data)
-    data_t = np.transpose(d)
-    for f in range(0, len(data_t), 1):
-        ds = sorted(data_t[f])
+    df_np= np.array(data)
+    df_transposed = np.transpose(d)
+    for f in range(0, len(df_transposed), 1):
+        ds = sorted(df_transposed[f])
         moda = stats.mode(ds)
         print('Feature: {}:\nMAX: --> {}\nMIN:  --> {}\nAVG:  --> {}\nMODE:  --> V:{} --> {}\nMed  --> {}\n'.format(
-             features_name[f], np.max(data_t[f]),
-             np.min(data_t[f]),
-             round(np.mean(data_t[f]), 1),
+             features_name[f], np.max(df_transposed[f]),
+             np.min(df_transposed[f]),
+             round(np.mean(df_transposed[f]), 1),
              moda[0], moda[1],
              np.median(ds)))
-    plot_boxnotch_univariateanalysis(data_t, features_name)
+    plot_boxnotch_univariateanalysis(df_transposed, features_name)
     return
-
-"""#df=pd.read_csv("../dataset/interpolated/time/ARDR.csv", delimiter=',', header=0)
-df=pd.read_csv("../acquisition/dataset/original/BTC.csv", delimiter=',', header=0)
-# Converting the column to DateTime format
-df.Date = pd.to_datetime(df.Date, format='%Y-%m-%d')
-df = df.set_index('Date')
-#log_scaling(df)
-#lag_plot_mine(df)
-#info_bivariate(df.values,df.columns.values)
-df=df.drop(['Volume'],axis=1)
-info_univariate(df.values,df.columns.values)
-describe(df)"""

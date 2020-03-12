@@ -24,17 +24,20 @@ from visualization.utility import describe
 
 def main():
     #DATA UNDERSTANDING
-    #data_understanding()
+    cryptocurrencies=['BTC','ETH']
+    #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
     #preprocessing()
 
     #Description after
-    type="standardized"
+    type="min_max_normalized"
+    """features_to_use=['Open','Low','High','Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
     describe(PATH_DATASET="../preparation/preprocessed_dataset/integrated/"+type+"/",
              output_path="../preparation/preprocessed_dataset/",
              name_folder_res=type,
-             features_to_use=['Open','Low','High','Close'])
+             features_to_use=features_to_use)"""
+
 
     #CLUSTERING
     start_date = "2014-10-01"
@@ -46,21 +49,24 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    #single_target_main(distance_measure,start_date,end_date,TEST_SET)
+    features_to_use = ['Close']#0.023 era l'errore prima.
+
+    single_target_main(distance_measure,start_date,end_date,TEST_SET,type,features_to_use)
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
-def data_understanding():
+def data_understanding(crypto_names):
     #DATA UNDERSTANDING
     PATH_DATASET= "../acquisition/dataset/original/"
 
     #COLLECT INITIAL DATA
     #todo data collecting from yahoo finance
-    #get_most_important_cryptos(startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
+    #get_most_important_cryptos(crypto_names,startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
+
     # EXPLORE DATA
     #missing_values(PATH_DATASET)
     #describe dataframes
-    describe(PATH_DATASET)
+    #describe(PATH_DATASET)
 
 def clustering_main(distance_measure,start_date,end_date):
     # clustering
@@ -79,27 +85,27 @@ def testing_set():
           "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
     return TEST_SET
 
-def single_target_main(distance_measure,start_date,end_date,TEST_SET):
-    NAME_OUTPUT_FOLDER="output_standardized"
-    DATA_PATH = "../preparation/preprocessed_dataset/integrated/standardized/"
+def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,features_to_use):
+    DATA_PATH = "../preparation/preprocessed_dataset/integrated/"+type+"/"
     #DATA_PATH="../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date
+
     # SIMPLE PREDICTION
     simple_prediction(DATA_PATH,TEST_SET)
 
     # SINGLE TARGET LSTM
-    temporal_sequences = [30]
-    number_neurons = [700]
+    temporal_sequences = [750]
+    number_neurons = [150]
     learning_rate = 0.001
     """EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"""
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/"+NAME_OUTPUT_FOLDER+"/"+ "/single_target/"
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/output_"+type+"/"+ "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
     single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
-                  testing_set=TEST_SET,features_to_use=['Date','Close']
+                  testing_set=TEST_SET,features_to_use=features_to_use.append('Date')
                   )
 
     # visualization single_target

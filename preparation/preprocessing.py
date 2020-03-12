@@ -9,18 +9,20 @@ PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/final/"
 PATH_MINMAXNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/min_max_normalized/"
 PATH_MAXABSNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/max_abs_normalized/"
 PATH_STANDARDIZED_FOLDER="../preparation/preprocessed_dataset/constructed/standardized/"
-
+PATH_INTEGRATED_FOLDER="../preparation/preprocessed_dataset/integrated/"
 def preprocessing():
-    folders_setup()
+    """folders_setup()
     feature_selection()
-    separation()
-    cleaning()
-    construction()
+    separation()"""
+    #cleaning()
     integration()
+    construction()
+
 
 def folders_setup():
     # Set the name of folder in which to save all intermediate results
     folder_creator(PATH_PREPROCESSED,0)
+
 
 def feature_selection():
     #remove_features(["Open","High","Adj Close","Low","Volume"])
@@ -31,18 +33,19 @@ def separation():
     find_uncomplete()
 
 def cleaning():
-    remove_uncomplete_rows_by_range("ARDR","2017-01-01","2019-12-31")
-    remove_uncomplete_rows_by_range("REP", "2017-01-01", "2019-12-31")
+    """remove_uncomplete_rows_by_range("ARDR","2017-01-01","2019-12-31")
+    remove_uncomplete_rows_by_range("REP", "2017-01-01", "2019-12-31")"""
     #todo LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
     input_missing_values()
 
-def construction():
-    #feature scaling
-    min_max_scaling(input_path=PATH_CLEANED_FOLDER,output_path=PATH_MINMAXNORMALIZED_FOLDER)
-    max_abs_scaling(input_path=PATH_CLEANED_FOLDER, output_path=PATH_MAXABSNORMALIZED_FOLDER)
-    standardization(input_path=PATH_CLEANED_FOLDER, output_path=PATH_STANDARDIZED_FOLDER)
 
 def integration():
-    integrate_with_indicators(PATH_PREPROCESSED+"/constructed/"+"/min_max_normalized/","min_max_normalized")
-    integrate_with_indicators(PATH_PREPROCESSED + "/constructed/" + "/max_abs_normalized/", "max_abs_normalized")
-    integrate_with_indicators(PATH_PREPROCESSED + "/constructed/" + "/standardized/", "standardized")
+    integrate_with_indicators(input_path=PATH_CLEANED_FOLDER)
+
+
+def construction():
+    #feature scaling
+    min_max_scaling(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_MINMAXNORMALIZED_FOLDER)
+    max_abs_scaling(input_path=PATH_INTEGRATED_FOLDER, output_path=PATH_MAXABSNORMALIZED_FOLDER)
+    standardization(input_path=PATH_INTEGRATED_FOLDER, output_path=PATH_STANDARDIZED_FOLDER)
+

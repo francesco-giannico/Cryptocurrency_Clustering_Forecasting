@@ -34,17 +34,16 @@ def get_quote(symbol,session,startdate,enddate):
     response.raise_for_status()
     return pd.read_csv(StringIO(response.text), parse_dates=['Date'])
 
-def get_most_important_cryptos(startdate,enddate):
+def get_most_important_cryptos(cryptocurrencies,startdate,enddate):
     DATASET_NAME="original"
     folder_creator("../acquisition/dataset", 1)
     DATASET_DIR= "../acquisition/dataset/" +DATASET_NAME
     folder_creator(DATASET_DIR, 1)
     currency = "-USD"
-    print(os.getcwd())
-    f = open("/crypto_symbols.txt", "r")
-    cryptos = f.readlines()
-    for crypto in cryptos:
-        crypto = crypto.replace("\n", "")
+    #f = open("/crypto_symbols.txt", "r")
+    #cryptos = f.readlines()
+    for crypto in cryptocurrencies:
+        #crypto = crypto.replace("\n", "")
         print("getting info about "+ crypto)
         df = yahoo_finance_history(crypto + currency,startdate,enddate)
         df.to_csv(DATASET_DIR+"/"+crypto + ".csv", index=False)

@@ -10,15 +10,17 @@ from utility.folder_creator import folder_creator
 PATH_MAIN_FOLDER="../acquisition/dataset/original/"
 PATH_LESS_FEATURES= "../preparation/preprocessed_dataset/selected/less_features/"
 PATH_PREPARATION_FOLDER="../preparation/preprocessed_dataset/"
+PATH_COMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/"
+
 
 def find_by_dead_before():
-    folder_creator(PATH_PREPARATION_FOLDER + "selected/"+"dead", 1)
+    folder_creator(PATH_PREPARATION_FOLDER + "selected/"+"dead/", 1)
     for file in os.listdir(PATH_LESS_FEATURES):
         df = pd.read_csv(PATH_LESS_FEATURES + file, delimiter=',', header=0)
         df = df.set_index("Date")
         # dead before
-        lastDate = df.index[::-1][0]
-        if lastDate != '2019-12-31':
+        last_date = df.index[::-1][0]
+        if last_date != '2019-12-31':
             shutil.copy(PATH_LESS_FEATURES + file,PATH_PREPARATION_FOLDER+"selected/dead/" + file)
 
 """ it moves the crypto with null values in the uncomplete folder """
@@ -40,6 +42,7 @@ def find_uncomplete():
             shutil.copy(PATH_LESS_FEATURES + file, PATH_PREPARATION_FOLDER+ "selected/complete/" + file)
         except:
             pass
+
 
 def remove_features(features_to_remove):
     folder_creator(PATH_PREPARATION_FOLDER+"selected/",1)

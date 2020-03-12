@@ -24,10 +24,14 @@ def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
 
 def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cryptos=None,features_to_use=None):
     #already normalized
+
     if features_to_use!=None:
         df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto, sep=',',header=0,usecols=features_to_use)
     else:
         df = pd.read_csv(CLUSTERING_CRYPTO_PATH + crypto, sep=',', header=0)
+
+    #todo remove this!!
+    #df['Close']=df['Close']-df['Close'].shift(1)
 
     df=df.set_index("Date")
     start_date=df.index[0]
@@ -113,8 +117,9 @@ def get_training_testing_set(dataset_tensor_format, date_to_predict):
 def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dropout, epochs, batch_size, dimension_last_layer,
                 model_path='', model=None):
     #note: it's an incremental way to get a final model.
+    #
     callbacks = [
-        EarlyStopping(monitor='loss', patience=100),
+        EarlyStopping(monitor='loss', patience=40),
         ModelCheckpoint(
             monitor='loss', save_best_only=True,
             filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}.h5'.format(
@@ -128,6 +133,17 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         #reduce the overfitting
         model.add(Dropout(dropout))
 
+        """model.add(LSTM(units=num_neurons,return_sequences=True))
+        # reduce the overfitting
+        model.add(Dropout(dropout))"""
+        """model.add(LSTM(units=num_neurons,return_sequences=True))
+        # reduce the overfitting
+        model.add(Dropout(dropout))"""
+
+        """model.add(LSTM(units=num_neurons, return_sequences=True))
+        # reduce the overfitting
+        model.add(Dropout(dropout))"""
+
         model.add(LSTM(units=num_neurons))
         # reduce the overfitting
         model.add(Dropout(dropout))
@@ -137,7 +153,7 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
 
         #optimizer
         adam=Adam(learning_rate=learning_rate)
-        model.add(Activation('linear'))
+        #model.add(Activation('linear'))
         #print(model.summary())
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
 
