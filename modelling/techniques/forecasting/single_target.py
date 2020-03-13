@@ -38,10 +38,10 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
             folder_creator(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name, 1)
             folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 1)
             #scaler_target_feature
-            # todo controllare che feature_to_use è ok
+
             dataset, features, features_without_date=  \
                 prepare_input_forecasting(PREPROCESSED_PATH,DATA_PATH,crypto,None,features_to_use)
-
+            #print(dataset.columns.values)
             #[(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
             #print(np.array(dataset)[0]), takes the first row of the dataset (2018-01 2020...etc.)
             for window, num_neurons in product(window_sequence, list_num_neurons):

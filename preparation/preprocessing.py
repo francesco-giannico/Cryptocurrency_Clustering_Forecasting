@@ -1,4 +1,4 @@
-from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values
+from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values, remove_outliers
 from preparation.construction import min_max_scaling, max_abs_scaling, standardization
 from preparation.integration import integrate_with_indicators
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
@@ -14,7 +14,7 @@ def preprocessing():
     """folders_setup()
     feature_selection()
     separation()"""
-    #cleaning()
+    cleaning()
     integration()
     construction()
 
@@ -33,10 +33,12 @@ def separation():
     find_uncomplete()
 
 def cleaning():
+    remove_outliers()
     """remove_uncomplete_rows_by_range("ARDR","2017-01-01","2019-12-31")
     remove_uncomplete_rows_by_range("REP", "2017-01-01", "2019-12-31")"""
     #todo LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
-    input_missing_values()
+    #input_missing_values()
+
 
 
 def integration():
