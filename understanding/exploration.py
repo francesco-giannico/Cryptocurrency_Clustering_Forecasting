@@ -7,6 +7,7 @@ from pandas.plotting import lag_plot
 from scipy.stats import pearsonr, stats
 from understanding.missing_values import  count_missing_values, count_missing_values_by_year, \
     generate_bar_chart_by_year
+from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 from statsmodels.tsa.stattools import adfuller
 import seaborn as sns
@@ -36,80 +37,144 @@ If SD is zero, all the numbers in a dataset share the same value
 -75%  percentile is the value below which 75% of the observations may be found
 -min, max, max - min, 75% - 25% are all alternatives to perspectives on how big of swings the data takes relative to the mean
 """
-def describe(PATH_DATASET,output_path,name_folder_res,features_to_use):
-    PATH_OUT=output_path+"descriptions/"+name_folder_res+"/"
+
+def describe(PATH_DATASET,output_path,name_folder_res=None,features_to_use=None):
+    if features_to_use==None:
+        features_to_use=COLUMNS
+
+    if name_folder_res==None:
+        PATH_OUT=output_path+"descriptions/"
+    else:
+        PATH_OUT = output_path + "descriptions/" + name_folder_res + "/"
+
     folder_creator(PATH_OUT,1)
     for crypto in os.listdir(PATH_DATASET):
         crypto_name = crypto.replace(".csv", "")
         features_to_read=features_to_use+['Date']
         df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0,usecols=features_to_read)
-        if(crypto_name=="BTC"):
-            PATH_CRYPTO=PATH_OUT+crypto_name+"/"
-            for feature in features_to_use:
-                # mean,quantile ecc..
-                folder_creator(PATH_CRYPTO + "general_stats/",0)
-                df.describe().to_csv(PATH_CRYPTO + "general_stats/"+crypto, sep=",")
+        #df=cut_dataset_by_range(PATH_DATASET,crypto_name,'2017-07-20','2018-10-27')
+        #if(crypto_name=="BTC"):
+        PATH_CRYPTO=PATH_OUT+crypto_name+"/"
+        folder_creator(PATH_CRYPTO + "general_stats/", 1)
+        folder_creator(PATH_CRYPTO + "noscaling_vs_logscaling/", 1)
+        folder_creator(PATH_CRYPTO + "lag_plot/", 1)
+        folder_creator(PATH_CRYPTO + "box_plot/", 1)
+        folder_creator(PATH_CRYPTO + "distribution_plot/", 1)
+        folder_creator(PATH_CRYPTO + "correlation_heatmap/", 1)
+        folder_creator(PATH_CRYPTO + "normality_test/", 1)
+        folder_creator(PATH_CRYPTO + "stationary_test/", 1)
 
-                folder_creator(PATH_CRYPTO + "noscaling_vs_logscaling/", 0)
-                no_scaling_vs_log_scaling(df,feature,crypto_name,PATH_CRYPTO+"noscaling_vs_logscaling/")
+        """folder_creator(PATH_CRYPTO + "kurtosis_test/", 1)
+        folder_creator(PATH_CRYPTO + "skewness_test/", 1)"""
 
-                folder_creator(PATH_CRYPTO + "lag_plot/", 0)
-                lag_plott(df,feature,crypto_name,PATH_CRYPTO + "lag_plot/")
+        df.describe().to_csv(PATH_CRYPTO + "general_stats/" + crypto, sep=",")
 
-                folder_creator(PATH_CRYPTO + "box_plot/", 0)
-                box_plot(df,feature,crypto_name,PATH_CRYPTO + "box_plot/")
+        no_scaling_vs_log_scaling(df,features_to_use,crypto_name,PATH_CRYPTO+"noscaling_vs_logscaling/")
 
-                folder_creator(PATH_CRYPTO + "distribution_plot/", 0)
-                distribution_plot(df,feature,crypto_name,PATH_CRYPTO + "distribution_plot/")
+        lag_plott(df,features_to_use,crypto_name,PATH_CRYPTO + "lag_plot/")
 
-            folder_creator(PATH_CRYPTO + "correlation_heatmap/", 0)
-            correlation_matrix(df,crypto_name,PATH_CRYPTO + "correlation_heatmap/")
+        box_plot(df,crypto_name,PATH_CRYPTO + "box_plot/")
 
-            folder_creator(PATH_CRYPTO + "stationary_test/", 0)
-            stationary_test(df,features_to_use,crypto_name,PATH_CRYPTO + "stationary_test/")
+        distribution_plot(df,features_to_use,crypto_name,PATH_CRYPTO + "distribution_plot/")
 
-def no_scaling_vs_log_scaling(df,feature,crypto_name,output_path):
-    df=df.set_index('Date')
-    df[feature] = df[feature] - df[feature].shift(1)
-    df = df.dropna(subset=[feature])
-    plt.figure(figsize=(20, 7))
-    plt.subplot(1, 2, 1)
-    ax = df[feature].plot(style=['-'])
-    ax.lines[0].set_alpha(0.3)
-    ax.set_ylim(-0.01, np.max(df[feature]))
-    plt.xticks(rotation=30)
-    plt.title("No scaling")
-    ax.legend()
+        stationary_test(df, features_to_use, crypto_name, PATH_CRYPTO + "stationary_test/")
 
-    plt.subplot(1, 2, 2)
-    ax = df[feature].plot(style=['-'])
-    ax.lines[0].set_alpha(0.3)
-    ax.set_yscale('log')
-    #ax.set_ylim(0, np.max(df['Close']+1))
-    plt.xticks(rotation=30)
-    plt.title("logarithmic scale")
-    ax.legend()
-    plt.savefig(output_path+crypto_name+"_"+feature+".png",dpi=120)
+        correlation_matrix(df,crypto_name,PATH_CRYPTO + "correlation_heatmap/")
 
-def lag_plott(df,feature,crypto_name,output_path):
-    df = df.dropna(subset=[feature])
-    plt.figure(figsize=(5,5))
-    plt.title("lag_plot_"+feature+"_"+crypto_name)
-    lag_plot(df[feature])
-    plt.savefig(output_path + crypto_name + "_" + feature + ".png", dpi=120)
+        normality_test(df, features_to_use, crypto_name, PATH_CRYPTO + "normality_test/")
 
-def box_plot(df,feature,crypto_name,output_path):
-    plt.figure(figsize=(5, 5))
-    ax = sns.boxplot(x=feature,data=df, orient="v")
-    ax.set_title("box_plot_" + feature + "_" + crypto_name)
-    plt.savefig(output_path + crypto_name + "_" + feature + ".png", dpi=120)
+        stationary_test(df, features_to_use, crypto_name, PATH_CRYPTO + "stationary_test/")
 
-def distribution_plot(df,feature,crypto_name,output_path):
-    filter_data = df.dropna(subset=[feature])
-    plt.figure(figsize=(14, 8))
-    ax=sns.distplot(filter_data[feature], kde=False)
-    ax.set_title("distribution_plot_" + feature + "_" + crypto_name)
-    plt.savefig(output_path + crypto_name + "_" + feature + ".png", dpi=120)
+        #kurtosis_normal_distribution(df,features_to_use,crypto_name,PATH_CRYPTO + "kurtosis_test/")
+
+        """skewness_normal_distribution(df,features_to_use,crypto_name,PATH_CRYPTO + "skewness_test/")"""
+
+
+
+
+def skewness_normal_distribution(df,features,crypto_name,output_path):
+    res = {'feature': [], 'skewness_of_n_distrib': []}
+    for feature in features:
+        #df = df.dropna(subset=[feature])
+        stat, p = stats.skew(df[feature])
+        res['feature'].append(feature)
+        res['skewness_of_n_distrib'].append(stat)
+    pd.DataFrame(data=res).to_csv(output_path + crypto_name + ".csv", sep=",", index=False)
+
+def kurtosis_normal_distribution(df,features,crypto_name,output_path):
+    res = {'feature': [], 'kurtosis_of_n_distrib': []}
+    for feature in features:
+        df = df.dropna(subset=[feature])
+        stat, p = stats.kurtosis(df[feature].values)
+        res['feature'].append(feature)
+        res['kurtosis_of_n_distrib'].append(stat)
+    pd.DataFrame(data=res).to_csv(output_path + crypto_name + ".csv", sep=",", index=False)
+
+def normality_test(df,features,crypto_name,output_path):
+    alpha = 0.05
+    res = {'feature': [], 'statistics': [], 'p-value': [],'is_gaussian':[]}
+    for feature in features:
+        #trasform to be stationary
+        df = df.dropna(subset=[feature])
+        stat, p = stats.normaltest(df[feature])
+        res['feature'].append(feature)
+        res['statistics'].append(stat)
+        res['p-value'].append(p)
+        if p > alpha: #fail to reject H0
+            res['is_gaussian'].append('True')
+        else:
+            res['is_gaussian'].append('False')
+    pd.DataFrame(data=res).to_csv(output_path + crypto_name +".csv",sep=",",index=False)
+
+def no_scaling_vs_log_scaling(df,features,crypto_name,output_path):
+    for feature in features:
+        #df=df.set_index('Date')
+        df = df.dropna(subset=[feature])
+        plt.figure(figsize=(20, 7))
+        plt.subplot(1, 2, 1)
+        ax = df[feature].plot(style=['-'])
+        ax.lines[0].set_alpha(0.3)
+        ax.set_ylim(-0.01, np.max(df[feature]))
+        plt.xticks(rotation=30)
+        plt.title("No scaling")
+        ax.legend()
+
+        plt.subplot(1, 2, 2)
+        ax = df[feature].plot(style=['-'])
+        ax.lines[0].set_alpha(0.3)
+        ax.set_yscale('log')
+        #ax.set_ylim(0, np.max(df['Close']+1))
+        plt.xticks(rotation=30)
+        plt.title("logarithmic scale")
+        ax.legend()
+        plt.savefig(output_path+crypto_name+"_"+feature+".png",dpi=120)
+
+def lag_plott(df,features,crypto_name,output_path):
+    for feature in features:
+        df = df.dropna(subset=[feature])
+        plt.figure(figsize=(5,5))
+        plt.title("lag_plot_"+feature+"_"+crypto_name)
+        lag_plot(df[feature])
+        plt.savefig(output_path + crypto_name + "_" + feature + ".png", dpi=120)
+
+def box_plot(df,crypto_name,output_path):
+    plt.figure(figsize=(35,20))
+    i=1
+    for feature in df.columns.values:
+        if feature!="Date":
+            plt.subplot(1,len(df.columns.values)-1 , i)
+            ax = sns.boxplot(x=feature,data=df, orient="v")
+            ax.set_title(feature)
+            i+=1
+    plt.savefig(output_path + crypto_name +".png", dpi=120)
+
+def distribution_plot(df,features,crypto_name,output_path):
+    for feature in features:
+        filter_data = df.dropna(subset=[feature])
+        plt.figure(figsize=(14, 8))
+        ax=sns.distplot(filter_data[feature], kde=False)
+        ax.set_title("distribution_plot_" + feature + "_" + crypto_name)
+        plt.savefig(output_path + crypto_name + "_" + feature + ".png", dpi=120)
 
 
 """
@@ -132,7 +197,6 @@ def stationary_test(df,features,crypto_name,output_path):
     res = {'feature': [], 'adf_statistics': [], 'p-value': [],'1%':[],'5%':[],'10%':[],'is_stationary':[]}
     for feature in features:
         #trasform to be stationary
-        df[feature] = df[feature] - df[feature].shift(1)
         df = df.dropna(subset=[feature])
         X = df[feature].values
         result = adfuller(X,autolag='AIC')
@@ -152,7 +216,7 @@ def correlation_matrix(df,crypto_name,output_path):
     df=df.set_index('Date')
     plt.figure(figsize=(5, 5))
     corr = df.corr()
-    ax=sns.heatmap(corr)
+    ax=sns.heatmap(corr,annot=True)
     plt.savefig(output_path + crypto_name  + ".png", dpi=120)
 
 def bivariate_plot(df, features_name):

@@ -28,13 +28,14 @@ def main():
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    #preprocessing()
+    preprocessing()
 
     #Description after
     types="min_max_normalized"
-    #features_to_use=['Open','Low','High','Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
-    features_to_use=['Close']
-    """describe(PATH_DATASET="../preparation/preprocessed_dataset/integrated/",
+    #features_to_use=['Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
+    features_to_use=['Close','Low']
+    """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+types
+             +"/",
              output_path="../preparation/preprocessed_dataset/",
              name_folder_res=types,
              features_to_use=features_to_use)"""
@@ -49,9 +50,8 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    features_to_use = ['Close','RSI_14']#0.023 era l'errore prima.
-    features_to_use=features_to_use+['Date']
-    single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use)
+    features_to_use = ['Date','Close','Open']
+    """single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use)"""
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
@@ -66,7 +66,8 @@ def data_understanding(crypto_names):
     # EXPLORE DATA
     #missing_values(PATH_DATASET)
     #describe dataframes
-    #describe(PATH_DATASET)
+    OUTPUT_PATH="../understanding/output/"
+    describe(PATH_DATASET,OUTPUT_PATH,None,None)
 
 def clustering_main(distance_measure,start_date,end_date):
     # clustering
@@ -93,8 +94,8 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,featur
     simple_prediction(DATA_PATH,TEST_SET)
 
     # SINGLE TARGET LSTM
-    temporal_sequences = [200]
-    number_neurons = [256]
+    temporal_sequences = [30]
+    number_neurons = [128]
     learning_rate = 0.001
     """EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"""

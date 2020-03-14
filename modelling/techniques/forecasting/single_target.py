@@ -41,6 +41,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
 
             dataset, features, features_without_date=  \
                 prepare_input_forecasting(PREPROCESSED_PATH,DATA_PATH,crypto,None,features_to_use)
+
             #print(dataset.columns.values)
             #[(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
             #print(np.array(dataset)[0]), takes the first row of the dataset (2018-01 2020...etc.)
@@ -48,7 +49,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 print('Current configuration: ')
                 print("Crypto_symbol: ",crypto,"\t", "Window_sequence: ",window,"\t", "Neurons: ",num_neurons)
 
-                #non prende in input i neuroni questo.
                 dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                        TENSOR_DATA_PATH + "/" + crypto_name + "/",
                                                        crypto_name)
@@ -77,14 +77,14 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 for date_to_predict in testing_set:
                     #2 days before the date to predict
                     d = pd.to_datetime(date_to_predict) - timedelta(days=1)
-                    print('Date to predict: ', date_to_predict)
-                    print("Training until: ", d)
+                    """print('Date to predict: ', date_to_predict)
+                    print("Training until: ", d)"""
                     """the format of train and test is the following one:
                      [
-                        [[items],[items]],
-                        [[items],[items]],
+                        [[Row1],[Row2]],
+                        [[Row1],[Row2]],
                         ....
-                        [[items],[items]],
+                        [[Row1],[Row2]],
                      ]
                     thus for element accessing there are the following three indexes:
                       1)e.g [[items],[items]]
@@ -92,23 +92,32 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                       3)e.g items
                     """
                     train, test = get_training_testing_set(dataset_tensor_format, date_to_predict)
+
                     # ['2018-01-01' other numbers separated by comma],it removes the date.
                     train = train[:, :, 1:]
                     test = test[:, :, 1:]
 
                     index_of_target_feature=features_without_date.index('Close')
+                    #print(index_of_target_feature)
                     #remove the last day before the day to predict:
                     #e.g date to predict 2019-01-07 thus the data about 2019-01-06 will be discarded.
                     #e.g [[items],[items2],[items3]] becames [[items1],[items2]]
-                    x_train= train[:, :-1, :]
+                    #also, i will remove the "Close" feature, thanks to the third index (1)
+                    #x_train= train[:, :-1, index_of_target_feature:]
+                    x_train = train[:, :-1, :]
+                    """print(x_train.shape)
+                    print(x_train[0])"""
                     # remove the last day before the day to predict, by doing -1
                     # returns an array with all the values of the feature close
+                    #this contains values about the target feature!
                     y_train =train[:, -1,  index_of_target_feature]
+                    #print(y_train)
 
                     # NOTE: in the testing set we must have the dates to evaluate the experiment without the date to forecast!!!
                     # remove the day to predict
                     # e.g date to predict 2019-01-07 thus the data about 2019-01-07 will be discarded.
                     # e.g [[items],[items2],[items3]] becames [[items1],[items2]]
+                    #x_test = test[:, :-1, index_of_target_feature:]
                     x_test = test[:, :-1, :]
                     # remove the last day before the day to predict, by doing -1
                     # returns an array with all the values of the feature close to predict!
@@ -155,9 +164,13 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
 
                     #Predict for each date in the validation set
                     test_prediction = model.predict(x_test,use_multiprocessing=True)
+                    print("Num of entries for training: ",x_train.shape [0])
+                    print("Num of element for validation: ", x_test.shape[0])
+                    print("Training until: ", d)
                     print("Predicting for: ", date_to_predict)
                     print("Predicted: ", test_prediction[0])
                     print("Actual: ", y_test)
+                    print("\n")
 
 
                     #denormalization

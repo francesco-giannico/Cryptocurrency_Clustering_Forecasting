@@ -72,15 +72,16 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
     # 1 is the number of elements in
     lstm_tensor = np.zeros((1, window_considered, dataset.shape[1]))
     # for i between 0 to (num of elements in original array - window + 1)
+    """easy explanation through example:
+         i:0-701 (730-30+1)
+         i=0; => from day 0 + 30 days 
+         i=1 => from day 1 + 30 days 
+      """
     for i in range(dataset.shape[0] - window_considered + 1):
         #note (i:i + window_considered) is the rows selection.
         element=dataset[i:i + window_considered, :].reshape(1, window_considered, dataset.shape[1])
         lstm_tensor = np.append(lstm_tensor, element,axis=0)#axis 0 in order to appen on rows
-    """easy explanation through example:
-       i:0-701 (730-30+1)
-       i=0; => from day 0 + 30 days 
-       i=1 => from day 1 + 30 days 
-    """
+
     #serialization
     output_path += "/crypto_"
     name_tensor = 'TensorFormat_' + output_name + '_' + str(window_considered)
@@ -98,6 +99,9 @@ def get_training_testing_set(dataset_tensor_format, date_to_predict):
     for sample in dataset_tensor_format:
         # Candidate is a date: 2018-01-30, for example.
         # -1 is used in order to reverse the list.
+        #takes the last date in the sample: 2017-01-09, 2017-01..., ... ,  2017-02-2019
+        #since the last date is 2017-02-2019, then it is before the date to predict for example 2019-03-05, so this sample
+        #will belong to the training set.
         candidate = sample[-1,index_feature_date]
         candidate = pd.to_datetime(candidate)
 

@@ -51,4 +51,4 @@ def remove_features(features_to_remove):
         df = pd.read_csv(PATH_MAIN_FOLDER + crypto, delimiter=',', header=0)
         for feature in features_to_remove:
             del df[feature]
-            df.to_csv(PATH_PREPARATION_FOLDER+"selected/less_features/"+crypto,sep=",",index=False)
+        df.to_csv(PATH_PREPARATION_FOLDER+"selected/less_features/"+crypto,sep=",",index=False)

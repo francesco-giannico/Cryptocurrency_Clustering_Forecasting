@@ -1,4 +1,5 @@
-from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values, remove_outliers
+from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values, \
+    remove_outliers_dbscan, remove_outliers_one
 from preparation.construction import min_max_scaling, max_abs_scaling, standardization
 from preparation.integration import integrate_with_indicators
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
@@ -11,9 +12,9 @@ PATH_MAXABSNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/ma
 PATH_STANDARDIZED_FOLDER="../preparation/preprocessed_dataset/constructed/standardized/"
 PATH_INTEGRATED_FOLDER="../preparation/preprocessed_dataset/integrated/"
 def preprocessing():
-    """folders_setup()
+    folders_setup()
     feature_selection()
-    separation()"""
+    separation()
     cleaning()
     integration()
     construction()
@@ -23,17 +24,18 @@ def folders_setup():
     # Set the name of folder in which to save all intermediate results
     folder_creator(PATH_PREPROCESSED,0)
 
-
 def feature_selection():
     #remove_features(["Open","High","Adj Close","Low","Volume"])
-    remove_features(["Adj Close","Volume"])
+    remove_features([])
+    #pass
 
 def separation():
     find_by_dead_before()
     find_uncomplete()
 
 def cleaning():
-    remove_outliers()
+    #remove_outliers_dbscan()
+    remove_outliers_one()
     """remove_uncomplete_rows_by_range("ARDR","2017-01-01","2019-12-31")
     remove_uncomplete_rows_by_range("REP", "2017-01-01", "2019-12-31")"""
     #todo LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
