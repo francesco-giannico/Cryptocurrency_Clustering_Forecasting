@@ -47,6 +47,7 @@ def standardization(input_path,output_path):
                 df[col] = pd.Series(normalized.reshape(-1))
         df.to_csv(output_path+crypto,sep=",", index=False)
 
+
 #creates the horizontal dataset
 def create_horizontal_dataset(data_path,output_path):
     folder_creator(output_path+"horizontal_dataset/",1)

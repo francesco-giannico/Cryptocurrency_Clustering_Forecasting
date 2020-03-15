@@ -32,13 +32,14 @@ def main():
 
     #Description after
     types="min_max_normalized"
-    #features_to_use=['Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
-    features_to_use=['Close','Low']
-    """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+types
-             +"/",
+    #features_to_use=['Close','Open','Low','High','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
+    features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
+                       'EMA_7', 'EMA_14', 'EMA_20']
+    #features_to_use=[]
+    describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+types+"/",
              output_path="../preparation/preprocessed_dataset/",
              name_folder_res=types,
-             features_to_use=features_to_use)"""
+             features_to_use=features_to_use)
 
     #CLUSTERING
     start_date = "2014-10-01"
@@ -50,8 +51,10 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    features_to_use = ['Date','Close','Open']
-    """single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use)"""
+    features_to_use = ['Date','Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
+                       'EMA_7', 'EMA_14', 'EMA_20']
+
+    single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use=features_to_use)
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
@@ -60,7 +63,7 @@ def data_understanding(crypto_names):
     PATH_DATASET= "../acquisition/dataset/original/"
 
     #COLLECT INITIAL DATA
-    #todo data collecting from yahoo finance
+    #data collecting from yahoo finance
     #get_most_important_cryptos(crypto_names,startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
 
     # EXPLORE DATA
@@ -94,7 +97,7 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,featur
     simple_prediction(DATA_PATH,TEST_SET)
 
     # SINGLE TARGET LSTM
-    temporal_sequences = [30]
+    temporal_sequences = [100]
     number_neurons = [128]
     learning_rate = 0.001
     """EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"

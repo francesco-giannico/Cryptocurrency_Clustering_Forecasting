@@ -214,7 +214,7 @@ def stationary_test(df,features,crypto_name,output_path):
 
 def correlation_matrix(df,crypto_name,output_path):
     df=df.set_index('Date')
-    plt.figure(figsize=(5, 5))
+    plt.figure(figsize=(10, 10))
     corr = df.corr()
     ax=sns.heatmap(corr,annot=True)
     plt.savefig(output_path + crypto_name  + ".png", dpi=120)

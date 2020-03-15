@@ -48,15 +48,15 @@ def interpolate_with_time(df):
     return df
 
 
-PATH_COMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/complete/"
+
 def remove_outliers_one():
     for crypto in os.listdir(PATH_COMPLETE_FOLDER):
         df=pd.read_csv(PATH_COMPLETE_FOLDER+crypto,sep=",",header=0)
         #df=cut_dataset_by_range(PATH_COMPLETE_FOLDER,crypto.replace(".csv",""),'2019-01-01','2019-12-31')
         folder_creator(PATH_CLEANED_FOLDER+"final/",1)
         #df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
-
-        low=0.15
+        df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
+        """low=0.15
         high=0.95
         res=df.Close.quantile([low,high])
         print(res)
@@ -67,10 +67,9 @@ def remove_outliers_one():
         #print(df.head())
         df[true_index].to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)
         df=df[true_index]
-        break
+        break"""
 
 from sklearn.cluster import DBSCAN
-
 #usa complete folder (open,high,low and close)
 def remove_outliers_dbscan():
     excluded_features = ['Date']
@@ -97,4 +96,5 @@ def remove_outliers_dbscan():
         #print(df[model.labels_==-1].Close)
         df.to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)
         break
+
 
