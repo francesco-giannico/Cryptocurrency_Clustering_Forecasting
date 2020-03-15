@@ -133,7 +133,7 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
     if model is None:
         model = Sequential()
         # Add a LSTM layer with 128/256 internal units.
-        model.add(LSTM(units=num_neurons,return_sequences=True,input_shape=(x_train.shape[1], x_train.shape[2])))
+        model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
         #reduce the overfitting
         model.add(Dropout(dropout))
 
@@ -148,9 +148,9 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         # reduce the overfitting
         model.add(Dropout(dropout))"""
 
-        model.add(LSTM(units=num_neurons))
+        """model.add(LSTM(units=num_neurons))
         # reduce the overfitting
-        model.add(Dropout(dropout))
+        model.add(Dropout(dropout))"""
 
         #number of neurons of the last layer
         model.add(Dense(units=dimension_last_layer))

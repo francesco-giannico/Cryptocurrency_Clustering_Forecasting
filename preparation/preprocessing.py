@@ -3,7 +3,7 @@ from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_
 from preparation.construction import min_max_scaling, max_abs_scaling, standardization
 from preparation.integration import integrate_with_indicators
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
-from preparation.transformation import power_transformation
+from preparation.transformation import power_transformation, power_transformation2
 from utility.folder_creator import folder_creator
 
 PATH_PREPROCESSED = "../preparation/preprocessed_dataset/"
@@ -19,13 +19,17 @@ def preprocessing():
     feature_selection()
     separation()
     cleaning()
+
     transformation(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
     integration()
-    transformation(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+
+    transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
     construction()
 
-"""def transfomation_1(input_path,output_path):
-    power_transformation_1(input_path,output_path)"""
+
+#todo aggiustare qua
+def transformation2(input_path,output_path):
+    power_transformation2(input_path,output_path)
 
 def transformation(input_path,output_path):
     power_transformation(input_path,output_path)
@@ -44,8 +48,8 @@ def separation():
     find_uncomplete()
 
 def cleaning():
-    #remove_outliers_dbscan()
-    remove_outliers_one()
+    remove_outliers_dbscan()
+    #remove_outliers_one()
     """remove_uncomplete_rows_by_range("ARDR","2017-01-01","2019-12-31")
     remove_uncomplete_rows_by_range("REP", "2017-01-01", "2019-12-31")"""
     #todo LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!

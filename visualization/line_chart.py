@@ -11,6 +11,7 @@ from utility.reader import get_crypto_symbols_from_folder
 
 
 def plot_train_and_validation_loss(train,test,output_folder):
+    fig = plt.figure(figsize=(12, 7),dpi=150)
     plt.plot(train, color='blue', label='Train')
     plt.plot(test, color='orange', label='Validation')
     plt.title('model train vs validation loss')

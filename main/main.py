@@ -51,10 +51,9 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    features_to_use = ['Date','Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
-                       'EMA_7', 'EMA_14', 'EMA_20']
+    features_to_use = ['Date','Close']
 
-    single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use=features_to_use)
+    #single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use=features_to_use)
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
@@ -97,7 +96,7 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,featur
     simple_prediction(DATA_PATH,TEST_SET)
 
     # SINGLE TARGET LSTM
-    temporal_sequences = [100]
+    temporal_sequences = [30]
     number_neurons = [128]
     learning_rate = 0.001
     """EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"

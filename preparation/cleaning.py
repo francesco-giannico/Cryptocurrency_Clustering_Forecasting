@@ -48,26 +48,26 @@ def interpolate_with_time(df):
     return df
 
 
-
+#VALE SOLO PER CLOSE!!!
 def remove_outliers_one():
     for crypto in os.listdir(PATH_COMPLETE_FOLDER):
-        df=pd.read_csv(PATH_COMPLETE_FOLDER+crypto,sep=",",header=0)
-        #df=cut_dataset_by_range(PATH_COMPLETE_FOLDER,crypto.replace(".csv",""),'2019-01-01','2019-12-31')
+        #df=pd.read_csv(PATH_COMPLETE_FOLDER+crypto,sep=",",header=0)
+        df=cut_dataset_by_range(PATH_COMPLETE_FOLDER,crypto.replace(".csv",""),'2018-05-01','2019-12-31')
         folder_creator(PATH_CLEANED_FOLDER+"final/",1)
         #df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
-        df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
-        """low=0.15
-        high=0.95
+        #df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
+        low=0.20
+        high=0.65
         res=df.Close.quantile([low,high])
-        print(res)
+        #print(res)
         true_index=(res.loc[low] < df.Close.values) & (df.Close.values < res.loc[high])
         false_index=~true_index
         #df.Close=df.Close[true_index]
-        df.Close[false_index]=np.median(df.Close[true_index])
+        #df.Close[false_index]=np.median(df.Close[true_index])
         #print(df.head())
-        df[true_index].to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)
-        df=df[true_index]
-        break"""
+        #df[true_index].to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)"""
+        df[true_index].to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
+        #df=df[true_index]
 
 from sklearn.cluster import DBSCAN
 #usa complete folder (open,high,low and close)
@@ -76,25 +76,25 @@ def remove_outliers_dbscan():
     for crypto in os.listdir(PATH_COMPLETE_FOLDER):
         #uses all features
         df=pd.read_csv(PATH_COMPLETE_FOLDER+crypto,sep=",",header=0)
+
         scaler = MinMaxScaler()
         for col in df.columns:
             if col not in excluded_features:
                 normalized = scaler.fit_transform(df[col].values.reshape(-1, 1))
                 df[col] = pd.Series(normalized.reshape(-1))
 
-        model = DBSCAN(eps=0.2, min_samples=100).fit(df.drop('Date',axis=1))
+        model = DBSCAN(eps=0.2, min_samples=250).fit(df.drop('Date',axis=1))
         print (len(df[model.labels_==-1].values))
         #outliers
         #print(df[model.labels_==-1])
 
         #saving the not normalized one
         df = pd.read_csv(PATH_COMPLETE_FOLDER + crypto, sep=",", header=0)
-        df.Close[model.labels_ == -1]=np.median(df.Close[model.labels_ != -1])
+        """df.Close[model.labels_ == -1]=np.median(df.Close[model.labels_ != -1])
         df.Open[model.labels_ == -1] = np.median(df.Open[model.labels_ != -1])
         df.High[model.labels_ == -1] = np.median(df.High[model.labels_ != -1])
-        df.Low[model.labels_ == -1] = np.median(df.Low[model.labels_ != -1])
+        df.Low[model.labels_ == -1] = np.median(df.Low[model.labels_ != -1])"""
         #print(df[model.labels_==-1].Close)
-        df.to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)
-        break
-
+        #print(model.labels_)
+        df[model.labels_!=-1].to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)
 
