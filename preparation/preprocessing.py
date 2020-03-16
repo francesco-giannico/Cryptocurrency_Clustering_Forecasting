@@ -3,7 +3,8 @@ from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_
 from preparation.construction import min_max_scaling, max_abs_scaling, standardization, robust_scaling
 from preparation.integration import integrate_with_indicators
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
-from preparation.transformation import power_transformation, power_transformation2, quantile_transform
+from preparation.transformation import power_transformation, power_transformation2, quantile_transform, \
+    quantile_transform2
 from utility.folder_creator import folder_creator
 
 PATH_PREPROCESSED = "../preparation/preprocessed_dataset/"
@@ -21,14 +22,16 @@ def preprocessing():
     separation()
     cleaning()
 
-    #transformation(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    quantile_transform(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    integration()
-
+    #quantile_transform(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    #transformation(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_TRANSFORMED_INT_FOLDER)
+    #integration(input_path=PATH_TRANSFORMED_FOLDER)
     #transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    quantile_transform(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    #quantile_transform2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    #construction(input_path=PATH_TRANSFORMED_FOLDER)
 
-    construction()
+
+    integration(input_path=PATH_CLEANED_FOLDER)
+    construction(input_path=PATH_INTEGRATED_FOLDER)
 
 
 #todo aggiustare qua
@@ -61,14 +64,14 @@ def cleaning():
 
 
 
-def integration():
-    integrate_with_indicators(input_path=PATH_TRANSFORMED_FOLDER)
+def integration(input_path):
+    integrate_with_indicators(input_path)
 
 
-def construction():
+def construction(input_path):
     #feature scaling
-    min_max_scaling(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_MINMAXNORMALIZED_FOLDER)
+    min_max_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
     #robust_scaling(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
-    """max_abs_scaling(input_path=PATH_INTEGRATED_FOLDER, output_path=PATH_MAXABSNORMALIZED_FOLDER)
-    standardization(input_path=PATH_INTEGRATED_FOLDER, output_path=PATH_STANDARDIZED_FOLDER)"""
+    max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
+    standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)
 

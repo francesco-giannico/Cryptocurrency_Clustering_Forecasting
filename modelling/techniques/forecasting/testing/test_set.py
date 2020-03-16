@@ -6,6 +6,18 @@ import calendar, random
 from datetime import datetime
 
 np.random.seed(0)
+from datetime import timedelta, date
+def generate_testset2(start_date, end_date,output_path):
+    file_to_write = open(output_path + start_date + "_" + end_date + ".txt", 'w')
+    start = datetime.strptime(start_date, '%Y-%m-%d')
+    end = datetime.strptime(end_date, '%Y-%m-%d')
+    for dt in daterange(start, end):
+        file_to_write.write(dt.strftime("%Y-%m-%d")+ "\n")
+    file_to_write.close()
+def daterange(date1, date2):
+    for n in range(int((date2 - date1).days) + 1):
+        yield date1 + timedelta(n)
+
 # All crypto series are observed until 31th of January 2019 (2019-12-31)
 # It takes the starting and ending date and "number_samples" entries choosed randomly
 

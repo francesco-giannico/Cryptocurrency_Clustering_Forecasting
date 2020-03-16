@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from scipy.stats import boxcox
+from scipy.stats import boxcox, stats
 
 from utility.folder_creator import folder_creator
 
@@ -23,7 +23,7 @@ def power_transformation(input_path,output_path):
         df = pd.read_csv(input_path+ crypto, sep=",", header=0)
         for feature in df.columns.values:
             if feature not in ['Date']:
-                df[feature],lam= boxcox(df[feature]+0.0000001)
+                df[feature],lam= boxcox(df[feature]+0.1)
                 #print('Feature: '+ feature + '\nLambda: %f' % lam)
         df.to_csv(output_path + crypto, sep=",", index=False)
 
@@ -39,14 +39,36 @@ def power_transformation2(input_path,output_path):
         df.to_csv(output_path + crypto, sep=",", index=False)
 
 import numpy as np
-from sklearn.preprocessing import QuantileTransformer
 def quantile_transform(input_path,output_path):
+    folder_creator(output_path, 1)
+    for crypto in os.listdir(input_path):
+        df = pd.read_csv(input_path + crypto, sep=",", header=0)
+
+        for feature in df.columns.values:
+            if feature!="Date":
+                print('transforming:'+feature)
+                p=-1
+                n_t=1
+                while p <= 0.05:
+                    qt = QuantileTransformer(n_quantiles=n_t, random_state=0, output_distribution="normal")
+                    quanrtil =qt.fit_transform(df[feature].values.reshape(-1, 1))
+                    new_values=pd.Series(quanrtil.reshape(-1))
+                    stat, p = stats.normaltest(new_values)
+                    if p > 0.05:
+                        df[feature]=pd.Series(new_values)
+                        print('num_quantiles:' + str(n_t))
+                    else:
+                        n_t+=1
+        df.to_csv(output_path + crypto, sep=",", index=False)
+
+from sklearn.preprocessing import QuantileTransformer
+def quantile_transform2(input_path,output_path):
     folder_creator(output_path, 1)
     for crypto in os.listdir(input_path):
         df = pd.read_csv(input_path + crypto, sep=",", header=0)
         qt = QuantileTransformer(n_quantiles=50, random_state=0,output_distribution="normal")
         for feature in df.columns.values:
-            if feature!="Date":
+            if feature not in ['Date','Open','High','Close','Low','Adj Close','Volume']:
                 quanrtil =qt.fit_transform(df[feature].values.reshape(-1, 1))
                 df[feature]=pd.Series(quanrtil.reshape(-1))
         df.to_csv(output_path + crypto, sep=",", index=False)

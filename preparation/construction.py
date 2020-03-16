@@ -20,7 +20,8 @@ def min_max_scaling(input_path,output_path):
             if col not in excluded_features:
                 normalized = scaler.fit_transform(df[col].values.reshape(-1, 1))
                 df[col] = pd.Series(normalized.reshape(-1))
-        df.to_csv(output_path+crypto,sep=",", index=False)
+        #todo we have to round 8 since the neural network takes floating numbers with this limit
+        df.round(8).to_csv(output_path+crypto,sep=",", index=False)
 
 
 #SCALING

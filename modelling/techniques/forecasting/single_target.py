@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 from itertools import product
 import numpy as np
 import pandas as pd
@@ -13,7 +14,8 @@ import matplotlib.pyplot as plt
 from visualization.line_chart import plot_train_and_validation_loss
 import tensorflow_core as tf_core
 #np.random.seed(1)
-tf_core.random.set_seed(1)
+#stable results
+tf_core.random.set_seed(2)
 
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, list_num_neurons, learning_rate,
@@ -37,9 +39,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
         # create a folder for results
         folder_creator(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name, 1)
         folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 1)
-        #scaler_target_feature
+        #,qt
 
-        dataset, features, features_without_date=  \
+        dataset, features, features_without_date,scaler_target_feature=  \
             prepare_input_forecasting(PREPROCESSED_PATH,DATA_PATH,crypto,None,features_to_use)
 
         #print(dataset.columns.values)
@@ -53,11 +55,11 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                                                    TENSOR_DATA_PATH + "/" + crypto_name + "/",
                                                    crypto_name)
             # DICTIONARY FOR STATISTICS
-            """predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
+            predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
                                 'observed_denorm': [], 'predicted_denorm': []}
-            errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}"""
-            predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [] }
-            errors_file = {'symbol': [], 'rmse_norm': []}
+            errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}
+            """ predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [] }
+            errors_file = {'symbol': [], 'rmse_norm': []}"""
 
             #New folders for this configuration
             configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
@@ -130,7 +132,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 y_test = y_test.astype('float')
 
                 #General parameters
-                DROPOUT=0.4
+                DROPOUT=0.45
                 EPOCHS=100
                 BATCH_SIZE=100
                 # if the date to predict is the first date in the testing_set
@@ -164,36 +166,50 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
 
                 #Predict for each date in the validation set
                 test_prediction = model.predict(x_test,use_multiprocessing=True)
-                print("Num of entries for training: ",x_train.shape [0])
-                print("Num of element for validation: ", x_test.shape[0])
-                print("Training until: ", d)
-                print("Predicting for: ", date_to_predict)
-                print("Predicted: ", test_prediction[0])
-                print("Actual: ", y_test)
-                print("\n")
-
 
                 #denormalization
                 #reshape(-1,1) means that you are not specifing only the column dimension, whist the row dimension is unknown
-                """y_test_denorm = scaler_target_feature.inverse_transform(y_test.reshape(-1, 1))
-                test_prediction_denorm = scaler_target_feature.inverse_transform(test_prediction)"""
+                y_test_denorm = scaler_target_feature.inverse_transform(y_test.reshape(-1, 1))
+                test_prediction_denorm = scaler_target_feature.inverse_transform(test_prediction)
+
+                #detransformation
+                """y_test_detransformed = qt.inverse_transform(y_test_denorm.reshape(-1, 1))
+                test_prediction_detransformed = qt.inverse_transform(test_prediction)"""
 
                 #changing data types
                 #normalized
                 y_test = float(y_test)
                 test_prediction = float(test_prediction)
                 #denormalized
-                """y_test_denorm = float(y_test_denorm)
-                test_prediction_denorm = float(test_prediction_denorm)"""
+                y_test_denorm = float(y_test_denorm)
+                test_prediction_denorm = float(test_prediction_denorm)
+
+
+                # detransformed
+                """y_test_detr = float(y_test_detransformed)
+                test_prediction_detr = float(test_prediction_detransformed)"""
+
+                print("Num of entries for training: ", x_train.shape[0])
+                print("Num of element for validation: ", x_test.shape[0])
+                print("Training until: ", d)
+                print("Predicting for: ", date_to_predict)
+                print("Predicted: ", test_prediction_denorm)
+                print("Actual: ", y_test_denorm)
+                print("\n")
+                """
+                print("Predicting for: ", date_to_predict)
+                print("Predicted: ", test_prediction_detr)
+                print("Actual: ", y_test_detr)
+                print("\n")
+                """
 
                 #Saving the predictions on the dictionaries
                 predictions_file['symbol'].append(crypto_name)
                 predictions_file['date'].append(date_to_predict)
                 predictions_file['observed_norm'].append(y_test)
                 predictions_file['predicted_norm'].append(test_prediction)
-                """
                 predictions_file['observed_denorm'].append(y_test_denorm)
-                predictions_file['predicted_denorm'].append(test_prediction_denorm)"""
+                predictions_file['predicted_denorm'].append(test_prediction_denorm)
                 #break
 
 
@@ -208,8 +224,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
             errors_file['rmse_norm'].append(rmse)
 
             #denormalized RMSE
-            """rmse_denorm = get_rmse(predictions_file['observed_denorm'], predictions_file['predicted_denorm'])
-            errors_file['rmse_denorm'].append(rmse_denorm)"""
+            rmse_denorm = get_rmse(predictions_file['observed_denorm'], predictions_file['predicted_denorm'])
+            errors_file['rmse_denorm'].append(rmse_denorm)
 
             #serialization
             pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv',index=False)

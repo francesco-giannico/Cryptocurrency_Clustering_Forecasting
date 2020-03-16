@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
@@ -22,6 +22,14 @@ def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
     scaler_target_features.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
     return scaler_target_features
 
+def get_scaler2(PREPROCESSED_PATH,crypto,start_date,end_date,n_t):
+    df1 = cut_dataset_by_range(PREPROCESSED_PATH, crypto.replace(".csv", ""), start_date, end_date)
+    #todo non è detto che sia il minmax... va be.. tanto è per denormalizzare.
+    qt = QuantileTransformer(n_quantiles=n_t, random_state=0, output_distribution="normal")
+    # save the parameters for the trasformation or the inverse_transformation for the feature "close"
+    qt.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
+    return qt
+
 def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cryptos=None,features_to_use=None):
     #already normalized
 
@@ -30,28 +38,31 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cr
     else:
         df = pd.read_csv(CLUSTERING_CRYPTO_PATH + crypto, sep=',', header=0)
 
-    #todo remove this!!
-    #df['Close']=df['Close']-df['Close'].shift(1)
-
     df=df.set_index("Date")
     start_date=df.index[0]
     end_date=df.index[len(df.index)-1]
 
-    """if cryptos!=None:
+    if cryptos!=None:
         #multitarget_case
         for crypto in cryptos:
+            #todo review...
             # read not normalized
             scaler_target_features=get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date)
+            scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
     else:
         #single target case
         #read not normalized
-        scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)"""
+        #TRANSFORMED_PATH="../preparation/preprocessed_dataset/transformed/"
+        #scaler_target_features = get_scaler(TRANSFORMED_PATH, crypto, start_date, end_date)
+        scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
+        #todo remove 7 :D
+        #qt = get_scaler2(PREPROCESSED_PATH, crypto, start_date, end_date,7)
 
     df = df.reset_index()
     #exlude the feature "date"
     features_without_date = [feature for feature in df.columns if feature != "Date"]
 
-    return df,df.columns,features_without_date
+    return df,df.columns,features_without_date,scaler_target_features
 
 
 def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
@@ -142,13 +153,13 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         model.add(Dropout(dropout))"""
         """model.add(LSTM(units=num_neurons,return_sequences=True))
         # reduce the overfitting
-        model.add(Dropout(dropout))"""
+        model.add(Dropout(dropout))
 
-        """model.add(LSTM(units=num_neurons, return_sequences=True))
+        model.add(LSTM(units=num_neurons, return_sequences=True))
         # reduce the overfitting
-        model.add(Dropout(dropout))"""
+        model.add(Dropout(dropout))
 
-        """model.add(LSTM(units=num_neurons))
+        model.add(LSTM(units=num_neurons))
         # reduce the overfitting
         model.add(Dropout(dropout))"""
 

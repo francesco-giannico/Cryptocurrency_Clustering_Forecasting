@@ -51,8 +51,8 @@ def interpolate_with_time(df):
 #VALE SOLO PER CLOSE!!!
 def remove_outliers_one():
     for crypto in os.listdir(PATH_COMPLETE_FOLDER):
-        df=pd.read_csv(PATH_COMPLETE_FOLDER+crypto,sep=",",header=0)
-        #df=cut_dataset_by_range(PATH_COMPLETE_FOLDER,crypto.replace(".csv",""),'2018-05-01','2019-12-31')
+        #df=pd.read_csv(PATH_COMPLETE_FOLDER+crypto,sep=",",header=0)
+        df=cut_dataset_by_range(PATH_COMPLETE_FOLDER,crypto.replace(".csv",""),'2019-01-01','2019-12-31')
         folder_creator(PATH_CLEANED_FOLDER+"final/",1)
         #df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
         df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
