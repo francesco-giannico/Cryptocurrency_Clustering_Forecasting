@@ -1,15 +1,16 @@
 from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values, \
     remove_outliers_dbscan, remove_outliers_one
-from preparation.construction import min_max_scaling, max_abs_scaling, standardization
+from preparation.construction import min_max_scaling, max_abs_scaling, standardization, robust_scaling
 from preparation.integration import integrate_with_indicators
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
-from preparation.transformation import power_transformation, power_transformation2
+from preparation.transformation import power_transformation, power_transformation2, quantile_transform
 from utility.folder_creator import folder_creator
 
 PATH_PREPROCESSED = "../preparation/preprocessed_dataset/"
 PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/final/"
 PATH_MINMAXNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/min_max_normalized/"
 PATH_MAXABSNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/max_abs_normalized/"
+PATH_ROBUSTNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/robust_normalized/"
 PATH_STANDARDIZED_FOLDER="../preparation/preprocessed_dataset/constructed/standardized/"
 PATH_INTEGRATED_FOLDER="../preparation/preprocessed_dataset/integrated/"
 PATH_TRANSFORMED_FOLDER="../preparation/preprocessed_dataset/transformed/"
@@ -20,10 +21,13 @@ def preprocessing():
     separation()
     cleaning()
 
-    transformation(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    #transformation(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    quantile_transform(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
     integration()
 
-    transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    #transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    quantile_transform(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+
     construction()
 
 
@@ -48,8 +52,8 @@ def separation():
     find_uncomplete()
 
 def cleaning():
-    remove_outliers_dbscan()
-    #remove_outliers_one()
+    #remove_outliers_dbscan()
+    remove_outliers_one()
     """remove_uncomplete_rows_by_range("ARDR","2017-01-01","2019-12-31")
     remove_uncomplete_rows_by_range("REP", "2017-01-01", "2019-12-31")"""
     #todo LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
@@ -64,6 +68,7 @@ def integration():
 def construction():
     #feature scaling
     min_max_scaling(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_MINMAXNORMALIZED_FOLDER)
+    #robust_scaling(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
     """max_abs_scaling(input_path=PATH_INTEGRATED_FOLDER, output_path=PATH_MAXABSNORMALIZED_FOLDER)
     standardization(input_path=PATH_INTEGRATED_FOLDER, output_path=PATH_STANDARDIZED_FOLDER)"""
 

@@ -1,5 +1,5 @@
 import os
-from sklearn.preprocessing import MinMaxScaler, StandardScaler, MaxAbsScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, MaxAbsScaler, RobustScaler
 import pandas as pd
 from utility.folder_creator import folder_creator
 
@@ -22,6 +22,20 @@ def min_max_scaling(input_path,output_path):
                 df[col] = pd.Series(normalized.reshape(-1))
         df.to_csv(output_path+crypto,sep=",", index=False)
 
+
+#SCALING
+
+def robust_scaling(input_path,output_path):
+    folder_creator(output_path,1)
+    excluded_features = ['Date']
+    for crypto in os.listdir(input_path):
+        df = pd.read_csv(input_path+crypto,delimiter=',', header=0)
+        scaler = RobustScaler()
+        for col in df.columns:
+            if col not in excluded_features:
+                normalized = scaler.fit_transform(df[col].values.reshape(-1, 1))
+                df[col] = pd.Series(normalized.reshape(-1))
+        df.to_csv(output_path+crypto,sep=",", index=False)
 
 def max_abs_scaling(input_path,output_path):
     folder_creator(output_path,1)

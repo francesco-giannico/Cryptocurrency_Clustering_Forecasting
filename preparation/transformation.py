@@ -37,3 +37,16 @@ def power_transformation2(input_path,output_path):
                 """print("DUEEEE")
                 print('Feature: '+ feature + '\nLambda: %f' % lam)"""
         df.to_csv(output_path + crypto, sep=",", index=False)
+
+import numpy as np
+from sklearn.preprocessing import QuantileTransformer
+def quantile_transform(input_path,output_path):
+    folder_creator(output_path, 1)
+    for crypto in os.listdir(input_path):
+        df = pd.read_csv(input_path + crypto, sep=",", header=0)
+        qt = QuantileTransformer(n_quantiles=50, random_state=0,output_distribution="normal")
+        for feature in df.columns.values:
+            if feature!="Date":
+                quanrtil =qt.fit_transform(df[feature].values.reshape(-1, 1))
+                df[feature]=pd.Series(quanrtil.reshape(-1))
+        df.to_csv(output_path + crypto, sep=",", index=False)
