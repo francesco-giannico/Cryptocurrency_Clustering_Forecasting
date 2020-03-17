@@ -5,7 +5,7 @@ import numpy as np
 import calendar, random
 from datetime import datetime
 
-np.random.seed(0)
+random.seed(1)
 from datetime import timedelta, date
 def generate_testset2(start_date, end_date,output_path):
     file_to_write = open(output_path + start_date + "_" + end_date + ".txt", 'w')
@@ -30,21 +30,22 @@ def generate_testset(start_date, end_date,output_path):
     num_months=(end.year - start.year) * 12 + end.month - start.month
     num_months=num_months+1
 
-    test_set=[]
+    test_set= set()
     for i in range(0,num_months):
-        random_day=randomdate(start.year, start.month)
+        test_set_specific=set()
+        while len(test_set_specific)<10:
+            random_day = randomdate(start.year, start.month)
+            #if the last random day generated is upper than the last available day, by default it will be set up to the last available day
+            #Example:
+            # end date: 18-01-2019, thus last available day is: 18.
+            #random date generated: 19-01-2019
+            #thus, the random date day will be 18 instead of 19.
+            if i+1==num_months and random_day.day>end.day:
+                random_day=random_day.replace(day=end.day)
 
-        #if the last random day generated is upper than the last available day, by default it will be set up to the last available day
-        #Example:
-        # end date: 18-01-2019, thus last available day is: 18.
-        #random date generated: 19-01-2019
-        #thus, the random date day will be 18 instead of 19.
-        if i+1==num_months and random_day.day>end.day:
-            random_day=random_day.replace(day=end.day)
-
-        #adding the random day to the list
-        file_to_write.write(str(random_day)+"\n")
-        #test_set.append(str(random_day))
+            # se non ci sono 5 date, niente da fare.
+            test_set_specific.add(random_day)
+        test_set=test_set|test_set_specific
 
         #update the new start date and end date (it generates a date per months!)
         new_year=start.year
@@ -54,6 +55,13 @@ def generate_testset(start_date, end_date,output_path):
             new_year=start.year+1 #find a new date in the next year
         start=start.replace(year=new_year,month=new_month)
 
+
+    test_set=list(test_set)
+    test_set.sort()
+    #test_set=set(test_set)
+    for date in test_set:
+        # adding the random day to the list
+        file_to_write.write(str(date) + "\n")
     #file_to_write.write(str(test_set))
     file_to_write.close()
     return

@@ -33,19 +33,20 @@ def main():
     #Description after
     types="min_max_normalized"
     #features_to_use=['Close','Open','Low','High','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
-    features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
+    """features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
                        'EMA_7', 'EMA_14', 'EMA_20']
     features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_30', 'RSI_60', 'RSI_100', 'SMA_30', 'SMA_60', 'SMA_100',
-                       'EMA_30', 'EMA_60', 'EMA_100']
+                       'EMA_30', 'EMA_60', 'EMA_100']"""
+    features_to_use = ['Close', 'Open', 'Low', 'High']
     #features_to_use=[]
-    """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+types+"/",
+    describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+types+"/",
              output_path="../preparation/preprocessed_dataset/",
              name_folder_res=types,
-             features_to_use=features_to_use)"""
+             features_to_use=features_to_use)
 
     #CLUSTERING
-    start_date = "2014-10-01"
-    end_date = "2019-12-31"
+    """start_date = "2014-10-01"
+    end_date = "2019-12-31"""
     distance_measure = "wasserstain"
     #clustering_main(distance_measure,start_date,end_date)
 
@@ -53,10 +54,13 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    features_to_use = ['Date','Close','Open']
-    temporal_sequences = [30]
-    number_neurons = [128]
+    features_to_use = ['Date','Close','High']
+    temporal_sequences = [30,60,100]
+    number_neurons = [128,256]
     learning_rate = 0.001
+    #todo rimuovi quando farai clustering
+    start_date = "2010-01-01"
+    end_date = "2019-12-31"
     single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,temporal_sequences,number_neurons,learning_rate)
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
@@ -80,14 +84,14 @@ def clustering_main(distance_measure,start_date,end_date):
     clustering(distance_measure, start_date=start_date, end_date=end_date)
 
 def testing_set():
-    test_start_date="2019-12-01"
+    test_start_date="2019-01-01"
     test_end_date="2019-12-31"
     try:
         TEST_SET = get_testset(
             "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
     except:
       # Test set HAS TO BE EQUAL AMONG ALL THE EXPERIMENTS!!!
-      generate_testset2(test_start_date, test_end_date,"../modelling/techniques/forecasting/testing/")
+      generate_testset(test_start_date, test_end_date,"../modelling/techniques/forecasting/testing/")
       TEST_SET = get_testset(
           "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
     return TEST_SET
@@ -98,7 +102,7 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,featur
 
     # SIMPLE PREDICTION
     DATA_PATH_SIMPLE="../acquisition/dataset/original/"
-    #simple_prediction(DATA_PATH_SIMPLE,TEST_SET)
+    simple_prediction(DATA_PATH_SIMPLE,TEST_SET)
 
     # SINGLE TARGET LSTM
     """EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"

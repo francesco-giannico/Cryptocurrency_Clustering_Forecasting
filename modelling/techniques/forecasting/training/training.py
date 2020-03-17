@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
+from scipy.stats import stats
 
 from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
 from tensorflow.keras.optimizers import Adam
@@ -22,12 +23,23 @@ def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
     scaler_target_features.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
     return scaler_target_features
 
-def get_scaler2(PREPROCESSED_PATH,crypto,start_date,end_date,n_t):
+def get_scaler2(PREPROCESSED_PATH,crypto,start_date,end_date):
     df1 = cut_dataset_by_range(PREPROCESSED_PATH, crypto.replace(".csv", ""), start_date, end_date)
-    #todo non è detto che sia il minmax... va be.. tanto è per denormalizzare.
-    qt = QuantileTransformer(n_quantiles=n_t, random_state=0, output_distribution="normal")
-    # save the parameters for the trasformation or the inverse_transformation for the feature "close"
-    qt.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
+    #todo non è detto che sia il minmax... va be.. tanto è per denormalizzare
+    p = -1
+    n_t = 1
+    while p <= 0.05:
+        qt = QuantileTransformer(n_quantiles=n_t, random_state=0, output_distribution="normal")
+        quanrtil = qt.fit_transform(df1.Close.values.reshape(-1, 1))
+        new_values = pd.Series(quanrtil.reshape(-1))
+        stat, p = stats.normaltest(new_values)
+        if p > 0.05:
+            df1.Close = pd.Series(new_values)
+            # save the parameters for the trasformation or the inverse_transformation for the feature "close"
+            qt.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
+            print('num_quantiles:' + str(n_t))
+        else:
+            n_t += 1
     return qt
 
 def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cryptos=None,features_to_use=None):
@@ -47,16 +59,16 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cr
         for crypto in cryptos:
             #todo review...
             # read not normalized
-            scaler_target_features=get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date)
-            scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
+            """scaler_target_features=get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date)
+            scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)"""
     else:
         #single target case
         #read not normalized
-        #TRANSFORMED_PATH="../preparation/preprocessed_dataset/transformed/"
+        TRANSFORMED_PATH="../preparation/preprocessed_dataset/transformed/"
         #scaler_target_features = get_scaler(TRANSFORMED_PATH, crypto, start_date, end_date)
         scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
         #todo remove 7 :D
-        #qt = get_scaler2(PREPROCESSED_PATH, crypto, start_date, end_date,7)
+        #qt = get_scaler2(PREPROCESSED_PATH, crypto, start_date, end_date)
 
     df = df.reset_index()
     #exlude the feature "date"

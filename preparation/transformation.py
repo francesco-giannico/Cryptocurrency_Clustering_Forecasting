@@ -68,6 +68,7 @@ def quantile_transform2(input_path,output_path):
         df = pd.read_csv(input_path + crypto, sep=",", header=0)
         qt = QuantileTransformer(n_quantiles=50, random_state=0,output_distribution="normal")
         for feature in df.columns.values:
+            #todo aggironare con il while qua...
             if feature not in ['Date','Open','High','Close','Low','Adj Close','Volume']:
                 quanrtil =qt.fit_transform(df[feature].values.reshape(-1, 1))
                 df[feature]=pd.Series(quanrtil.reshape(-1))

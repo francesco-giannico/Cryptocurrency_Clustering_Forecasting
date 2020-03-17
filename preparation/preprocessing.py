@@ -22,12 +22,12 @@ def preprocessing():
     separation()
     cleaning()
 
-    #quantile_transform(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    """quantile_transform(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
     #transformation(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_TRANSFORMED_INT_FOLDER)
-    #integration(input_path=PATH_TRANSFORMED_FOLDER)
+    integration(input_path=PATH_TRANSFORMED_FOLDER)
     #transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    #quantile_transform2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    #construction(input_path=PATH_TRANSFORMED_FOLDER)
+    quantile_transform2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
+    construction(input_path=PATH_TRANSFORMED_FOLDER)"""
 
 
     integration(input_path=PATH_CLEANED_FOLDER)
