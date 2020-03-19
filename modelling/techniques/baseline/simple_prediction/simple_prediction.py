@@ -5,11 +5,11 @@ import numpy as np
 from modelling.techniques.forecasting.evaluation.error_measures import get_rmse
 from utility.folder_creator import folder_creator
 
-result_folder="../modelling/techniques/baseline/simple_prediction/output/"
+
 partial_folder="predictions"
 final_folder="average_rmse"
 
-def simple_prediction(data_path,test_set):
+def simple_prediction(data_path,test_set,result_folder):
     folder_creator(result_folder+partial_folder+"/",1)
     folder_creator(result_folder+final_folder,1)
 

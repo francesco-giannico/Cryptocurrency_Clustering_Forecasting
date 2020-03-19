@@ -5,7 +5,7 @@ import numpy as np
 import calendar, random
 from datetime import datetime
 
-random.seed(1)
+random.seed(0)
 from datetime import timedelta, date
 def generate_testset2(start_date, end_date,output_path):
     file_to_write = open(output_path + start_date + "_" + end_date + ".txt", 'w')
@@ -33,7 +33,7 @@ def generate_testset(start_date, end_date,output_path):
     test_set= set()
     for i in range(0,num_months):
         test_set_specific=set()
-        while len(test_set_specific)<10:
+        while len(test_set_specific)<5:
             random_day = randomdate(start.year, start.month)
             #if the last random day generated is upper than the last available day, by default it will be set up to the last available day
             #Example:

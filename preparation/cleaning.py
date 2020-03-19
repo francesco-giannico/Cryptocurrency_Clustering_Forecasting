@@ -48,25 +48,27 @@ def interpolate_with_time(df):
     return df
 
 
-#VALE SOLO PER CLOSE!!!
+#Univariata...
 def remove_outliers_one():
+    folder_creator(PATH_CLEANED_FOLDER + "final/", 1)
     for crypto in os.listdir(PATH_COMPLETE_FOLDER):
         df=pd.read_csv(PATH_COMPLETE_FOLDER+crypto,sep=",",header=0)
         #df=cut_dataset_by_range(PATH_COMPLETE_FOLDER,crypto.replace(".csv",""),'2019-01-01','2019-12-31')
-        folder_creator(PATH_CLEANED_FOLDER+"final/",1)
         #df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
         df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
-        """low=0.20
-        high=0.65
-        res=df.Close.quantile([low,high])
-        #print(res)
-        true_index=(res.loc[low] < df.Close.values) & (df.Close.values < res.loc[high])
-        false_index=~true_index
-        #df.Close=df.Close[true_index]
-        #df.Close[false_index]=np.median(df.Close[true_index])
-        #print(df.head())
-        #df[true_index].to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)"""
-        #df=df[true_index]
+        for feature in df.columns.values:
+            if feature!="Date":
+                """low=0.20
+                high=0.65
+                res=df.Close.quantile([low,high])
+                #print(res)
+                true_index=(res.loc[low] < df.Close.values) & (df.Close.values < res.loc[high])
+                false_index=~true_index
+                #df.Close=df.Close[true_index]
+                #df.Close[false_index]=np.median(df.Close[true_index])
+                #print(df.head())
+                #df[true_index].to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)"""
+                #df=df[true_index]
 
 from sklearn.cluster import DBSCAN
 #usa complete folder (open,high,low and close)

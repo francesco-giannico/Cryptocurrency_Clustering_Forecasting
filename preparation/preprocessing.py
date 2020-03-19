@@ -23,13 +23,12 @@ def preprocessing():
     cleaning()
 
     """quantile_transform(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    #transformation(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_TRANSFORMED_INT_FOLDER)
     integration(input_path=PATH_TRANSFORMED_FOLDER)
-    #transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
     quantile_transform2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
     construction(input_path=PATH_TRANSFORMED_FOLDER)"""
 
-
+    #transformation(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_TRANSFORMED_INT_FOLDER)
+    # transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
     integration(input_path=PATH_CLEANED_FOLDER)
     construction(input_path=PATH_INTEGRATED_FOLDER)
 
@@ -47,7 +46,7 @@ def folders_setup():
 
 def feature_selection():
     #remove_features(["Open","High","Adj Close","Low","Volume"])
-    remove_features([])
+    remove_features(["Volume"])
     #pass
 
 def separation():
@@ -72,6 +71,6 @@ def construction(input_path):
     #feature scaling
     min_max_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
     #robust_scaling(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
-    max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
-    standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)
+    """max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
+    standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)"""
 

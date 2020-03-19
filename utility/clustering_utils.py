@@ -38,9 +38,6 @@ def separate_folders(CLUSTERING_PATH):
             pass
 
 
-
-
-
 #VISUALIZATION
 #just joins the prediction of all cryptocurrencies. It does no average!!
 def merge_predictions(experiment_folder, result_folder):

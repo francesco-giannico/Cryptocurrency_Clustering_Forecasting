@@ -42,6 +42,7 @@ import numpy as np
 def quantile_transform(input_path,output_path):
     folder_creator(output_path, 1)
     for crypto in os.listdir(input_path):
+        print(crypto)
         df = pd.read_csv(input_path + crypto, sep=",", header=0)
 
         for feature in df.columns.values:
@@ -69,7 +70,23 @@ def quantile_transform2(input_path,output_path):
         qt = QuantileTransformer(n_quantiles=50, random_state=0,output_distribution="normal")
         for feature in df.columns.values:
             #todo aggironare con il while qua...
-            if feature not in ['Date','Open','High','Close','Low','Adj Close','Volume']:
-                quanrtil =qt.fit_transform(df[feature].values.reshape(-1, 1))
-                df[feature]=pd.Series(quanrtil.reshape(-1))
+            if feature not in ['Date','Open','High','Close','Low','Adj Close']:
+                stat, p = stats.normaltest(df[feature])
+                if p <=0.05:
+                    print('transforming:' + feature)
+                    p = -1
+                    n_t = 1
+                    while p <= 0.05:
+                        qt = QuantileTransformer(n_quantiles=n_t, random_state=0, output_distribution="normal")
+                        quanrtil = qt.fit_transform(df[feature].values.reshape(-1, 1))
+                        new_values = pd.Series(quanrtil.reshape(-1))
+                        stat, p = stats.normaltest(new_values)
+                        if p > 0.05:
+                            df[feature] = pd.Series(new_values)
+                            print('num_quantiles:' + str(n_t))
+                        elif(n_t< 100):
+                            n_t += 1
+                        else:
+                            break
+
         df.to_csv(output_path + crypto, sep=",", index=False)

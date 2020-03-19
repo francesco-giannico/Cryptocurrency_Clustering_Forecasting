@@ -25,7 +25,6 @@ def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
 
 def get_scaler2(PREPROCESSED_PATH,crypto,start_date,end_date):
     df1 = cut_dataset_by_range(PREPROCESSED_PATH, crypto.replace(".csv", ""), start_date, end_date)
-    #todo non è detto che sia il minmax... va be.. tanto è per denormalizzare
     p = -1
     n_t = 1
     while p <= 0.05:
@@ -64,7 +63,7 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cr
     else:
         #single target case
         #read not normalized
-        TRANSFORMED_PATH="../preparation/preprocessed_dataset/transformed/"
+        #TRANSFORMED_PATH="../preparation/preprocessed_dataset/transformed/"
         #scaler_target_features = get_scaler(TRANSFORMED_PATH, crypto, start_date, end_date)
         scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
         #todo remove 7 :D

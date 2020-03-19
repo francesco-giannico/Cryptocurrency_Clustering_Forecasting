@@ -127,6 +127,19 @@ def report_crypto(experiment_folder, result_folder, report_folder,output_filenam
             name_file_output="bargraph_RMSE_" + str(crypto))
     return
 
+"""def report_single_vs_simple(input_path,cryptocurrencies):
+    
+
+    #reads the csv (merged_predictions.csv)
+    df = pd.read_csv(input_path,sep=",")
+    
+
+    #for crypto, neurons, days in product(cryptocurrencies, list_neurons, list_temporal_sequences):
+    #read a specific line from the file
+    data_cut = data[(data["symbol"] == crypto)]
+    for neurons, days in product(list_neurons, list_temporal_sequences):
+        data_cut=data_cut[(data_cut["neurons"] == neurons) & (data["days"] == days)]"""
+
 #for forecasting
 def plot_report(path_file, x_data, column_of_data, label_for_values_column, label_x, title_img, destination,
                 name_file_output):
