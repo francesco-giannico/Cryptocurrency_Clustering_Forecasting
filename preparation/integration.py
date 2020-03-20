@@ -4,8 +4,8 @@ import pandas_ta as panda
 
 from utility.folder_creator import folder_creator
 
-PATH_TRANSFORMED_FOLDER="../preparation/preprocessed_dataset/transformed/"
-PATH_INTEGRATED_FOLDER="../preparation/preprocessed_dataset/integrated/"
+PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
+PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated/"
 FEATURE="Close"
 LOOKBACK = [14,30,60]
 

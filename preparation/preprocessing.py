@@ -8,13 +8,13 @@ from preparation.transformation import power_transformation, power_transformatio
 from utility.folder_creator import folder_creator
 
 PATH_PREPROCESSED = "../preparation/preprocessed_dataset/"
-PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/final/"
-PATH_MINMAXNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/min_max_normalized/"
-PATH_MAXABSNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/max_abs_normalized/"
-PATH_ROBUSTNORMALIZED_FOLDER="../preparation/preprocessed_dataset/constructed/robust_normalized/"
-PATH_STANDARDIZED_FOLDER="../preparation/preprocessed_dataset/constructed/standardized/"
-PATH_INTEGRATED_FOLDER="../preparation/preprocessed_dataset/integrated/"
-PATH_TRANSFORMED_FOLDER="../preparation/preprocessed_dataset/transformed/"
+PATH_CLEANED_FOLDER= "../preparation/preprocessed_dataset/cleaned/final/"
+PATH_MINMAXNORMALIZED_FOLDER= "../preparation/preprocessed_dataset/constructed/min_max_normalized/"
+PATH_MAXABSNORMALIZED_FOLDER= "../preparation/preprocessed_dataset/constructed/max_abs_normalized/"
+PATH_ROBUSTNORMALIZED_FOLDER= "../preparation/preprocessed_dataset/constructed/robust_normalized/"
+PATH_STANDARDIZED_FOLDER= "../preparation/preprocessed_dataset/constructed/standardized/"
+PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated/"
+PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
 PATH_NORMALIZED_FOLDER = "../preparation/preprocessed_dataset/constructed/"
 def preprocessing():
     folders_setup()

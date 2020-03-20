@@ -29,16 +29,16 @@ def main():
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    preprocessing()
+    #preprocessing()
     #Description after
     types="min_max_normalized"
-    #features_to_use=['Close','Open','Low','High','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
+    features_to_use=['Close','Open','Low','High','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
     """features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
                        'EMA_7', 'EMA_14', 'EMA_20']
     features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_30', 'RSI_60', 'RSI_100', 'SMA_30', 'SMA_60', 'SMA_100',
-                       'EMA_30', 'EMA_60', 'EMA_100']"""
+                       'EMA_30', 'EMA_60', 'EMA_100']
     features_to_use = ['Close', 'Open', 'Low', 'High','Adj Close']
-    #features_to_use=[]
+    #features_to_use=[]"""
     """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+types+"/",
              output_path="../preparation/preprocessed_dataset/",
              name_folder_res=types,
@@ -58,48 +58,49 @@ def main():
     #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj Close','RSI_14','RSI_30','RSI_60']
     #['Date', 'Close']
     """list_features_to_uses=[
-            ['Date','Close','Open','Close','Low','High','Adj Close'],
+            ['Date','Close','Open','Close','Low','High','AdjClose'],
     ]"""
     list_features_to_uses = [
-        ['Date', 'Close', 'Open', 'High', 'Low', 'Adj Close', 'RSI_14', 'RSI_30', 'RSI_60'],
-        ['Date', 'Close', 'Open', 'High', 'Low', 'Adj Close'],
+        ['Date', 'Close'],
+        ['Date', 'Close','Adj_Close'],
+        ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close'],
+        ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60']
     ]
     #todo this one
-    temporal_sequences = [[45],[75],[90],[100],[115],[130],[220]]
-    number_neurons = [[128],[256]]
-
-    #DONE
-    """temporal_sequences = [[15],[30],[50],[60],[120],[150]]
+    """temporal_sequences = [[45],[75],[90],[100],[115],[130],[220]]
     number_neurons = [[128],[256]]"""
 
     """temporal_sequences = [[30],[50],[60],[120],[150]]
     number_neurons = [[256]]"""
 
-    """temporal_sequences = [[30]]
-    number_neurons = [[128]]"""
+    temporal_sequences = [[30],[60],[100]]
+    number_neurons = [[128],[256]]
 
-
+    """temporal_sequences = [[15], [30], [50], [60], [120], [150]]
+    number_neurons = [[128], [256],[512]]"""
     learning_rate = 0.001
     # General parameters
     DROPOUT = 0.45
-    EPOCHS = 100
-    BATCH_SIZE = 2000
-    #todo rimuovi quando farai clustering
+    EPOCHS =  [100]
+    BATCH_SIZE = 64
+    #todo vedi in final che data sta!
     start_date = "2010-01-01"
     end_date = "2019-12-31"
-    for features_to_use in list_features_to_uses:
-        print("Features: "+ str(features_to_use))
-        for num in number_neurons:
-            for temp_seq in temporal_sequences:
-                out = ""
-                for ft in features_to_use:
-                    out += ft + "_"
-                output_name = out + "neur{}-dp{}-ep{}-bs{}-lr{}-tempseq{}.csv".format(num[0], DROPOUT, EPOCHS,
-                                                                                      BATCH_SIZE, learning_rate,
-                                                                                      temp_seq[0])
-                single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,temp_seq,num,learning_rate,DROPOUT,EPOCHS,BATCH_SIZE,output_name)
-
-    #report()
+    for epoch in EPOCHS:
+        for features_to_use in list_features_to_uses:
+            print("Features: "+ str(features_to_use))
+            for num in number_neurons:
+                for temp_seq in temporal_sequences:
+                    out = ""
+                    for ft in features_to_use:
+                        out += ft + "_"
+                    output_name = out + "neur{}-dp{}-ep{}-bs{}-lr{}-tempseq{}.csv".format(num[0], DROPOUT, epoch,
+                                                                                          BATCH_SIZE, learning_rate,
+                                                                                          temp_seq[0])
+                    single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,
+                                       temp_seq,num,learning_rate,DROPOUT,
+                                       epoch,BATCH_SIZE,output_name)
+    report()
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
@@ -193,37 +194,39 @@ def report():
     value1 = file.read()
 
     # baseline wins on the following cryptocurrencies:
-    folder_creator("../modelling/techniques/comparisons/single_target/", 0)
-    filename = '../modelling/techniques/comparisons/single_target/'
+    folder_creator("../modelling/techniques/forecasting/comparisons/single_target/", 0)
+    filename = '../modelling/techniques/forecasting/comparisons/single_target/'
     gen_path = "../modelling/techniques/forecasting/outputs/"
+
     for folder in os.listdir(gen_path):
         df_out = {"symbol": [], "baseline": [], "single_target": [], "is_best": [], "distance_from_bs": []}
         rmses = []
         for subfold in os.listdir(gen_path + folder + "/single_target/result/"):
-            for subfold2 in os.listdir(gen_path + folder + "/single_target/result/" + subfold + "/"):
-                df1 = pd.read_csv(
-                    gen_path + folder + "/single_target/result/" + "/" + subfold + "/" + subfold2 + "/stats/errors.csv",
-                    usecols=['rmse_norm'])
-                file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/" + subfold, "r")
-                value_bas = float(file.read())
-                df_out['symbol'].append(subfold)
-                df_out['baseline'].append(value_bas)
-                df_out['single_target'].append(df1['rmse_norm'][0])
-                is_best = False
-                if df1['rmse_norm'][0] < value_bas:
-                    is_best = True
-                df_out['is_best'].append(is_best)
-                distance = np.abs(df1['rmse_norm'][0] - value_bas)
-                df_out['distance_from_bs'].append(distance)
-                rmses.append(df1['rmse_norm'][0])
+            if subfold=="BTC":
+                for subfold2 in os.listdir(gen_path + folder + "/single_target/result/" + subfold + "/"):
+                    df1 = pd.read_csv(
+                        gen_path + folder + "/single_target/result/" + "/" + subfold + "/" + subfold2 + "/stats/errors.csv",
+                        usecols=['rmse_norm'])
+                    file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/" + subfold, "r")
+                    value_bas = float(file.read())
+                    df_out['symbol'].append(subfold)
+                    df_out['baseline'].append(value_bas)
+                    df_out['single_target'].append(df1['rmse_norm'][0])
+                    is_best = False
+                    if df1['rmse_norm'][0] < value_bas:
+                        is_best = True
+                    df_out['is_best'].append(is_best)
+                    distance = np.abs(df1['rmse_norm'][0] - value_bas)
+                    df_out['distance_from_bs'].append(distance)
+                    rmses.append(df1['rmse_norm'][0])
 
-            pd.DataFrame(data=df_out).to_csv(filename + folder, index=False)
-            value = np.mean(rmses)
-            print("Baseline (AVG RMSE): " + str(value1))
-            print("Single Target (AVG RMSE): " + str(value))
+                pd.DataFrame(data=df_out).to_csv(filename + folder, index=False)
+                value = np.mean(rmses)
+                print("Baseline (AVG RMSE): " + str(value1))
+                print("Single Target (AVG RMSE): " + str(value))
 
-    path = "../modelling/techniques/comparisons/single_target/"
-    path_out = "../modelling/techniques/comparisons/"
+    path = "../modelling/techniques/forecasting/comparisons/single_target/"
+    path_out = "../modelling/techniques/forecasting/comparisons/"
     df_out = pd.DataFrame()
     """min=1000
     min_name="""""
@@ -264,8 +267,5 @@ def testing_set():
       TEST_SET = get_testset(
           "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
     return TEST_SET
-
-
-
 
 main()

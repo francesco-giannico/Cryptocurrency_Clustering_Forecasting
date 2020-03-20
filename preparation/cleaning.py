@@ -7,10 +7,10 @@ from sklearn.preprocessing import MinMaxScaler, RobustScaler
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 import numpy as np
-PATH_PREPROCESSED_FOLDER="../preparation/preprocessed_dataset/"
-PATH_UNCOMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/uncomplete/"
-PATH_COMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/complete/"
-PATH_CLEANED_FOLDER="../preparation/preprocessed_dataset/cleaned/"
+PATH_PREPROCESSED_FOLDER= "../preparation/preprocessed_dataset/"
+PATH_UNCOMPLETE_FOLDER= "../preparation/preprocessed_dataset/selected/uncomplete/"
+PATH_COMPLETE_FOLDER= "../preparation/preprocessed_dataset/selected/complete/"
+PATH_CLEANED_FOLDER= "../preparation/preprocessed_dataset/cleaned/"
 
 def remove_uncomplete_rows_by_range(crypto_symbol,start_date,end_date):
  folder_creator(PATH_CLEANED_FOLDER,0)
@@ -48,27 +48,58 @@ def interpolate_with_time(df):
     return df
 
 
-#Univariata...
+#Univariata, ma va bene lo stesso.
 def remove_outliers_one():
     folder_creator(PATH_CLEANED_FOLDER + "final/", 1)
     for crypto in os.listdir(PATH_COMPLETE_FOLDER):
         df=pd.read_csv(PATH_COMPLETE_FOLDER+crypto,sep=",",header=0)
-        #df=cut_dataset_by_range(PATH_COMPLETE_FOLDER,crypto.replace(".csv",""),'2019-01-01','2019-12-31')
-        #df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
+        #df=cut_dataset_by_range(PATH_COMPLETE_FOLDER,crypto.replace(".csv",""),'2017-06-27','2019-12-31')
+        #df_orig = cut_dataset_by_range(PATH_COMPLETE_FOLDER, crypto.replace(".csv", ""), '2017-08-22', '2019-12-31')
         df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
-        for feature in df.columns.values:
-            if feature!="Date":
-                """low=0.20
-                high=0.65
-                res=df.Close.quantile([low,high])
-                #print(res)
-                true_index=(res.loc[low] < df.Close.values) & (df.Close.values < res.loc[high])
-                false_index=~true_index
-                #df.Close=df.Close[true_index]
-                #df.Close[false_index]=np.median(df.Close[true_index])
-                #print(df.head())
-                #df[true_index].to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)"""
-                #df=df[true_index]
+        #df.to_csv(PATH_CLEANED_FOLDER + "final/" + crypto, sep=",", index=False)
+
+        """low=0.20
+        high=0.95
+        res=df.Close.quantile([low,high])
+        print(res)
+        true_index=(res.loc[low] <= df.Close.values) & (df.Close.values <= res.loc[high])
+        false_index=~true_index"""
+        #df.Close=df.Close[true_index]
+        i=0
+        """for index in false_index:
+            if index==True:
+                if i!=0 and res.loc[low]<=df_orig.Close[i-1] and df_orig.Close[i-1]<=res.loc[high]:
+                    df.Close[i]=df_orig.Close[i-1]
+                elif i!=0 and df_orig.Close[i-1]<=res.loc[low]:
+                    df.Close[i]=res.loc[low]
+                elif i!=0 and df_orig.Close[i-1]>=res.loc[high]:
+                    df.Close[i] = res.loc[high]
+                else:
+                    df.Close[i] =res.loc[low]
+            i+=1"""
+        #df[true_index]=df.Close[true_index]
+        """print("Open")
+        low = 0.02
+        high = 0.85
+        res = df.Open.quantile([low, high])
+        print(res)
+        true_index = (res.loc[low] <= df.Open.values) & (df.Open.values <= res.loc[high])
+        false_index = ~true_index
+        i = 0
+        for index in false_index:
+            if index == True:
+                if i != 0 and res.loc[low] <= df_orig.Open[i - 1] and df_orig.Open[i - 1] <= res.loc[high]:
+                    df.Open[i] = df_orig.Open[i - 1]
+                elif i != 0 and df_orig.Open[i - 1] <= res.loc[low]:
+                    df.Open[i] = res.loc[low]
+                elif i != 0 and df_orig.Open[i - 1] >= res.loc[high]:
+                    df.Open[i] = res.loc[high]
+                else:
+                    df.Open[i] = res.loc[low]
+            i += 1"""
+
+        #df[true_index].to_csv(PATH_CLEANED_FOLDER+"final/"+crypto,sep=",",index=False)
+
 
 from sklearn.cluster import DBSCAN
 #usa complete folder (open,high,low and close)

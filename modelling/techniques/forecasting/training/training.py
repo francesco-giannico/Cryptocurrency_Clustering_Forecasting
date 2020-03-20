@@ -145,7 +145,7 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
     #note: it's an incremental way to get a final model.
     #
     callbacks = [
-        EarlyStopping(monitor='loss', patience=40),
+        EarlyStopping(monitor='loss', patience=30),
         ModelCheckpoint(
             monitor='loss', save_best_only=True,
             filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}.h5'.format(

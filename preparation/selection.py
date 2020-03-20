@@ -9,8 +9,8 @@ from utility.folder_creator import folder_creator
 """ it Moves the crypto dead before 31-12-2019 in the dead folder """
 PATH_MAIN_FOLDER="../acquisition/dataset/original/"
 PATH_LESS_FEATURES= "../preparation/preprocessed_dataset/selected/less_features/"
-PATH_PREPARATION_FOLDER="../preparation/preprocessed_dataset/"
-PATH_COMPLETE_FOLDER="../preparation/preprocessed_dataset/selected/"
+PATH_PREPARATION_FOLDER= "../preparation/preprocessed_dataset/"
+PATH_COMPLETE_FOLDER= "../preparation/preprocessed_dataset/selected/"
 
 
 def find_by_dead_before():
