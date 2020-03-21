@@ -140,12 +140,12 @@ def get_training_testing_set(dataset_tensor_format, date_to_predict):
             train.append(sample)
     return np.array(train), np.array(test)
 
-def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dropout, epochs, batch_size, dimension_last_layer,
+def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
                 model_path='', model=None):
     #note: it's an incremental way to get a final model.
     #
     callbacks = [
-        EarlyStopping(monitor='loss', patience=30),
+        EarlyStopping(monitor='loss', patience=patience),
         ModelCheckpoint(
             monitor='loss', save_best_only=True,
             filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}.h5'.format(
@@ -158,28 +158,16 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
         #reduce the overfitting
         model.add(Dropout(dropout))
-
         """model.add(LSTM(units=num_neurons,return_sequences=True))
         # reduce the overfitting
         model.add(Dropout(dropout))"""
-        """model.add(LSTM(units=num_neurons,return_sequences=True))
-        # reduce the overfitting
-        model.add(Dropout(dropout))
-
-        model.add(LSTM(units=num_neurons, return_sequences=True))
-        # reduce the overfitting
-        model.add(Dropout(dropout))
-
-        model.add(LSTM(units=num_neurons))
+        """model.add(LSTM(units=num_neurons))
         # reduce the overfitting
         model.add(Dropout(dropout))"""
-
         #number of neurons of the last layer
         model.add(Dense(units=dimension_last_layer))
-
         #optimizer
         adam=Adam(learning_rate=learning_rate)
-        #model.add(Activation('linear'))
         #print(model.summary())
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
 

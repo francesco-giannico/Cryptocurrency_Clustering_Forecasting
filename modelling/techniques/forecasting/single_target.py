@@ -19,7 +19,7 @@ tf_core.random.set_seed(2)
 
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, list_num_neurons, learning_rate,
-                   testing_set,features_to_use,DROPOUT,EPOCHS,BATCH_SIZE):
+                   testing_set,features_to_use,DROPOUT,EPOCHS,BATCH_SIZE,PATIENCE):
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
@@ -129,7 +129,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 y_test = test[:, -1, index_of_target_feature]
 
                 # change the data type, from object to float
+                #print(x_train[0][0])
                 x_train = x_train.astype('float')
+                #print(x_train[0][0])
                 y_train = y_train.astype('float')
                 x_test = x_test.astype('float')
                 y_test = y_test.astype('float')
@@ -143,6 +145,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                                                  dropout=DROPOUT,
                                                  epochs=EPOCHS,
                                                  batch_size=BATCH_SIZE,
+                                                 patience=PATIENCE,
                                                  dimension_last_layer=1,
                                                  model_path=model_path)
                     # information about neural network created
@@ -156,6 +159,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                                                  dropout=DROPOUT,
                                                  epochs=EPOCHS,
                                                  batch_size=BATCH_SIZE,
+                                                 patience=PATIENCE,
                                                  dimension_last_layer=1,
                                                  model=model,
                                                  model_path=model_path)
@@ -188,14 +192,13 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence,
                 # detransformed
                 """y_test_detr = float(y_test_detransformed)
                 test_prediction_detr = float(test_prediction_detransformed)"""
-
-                """ print("Num of entries for training: ", x_train.shape[0])
-                print("Num of element for validation: ", x_test.shape[0])
+                print("Num of entries for training: ", x_train.shape[0])
+                #print("Num of element for validation: ", x_test.shape[0])
                 print("Training until: ", d)
                 print("Predicting for: ", date_to_predict)
-                print("Predicted: ", test_prediction_denorm)
-                print("Actual: ", y_test_denorm)
-                print("\n")"""
+                print("Predicted: ", test_prediction)
+                print("Actual: ", y_test)
+                print("\n")
                 """
                 print("Predicting for: ", date_to_predict)
                 print("Predicted: ", test_prediction_detr)

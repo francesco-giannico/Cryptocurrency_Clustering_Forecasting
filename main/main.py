@@ -29,7 +29,7 @@ def main():
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    #preprocessing()
+    preprocessing()
     #Description after
     types="min_max_normalized"
     features_to_use=['Close','Open','Low','High','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
@@ -60,11 +60,11 @@ def main():
     """list_features_to_uses=[
             ['Date','Close','Open','Close','Low','High','AdjClose'],
     ]"""
+    """['Date', 'Close'],
+    ['Date', 'Close','Adj_Close'],
+    ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close'],"""
     list_features_to_uses = [
-        ['Date', 'Close'],
-        ['Date', 'Close','Adj_Close'],
-        ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close'],
-        ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60']
+        ['Date', 'Close']
     ]
     #todo this one
     """temporal_sequences = [[45],[75],[90],[100],[115],[130],[220]]
@@ -73,38 +73,42 @@ def main():
     """temporal_sequences = [[30],[50],[60],[120],[150]]
     number_neurons = [[256]]"""
 
-    temporal_sequences = [[30],[60],[100]]
+    temporal_sequences = [[30],[60]]
     number_neurons = [[128],[256]]
 
     """temporal_sequences = [[15], [30], [50], [60], [120], [150]]
     number_neurons = [[128], [256],[512]]"""
     learning_rate = 0.001
     # General parameters
-    DROPOUT = 0.45
-    EPOCHS =  [100]
-    BATCH_SIZE = 64
+    DROPOUT = 0.3
+    EPOCHS =  [100,150]
+    BATCH_SIZE = [64]
+    PATIENCE=[10,30,40]
     #todo vedi in final che data sta!
     start_date = "2010-01-01"
     end_date = "2019-12-31"
-    for epoch in EPOCHS:
-        for features_to_use in list_features_to_uses:
-            print("Features: "+ str(features_to_use))
-            for num in number_neurons:
-                for temp_seq in temporal_sequences:
-                    out = ""
-                    for ft in features_to_use:
-                        out += ft + "_"
-                    output_name = out + "neur{}-dp{}-ep{}-bs{}-lr{}-tempseq{}.csv".format(num[0], DROPOUT, epoch,
-                                                                                          BATCH_SIZE, learning_rate,
-                                                                                          temp_seq[0])
-                    single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,
-                                       temp_seq,num,learning_rate,DROPOUT,
-                                       epoch,BATCH_SIZE,output_name)
+    for patience in PATIENCE:
+        for batch in BATCH_SIZE:
+            for epoch in EPOCHS:
+                for features_to_use in list_features_to_uses:
+                    print("Features: "+ str(features_to_use))
+                    for num in number_neurons:
+                        for temp_seq in temporal_sequences:
+                            out = ""
+                            for ft in features_to_use:
+                                out += ft + "_"
+                            output_name = out + "neur{}-dp{}-ep{}-bs{}-lr{}-tempseq{}-patience{}.csv".format(num[0], DROPOUT, epoch,
+                                                                                                 batch, learning_rate,
+                                                                                                  temp_seq[0],patience)
+                            single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,
+                                               temp_seq,num,learning_rate,DROPOUT,
+                                               epoch,batch,patience,output_name)
+
     report()
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
-def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,features_to_use,temporal_sequences,number_neurons,learning_rate,DROPOUT,EPOCHS,BATCH_SIZE,output_name):
+def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,features_to_use,temporal_sequences,number_neurons,learning_rate,DROPOUT,EPOCHS,BATCH_SIZE,PATIENCE,output_name):
     DATA_PATH = "../preparation/preprocessed_dataset/constructed/"+type+"/"
     #DATA_PATH="../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date
 
@@ -126,7 +130,7 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,featur
                   window_sequence=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET,features_to_use=features_to_use,
-                  DROPOUT=DROPOUT,EPOCHS=EPOCHS,BATCH_SIZE=BATCH_SIZE
+                  DROPOUT=DROPOUT,EPOCHS=EPOCHS,BATCH_SIZE=BATCH_SIZE,PATIENCE=PATIENCE
                   )
 
     # visualization single_target
@@ -202,7 +206,7 @@ def report():
         df_out = {"symbol": [], "baseline": [], "single_target": [], "is_best": [], "distance_from_bs": []}
         rmses = []
         for subfold in os.listdir(gen_path + folder + "/single_target/result/"):
-            if subfold=="BTC":
+            #if subfold=="BTC":
                 for subfold2 in os.listdir(gen_path + folder + "/single_target/result/" + subfold + "/"):
                     df1 = pd.read_csv(
                         gen_path + folder + "/single_target/result/" + "/" + subfold + "/" + subfold2 + "/stats/errors.csv",
