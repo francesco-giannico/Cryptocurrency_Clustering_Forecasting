@@ -19,7 +19,6 @@ def simple_prediction(data_path,test_set,result_folder):
         #new dataframe for output
         df1=pd.DataFrame(columns=["date","observed_value","predicted_value"])
         for date_to_predict in test_set:
-            print(date_to_predict)
             day_before = (pd.to_datetime(date_to_predict,format="%Y-%m-%d") - timedelta(days=1)).strftime('%Y-%m-%d')
 
             row_day_before=df[df['Date']==day_before]

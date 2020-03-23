@@ -32,11 +32,13 @@ def main():
     preprocessing()
     #Description after
     types="min_max_normalized"
-    features_to_use=['Close','Open','Low','High','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
+    #features_to_use=['Close','Open','Low','High','Adj_Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
+    features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200', 'SMA_200', 'SMA_100',
+                       'EMA_200', 'EMA_100']
     """features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
                        'EMA_7', 'EMA_14', 'EMA_20']
-    features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_30', 'RSI_60', 'RSI_100', 'SMA_30', 'SMA_60', 'SMA_100',
-                       'EMA_30', 'EMA_60', 'EMA_100']
+    features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200',  'SMA_200', 'SMA_100',
+                       'EMA_200', 'EMA_100']
     features_to_use = ['Close', 'Open', 'Low', 'High','Adj Close']
     #features_to_use=[]"""
     """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+types+"/",
@@ -54,61 +56,45 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    #features_to_use = ['Date','Close','Open','High','Low','Adj Close']
+    features_to_use = ['Date','Close','Open','High','Low','Adj_Close']
     #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj Close','RSI_14','RSI_30','RSI_60']
-    #['Date', 'Close']
-    """list_features_to_uses=[
-            ['Date','Close','Open','Close','Low','High','AdjClose'],
-    ]"""
-    """['Date', 'Close'],
-    ['Date', 'Close','Adj_Close'],
-    ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close'],"""
-    list_features_to_uses = [
-        ['Date', 'Close']
-    ]
-    #todo this one
-    """temporal_sequences = [[45],[75],[90],[100],[115],[130],[220]]
-    number_neurons = [[128],[256]]"""
 
-    """temporal_sequences = [[30],[50],[60],[120],[150]]
-    number_neurons = [[256]]"""
+    temporal_sequence=60
+    number_neurons =128
 
-    temporal_sequences = [[30],[60]]
-    number_neurons = [[128],[256]]
-
-    """temporal_sequences = [[15], [30], [50], [60], [120], [150]]
-    number_neurons = [[128], [256],[512]]"""
     learning_rate = 0.001
     # General parameters
-    DROPOUT = 0.3
-    EPOCHS =  [100,150]
-    BATCH_SIZE = [64]
-    PATIENCE=[10,30,40]
+    DROPOUT = 0.45
+    EPOCHS = 100
+    PATIENCE=40
+
+    #optimal config: 256,15 days, 40 epochs, 64 batch size, patience 10 and 0.45 dropout
     #todo vedi in final che data sta!
     start_date = "2010-01-01"
     end_date = "2019-12-31"
-    for patience in PATIENCE:
-        for batch in BATCH_SIZE:
+
+    """ for dropout in DROPOUT:
+        for patience in PATIENCE:
             for epoch in EPOCHS:
                 for features_to_use in list_features_to_uses:
-                    print("Features: "+ str(features_to_use))
                     for num in number_neurons:
-                        for temp_seq in temporal_sequences:
-                            out = ""
-                            for ft in features_to_use:
-                                out += ft + "_"
-                            output_name = out + "neur{}-dp{}-ep{}-bs{}-lr{}-tempseq{}-patience{}.csv".format(num[0], DROPOUT, epoch,
-                                                                                                 batch, learning_rate,
-                                                                                                  temp_seq[0],patience)
-                            single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,
-                                               temp_seq,num,learning_rate,DROPOUT,
-                                               epoch,batch,patience,output_name)
+                        for temp_seq in temporal_sequences:"""
+    out = ""
+    for ft in features_to_use:
+        out += ft + "_"
+    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons,DROPOUT,EPOCHS,
+                                                                         learning_rate,
+                                                                          temporal_sequence,PATIENCE)
+    print("Current config: "+output_name)
+    single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,
+                                                       temporal_sequence,number_neurons,learning_rate,DROPOUT,
+                                                       EPOCHS,PATIENCE,output_name)
 
-    report()
+    #report()
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
-def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,features_to_use,temporal_sequences,number_neurons,learning_rate,DROPOUT,EPOCHS,BATCH_SIZE,PATIENCE,output_name):
+def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,features_to_use,temporal_sequences,number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,output_name):
     DATA_PATH = "../preparation/preprocessed_dataset/constructed/"+type+"/"
     #DATA_PATH="../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date
 
@@ -124,13 +110,22 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,featur
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/"+output_name+"/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequence=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET,features_to_use=features_to_use,
                   DROPOUT=DROPOUT,EPOCHS=EPOCHS,BATCH_SIZE=BATCH_SIZE,PATIENCE=PATIENCE
+                  )"""
+
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+                  DATA_PATH=DATA_PATH,
+                  TENSOR_DATA_PATH=TENSOR_DATA_PATH,
+                  window=temporal_sequences,
+                  num_neurons=number_neurons, learning_rate=learning_rate,
+                  testing_set=TEST_SET, features_to_use=features_to_use,
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
                   )
 
     # visualization single_target
@@ -206,28 +201,30 @@ def report():
         df_out = {"symbol": [], "baseline": [], "single_target": [], "is_best": [], "distance_from_bs": []}
         rmses = []
         for subfold in os.listdir(gen_path + folder + "/single_target/result/"):
-            #if subfold=="BTC":
-                for subfold2 in os.listdir(gen_path + folder + "/single_target/result/" + subfold + "/"):
-                    df1 = pd.read_csv(
-                        gen_path + folder + "/single_target/result/" + "/" + subfold + "/" + subfold2 + "/stats/errors.csv",
-                        usecols=['rmse_norm'])
-                    file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/" + subfold, "r")
-                    value_bas = float(file.read())
-                    df_out['symbol'].append(subfold)
-                    df_out['baseline'].append(value_bas)
-                    df_out['single_target'].append(df1['rmse_norm'][0])
-                    is_best = False
-                    if df1['rmse_norm'][0] < value_bas:
-                        is_best = True
-                    df_out['is_best'].append(is_best)
-                    distance = np.abs(df1['rmse_norm'][0] - value_bas)
-                    df_out['distance_from_bs'].append(distance)
-                    rmses.append(df1['rmse_norm'][0])
+            for subfold2 in os.listdir(gen_path + folder + "/single_target/result/" + subfold + "/"):
+                df1 = pd.read_csv(
+                    gen_path + folder + "/single_target/result/" + "/" + subfold + "/" + subfold2 + "/stats/errors.csv",
+                    usecols=['rmse_norm'])
+                file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/" + subfold, "r")
+                value_bas = float(file.read())
+                df_out['symbol'].append(subfold)
+                df_out['baseline'].append(value_bas)
+                df_out['single_target'].append(df1['rmse_norm'][0])
+                is_best = False
+                if df1['rmse_norm'][0] < value_bas:
+                    is_best = True
+                df_out['is_best'].append(is_best)
+                distance = np.abs(df1['rmse_norm'][0] - value_bas)
+                df_out['distance_from_bs'].append(distance)
+                rmses.append(df1['rmse_norm'][0])
 
-                pd.DataFrame(data=df_out).to_csv(filename + folder, index=False)
-                value = np.mean(rmses)
-                print("Baseline (AVG RMSE): " + str(value1))
-                print("Single Target (AVG RMSE): " + str(value))
+            pd.DataFrame(data=df_out).to_csv(filename + folder, index=False)
+        """if(float(np.mean(rmses))<=float(value1)):
+            print(np.mean(rmses))
+            print(value1)"""
+        print(folder)
+        print("Baseline (AVG RMSE): " + str(value1))
+        print("Single Target (AVG RMSE): " + str(np.mean(rmses)))
 
     path = "../modelling/techniques/forecasting/comparisons/single_target/"
     path_out = "../modelling/techniques/forecasting/comparisons/"

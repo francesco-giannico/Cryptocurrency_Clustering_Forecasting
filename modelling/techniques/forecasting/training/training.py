@@ -4,15 +4,13 @@ from pandas import DataFrame
 from scipy.stats import stats
 
 from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam,SGD
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
 from tensorflow.keras.layers import LSTM,Dropout,Dense
 from tensorflow.keras.layers import LSTM,Dropout,Dense,Activation
-
 import matplotlib.pyplot as plt
 from tensorflow_core.python.keras.utils.vis_utils import plot_model
-
 from utility.dataset_utils import cut_dataset_by_range
 
 def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
@@ -158,9 +156,6 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
         #reduce the overfitting
         model.add(Dropout(dropout))
-        """model.add(LSTM(units=num_neurons,return_sequences=True))
-        # reduce the overfitting
-        model.add(Dropout(dropout))"""
         """model.add(LSTM(units=num_neurons))
         # reduce the overfitting
         model.add(Dropout(dropout))"""
@@ -169,6 +164,7 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         #optimizer
         adam=Adam(learning_rate=learning_rate)
         #print(model.summary())
+        #sgd=SGD(learning_rate=learning_rate)
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
 
     history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
