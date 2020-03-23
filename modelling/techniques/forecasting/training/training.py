@@ -43,9 +43,9 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cr
     #already normalized
 
     if features_to_use!=None:
-        df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto, sep=',',header=0,usecols=features_to_use)
+        df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto+".csv", sep=',',header=0,usecols=features_to_use)
     else:
-        df = pd.read_csv(CLUSTERING_CRYPTO_PATH + crypto, sep=',', header=0)
+        df = pd.read_csv(CLUSTERING_CRYPTO_PATH + crypto+".csv", sep=',', header=0)
 
     df=df.set_index("Date")
     start_date=df.index[0]

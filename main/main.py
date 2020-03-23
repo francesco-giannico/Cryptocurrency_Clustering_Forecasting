@@ -29,7 +29,7 @@ def main():
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    preprocessing()
+    #preprocessing()
     #Description after
     types="min_max_normalized"
     #features_to_use=['Close','Open','Low','High','Adj_Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
@@ -57,9 +57,15 @@ def main():
 
     #MODELLING
     features_to_use = ['Date','Close','Open','High','Low','Adj_Close']
-    #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj Close','RSI_14','RSI_30','RSI_60']
+    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close', 
+                       'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200',
+                       'EMA_14','EMA_30', 'EMA_60', 'EMA_100','EMA_200',
+                       'SMA_14','SMA_30', 'SMA_60', 'SMA_100','SMA_200']"""
 
-    temporal_sequence=60
+    #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close','RSI_14','RSI_30','RSI_60','RSI_100','RSI_200']
+    #features_to_use = ['Date', 'Close', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200']
+
+    temporal_sequence=11
     number_neurons =128
 
     learning_rate = 0.001
@@ -68,17 +74,12 @@ def main():
     EPOCHS = 100
     PATIENCE=40
 
+    crypto = "ETH"
     #optimal config: 256,15 days, 40 epochs, 64 batch size, patience 10 and 0.45 dropout
     #todo vedi in final che data sta!
     start_date = "2010-01-01"
     end_date = "2019-12-31"
 
-    """ for dropout in DROPOUT:
-        for patience in PATIENCE:
-            for epoch in EPOCHS:
-                for features_to_use in list_features_to_uses:
-                    for num in number_neurons:
-                        for temp_seq in temporal_sequences:"""
     out = ""
     for ft in features_to_use:
         out += ft + "_"
@@ -86,15 +87,18 @@ def main():
                                                                          learning_rate,
                                                                           temporal_sequence,PATIENCE)
     print("Current config: "+output_name)
+
     single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,
                                                        temporal_sequence,number_neurons,learning_rate,DROPOUT,
-                                                       EPOCHS,PATIENCE,output_name)
+                                                       EPOCHS,PATIENCE,output_name,crypto)
 
-    #report()
+    report()
     #MULTITARGET
     #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
 
-def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,features_to_use,temporal_sequences,number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,output_name):
+def single_target_main(distance_measure,start_date,end_date,TEST_SET,
+                       type,features_to_use,temporal_sequences,number_neurons,
+                       learning_rate,DROPOUT,EPOCHS,PATIENCE,output_name,crypto):
     DATA_PATH = "../preparation/preprocessed_dataset/constructed/"+type+"/"
     #DATA_PATH="../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date
 
@@ -125,7 +129,7 @@ def single_target_main(distance_measure,start_date,end_date,TEST_SET,type,featur
                   window=temporal_sequences,
                   num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET, features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,crypto_name=crypto
                   )
 
     # visualization single_target
@@ -219,9 +223,7 @@ def report():
                 rmses.append(df1['rmse_norm'][0])
 
             pd.DataFrame(data=df_out).to_csv(filename + folder, index=False)
-        """if(float(np.mean(rmses))<=float(value1)):
-            print(np.mean(rmses))
-            print(value1)"""
+
         print(folder)
         print("Baseline (AVG RMSE): " + str(value1))
         print("Single Target (AVG RMSE): " + str(np.mean(rmses)))
