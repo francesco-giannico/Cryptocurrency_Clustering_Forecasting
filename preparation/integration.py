@@ -7,7 +7,7 @@ from utility.folder_creator import folder_creator
 PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
 PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated/"
 FEATURE="Close"
-LOOKBACK = [14,30,60,100,200]
+LOOKBACK = [14]
 
 def integrate_with_indicators(input_path):
     folder_creator(PATH_INTEGRATED_FOLDER,1)

@@ -8,6 +8,7 @@ from tensorflow.keras.utils import plot_model
 from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_r_square
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
     get_training_testing_set, train_model
+from utility.computations import get_factors
 from utility.folder_creator import folder_creator
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
@@ -39,7 +40,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neur
     folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 1)
 
 
-    dataset, features, features_without_date, scaler_target_feature = \
+    dataset, features, features_without_date = \
         prepare_input_forecasting(PREPROCESSED_PATH, DATA_PATH, crypto_name, None, features_to_use)
 
 
@@ -186,8 +187,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neur
 
         # denormalization
         # reshape(-1,1) means that you are not specifing only the column dimension, whist the row dimension is unknown
-        y_test_denorm = scaler_target_feature.inverse_transform(y_test.reshape(-1, 1))
-        test_prediction_denorm = scaler_target_feature.inverse_transform(test_prediction)
+        """y_test_denorm = scaler_target_feature.inverse_transform(y_test.reshape(-1, 1))
+        test_prediction_denorm = scaler_target_feature.inverse_transform(test_prediction)"""
 
         # detransformation
         """" y_test_detransformed = qt.inverse_transform(y_test_denorm.reshape(-1, 1))
@@ -198,8 +199,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neur
         y_test = float(y_test)
         test_prediction = float(test_prediction)
         # denormalized
-        y_test_denorm = float(y_test_denorm)
-        test_prediction_denorm = float(test_prediction_denorm)
+        """y_test_denorm = float(y_test_denorm)
+        test_prediction_denorm = float(test_prediction_denorm)"""
 
         # detransformed
         """y_test_detr = float(y_test_detransformed)
@@ -252,13 +253,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neur
     return
 
 
-# This function computes the factor of the argument passed
-def get_factors(x):
-    factors = []
-    for i in range(1, x + 1):
-        if x % i == 0:
-            factors.append(i)
-    return factors
+
 
 
 

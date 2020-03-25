@@ -51,27 +51,27 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cr
     start_date=df.index[0]
     end_date=df.index[len(df.index)-1]
 
-    if cryptos!=None:
+    """if cryptos!=None:
         #multitarget_case
         for crypto in cryptos:
             #todo review...
             # read not normalized
-            """scaler_target_features=get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date)
-            scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)"""
+            scaler_target_features=get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date)
+            scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
     else:
         #single target case
         #read not normalized
         #TRANSFORMED_PATH="../preparation/preprocessed_dataset/transformed/"
         #scaler_target_features = get_scaler(TRANSFORMED_PATH, crypto, start_date, end_date)
-        scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
+        #scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
         #todo remove 7 :D
-        #qt = get_scaler2(PREPROCESSED_PATH, crypto, start_date, end_date)
+        #qt = get_scaler2(PREPROCESSED_PATH, crypto, start_date, end_date)"""
 
     df = df.reset_index()
     #exlude the feature "date"
     features_without_date = [feature for feature in df.columns if feature != "Date"]
 
-    return df,df.columns,features_without_date,scaler_target_features
+    return df,df.columns,features_without_date
 
 
 def fromtemporal_totensor(dataset, window_considered, output_path, output_name):

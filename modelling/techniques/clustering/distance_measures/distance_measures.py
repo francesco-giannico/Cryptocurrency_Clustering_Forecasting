@@ -59,7 +59,7 @@ def compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH):
                 distance_matrix[i][j] = ensemble_distance
                 distance_matrix[j][i] = ensemble_distance
             else:
-                return "Distance measure is not valid"
+                return "Distance measure unrecognized"
             j+=1
     #save the matrix
     save_distance_matrix(distance_matrix,CLUSTERING_PATH)

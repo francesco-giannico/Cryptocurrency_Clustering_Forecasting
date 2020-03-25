@@ -7,10 +7,9 @@ from utility.folder_creator import folder_creator
 from utility.reader import get_dict_symbol_id
 
 
-def clustering(distance_measure,start_date,end_date):
+def clustering(distance_measure,start_date,end_date,type):
     CLUSTERING_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/"
-    #PATH_SOURCE = "../preparation/preprocessed_dataset/constructed/normalized/"
-    PATH_SOURCE = "../preparation/preprocessed_dataset/integrated/"
+    PATH_SOURCE = "../preparation/preprocessed_dataset/constructed/"+type+"/"
 
     folder_setup(CLUSTERING_PATH)
 

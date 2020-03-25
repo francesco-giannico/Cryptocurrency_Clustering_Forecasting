@@ -25,16 +25,16 @@ import numpy as np
 
 def main():
     #DATA UNDERSTANDING
-    cryptocurrencies=['BTC','ETH']
+    #cryptocurrencies=['BTC','ETH']
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    #preprocessing()
+    preprocessing()
     #Description after
-    types="min_max_normalized"
+    type="min_max_normalized"
     #features_to_use=['Close','Open','Low','High','Adj_Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
-    features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200', 'SMA_200', 'SMA_100',
-                       'EMA_200', 'EMA_100']
+    #features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200', 'SMA_200', 'SMA_100',
+     #                  'EMA_200', 'EMA_100']
     """features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
                        'EMA_7', 'EMA_14', 'EMA_20']
     features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200',  'SMA_200', 'SMA_100',
@@ -46,114 +46,107 @@ def main():
              name_folder_res=types,
              features_to_use=features_to_use)"""
 
-    #CLUSTERING
-    """start_date = "2014-10-01"
-    end_date = "2019-12-31"""
-    distance_measure = "wasserstain"
-    #clustering_main(distance_measure,start_date,end_date)
-
     #TESTING SET
     TEST_SET=testing_set()
 
     #MODELLING
     features_to_use = ['Date','Close','Open','High','Low','Adj_Close']
-    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close', 
+    #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close','Volume']
+    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
                        'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200',
                        'EMA_14','EMA_30', 'EMA_60', 'EMA_100','EMA_200',
                        'SMA_14','SMA_30', 'SMA_60', 'SMA_100','SMA_200']"""
-
+    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
+                       'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100', 'RSI_200',
+                       'EMA_14', 'EMA_30', 'EMA_60', 'EMA_100', 'EMA_200']"""
+    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
+                       'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200',
+                       'SMA_14', 'SMA_30', 'SMA_60', 'SMA_100', 'SMA_200'
+                       ]"""
+    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
+                       'EMA_14', 'EMA_30', 'EMA_60', 'EMA_100', 'EMA_200',
+                       'SMA_14', 'SMA_30', 'SMA_60', 'SMA_100', 'SMA_200'
+                       ]"""
     #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close','RSI_14','RSI_30','RSI_60','RSI_100','RSI_200']
     #features_to_use = ['Date', 'Close', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200']
 
-    temporal_sequence=11
-    number_neurons =128
-
-    learning_rate = 0.001
     # General parameters
+    temporal_sequence=15
+    number_neurons =256
+    learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
-    PATIENCE=40
+    PATIENCE=45
 
-    crypto = "ETH"
-    #optimal config: 256,15 days, 40 epochs, 64 batch size, patience 10 and 0.45 dropout
-    #todo vedi in final che data sta!
-    start_date = "2010-01-01"
+    crypto = "DASH"
+
+    """single_target_main(TEST_SET,type,features_to_use,
+                       temporal_sequence,number_neurons,learning_rate,DROPOUT,
+                        EPOCHS,PATIENCE,crypto)"""
+
+    #CLUSTERING
+    start_date = "2014-10-01"
     end_date = "2019-12-31"
+    distance_measure = "dtw"
+    #clustering_main(distance_measure,start_date,end_date,type)"""
+
+    #MULTITARGET
+    temporal_sequence = 15
+    number_neurons = 256
+    learning_rate = 0.001
+    DROPOUT = 0.45
+    EPOCHS = 100
+    PATIENCE = 45
+
+    crypto = "LTC"
+    features_to_use = ['Close', 'Open', 'High', 'Low', 'Adj_Close']
+    multi_target_main(TEST_SET,type,features_to_use,
+                       temporal_sequence,number_neurons,learning_rate,DROPOUT,
+                        EPOCHS,PATIENCE,crypto)
+
+def multi_target_main(TEST_SET,type,features_to_use,
+                       temporal_sequence,number_neurons,learning_rate,
+                       DROPOUT,EPOCHS,PATIENCE,crypto):
+
 
     out = ""
     for ft in features_to_use:
         out += ft + "_"
-    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons,DROPOUT,EPOCHS,
-                                                                         learning_rate,
-                                                                          temporal_sequence,PATIENCE)
-    print("Current config: "+output_name)
+    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
+                                                                            learning_rate,
+                                                                            temporal_sequence, PATIENCE)
 
-    single_target_main(distance_measure,start_date,end_date,TEST_SET,types,features_to_use,
-                                                       temporal_sequence,number_neurons,learning_rate,DROPOUT,
-                                                       EPOCHS,PATIENCE,output_name,crypto)
+    DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/out_multi_"+crypto+"/" + output_name+ "/multi_target/"
 
-    report()
-    #MULTITARGET
-    #multi_target_main(distance_measure,start_date,end_date,TEST_SET)
+    cluster_n="cluster_0"
+    folder_creator(EXPERIMENT_PATH + "clusters" +  "/" + cluster_n + "/", 0)
 
-def single_target_main(distance_measure,start_date,end_date,TEST_SET,
-                       type,features_to_use,temporal_sequences,number_neurons,
-                       learning_rate,DROPOUT,EPOCHS,PATIENCE,output_name,crypto):
-    DATA_PATH = "../preparation/preprocessed_dataset/constructed/"+type+"/"
-    #DATA_PATH="../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date
+    #generate horizontal dataset
+    cryptos_in_the_cluster = create_horizontal_dataset(DATA_PATH + cluster_n + "/",
+                            EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/")
 
-    # SIMPLE PREDICTION
-    #DATA_PATH_SIMPLE="../acquisition/dataset/original/"
-    DATA_PATH_SIMPLE = DATA_PATH
-    OUTPUT_SIMPLE_PREDICTION= "../modelling/techniques/baseline/simple_prediction/output/"
-    simple_prediction(DATA_PATH_SIMPLE,TEST_SET,OUTPUT_SIMPLE_PREDICTION)
+    dim_last_layer = len(cryptos_in_the_cluster)
 
-    # SINGLE TARGET LSTM
-    """EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/single_target/"
-    TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"""
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/"+output_name+"/single_target/"
-    TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
-
-    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
-                  DATA_PATH=DATA_PATH,
-                  TENSOR_DATA_PATH=TENSOR_DATA_PATH,
-                  window_sequence=temporal_sequences,
-                  list_num_neurons=number_neurons, learning_rate=learning_rate,
-                  testing_set=TEST_SET,features_to_use=features_to_use,
-                  DROPOUT=DROPOUT,EPOCHS=EPOCHS,BATCH_SIZE=BATCH_SIZE,PATIENCE=PATIENCE
-                  )"""
-
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
-                  DATA_PATH=DATA_PATH,
-                  TENSOR_DATA_PATH=TENSOR_DATA_PATH,
-                  window=temporal_sequences,
-                  num_neurons=number_neurons, learning_rate=learning_rate,
-                  testing_set=TEST_SET, features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,crypto_name=crypto
-                  )
-
-    # visualization single_target
-    """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
-                          experiment_folder=EXPERIMENT_PATH,results_folder="result",
-                          report_folder="report",output_filename="overall_report")"""
-
-    #report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
-
-    #merge_predictions(EXPERIMENT_PATH,"result")
+    features_to_use_multi = ['Date']
+    for i in range(len(cryptos_in_the_cluster)):
+        for feature in features_to_use:
+            features_to_use_multi.append(feature+"_" + str(i + 1))
 
 
-    #generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)"""
+    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+                 DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/",
+                 TENSOR_DATA_PATH="clusters" + "/" + cluster_n + "/tensor_data/",
+                 window_sequence=temporal_sequence,
+                 num_neurons=number_neurons, learning_rate=learning_rate,
+                 dimension_last_layer=dim_last_layer,
+                 testing_set=TEST_SET,
+                 cryptos=cryptos_in_the_cluster,
+                 features_to_use=features_to_use,
+                 DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
+                 )
 
-def multi_target_main(distance_measure,start_date,end_date,TEST_SET):
-    DATA_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/"
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/output/" + distance_measure + "/" + start_date + "_" + end_date + "/multi_target/"
-    # SINGLE TARGET LSTM
-    temporal_sequences = [30, 100]
-    number_neurons = [128, 256]
-    learning_rate = 0.001
-    # folder_creator(EXPERIMENT_PATH + "clusters", 0)
-    # reads each k used (folders'name)
-    for k_used in os.listdir(DATA_PATH):
+    """for k_used in os.listdir(DATA_PATH):
         #todo remove this one
         if k_used=="k_sqrtNDiv2":
             folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used, 0)
@@ -173,14 +166,14 @@ def multi_target_main(distance_measure,start_date,end_date,TEST_SET):
                     features_to_use=['Date']
                     for i in range(len(cryptos_in_the_cluster)):
                         features_to_use.append("Close_"+str(i+1))
-                    """multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
+                    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
                                       DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
                                       TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
                                       window_sequence=temporal_sequences,
                                       list_num_neurons=number_neurons, learning_rate=learning_rate,
                                       dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster,features_to_use=features_to_use)
-"""
-                    """ report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
+                    
+                    report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                                             experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
                                             report_folder="report",output_filename="overall_report")
                     """
@@ -189,6 +182,49 @@ def multi_target_main(distance_measure,start_date,end_date,TEST_SET):
                     # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
 
                     # other charts for clustering
+
+
+
+def single_target_main(TEST_SET,type,features_to_use,temporal_sequence,number_neurons,
+                       learning_rate,DROPOUT,EPOCHS,PATIENCE,crypto):
+    DATA_PATH = "../preparation/preprocessed_dataset/constructed/"+type+"/"
+
+    out = ""
+    for ft in features_to_use:
+        out += ft + "_"
+    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
+                                                                            learning_rate,
+                                                                            temporal_sequence, PATIENCE)
+    print("Current configuration: "+ output_name)
+    # SIMPLE PREDICTION
+    DATA_PATH_SIMPLE = DATA_PATH
+    OUTPUT_SIMPLE_PREDICTION= "../modelling/techniques/baseline/simple_prediction/output/"
+    simple_prediction(DATA_PATH_SIMPLE,TEST_SET,OUTPUT_SIMPLE_PREDICTION)
+
+    # SINGLE TARGET LSTM
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/"+output_name+"/single_target/"
+    TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
+
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+                  DATA_PATH=DATA_PATH,
+                  TENSOR_DATA_PATH=TENSOR_DATA_PATH,
+                  window=temporal_sequence,
+                  num_neurons=number_neurons, learning_rate=learning_rate,
+                  testing_set=TEST_SET, features_to_use=features_to_use,
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,crypto_name=crypto
+                  )
+
+    report()
+    # visualization single_target
+    """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
+                          experiment_folder=EXPERIMENT_PATH,results_folder="result",
+                          report_folder="report",output_filename="overall_report")"""
+
+    #report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
+
+    #generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)"""
+
+
 
 def report():
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
@@ -254,9 +290,9 @@ def data_understanding(crypto_names):
     OUTPUT_PATH="../understanding/output/"
     describe(PATH_DATASET,OUTPUT_PATH,None,None)
 
-def clustering_main(distance_measure,start_date,end_date):
+def clustering_main(distance_measure,start_date,end_date,type):
     # clustering
-    clustering(distance_measure, start_date=start_date, end_date=end_date)
+    clustering(distance_measure, start_date=start_date, end_date=end_date,type=type)
 
 def testing_set():
     test_start_date="2019-01-01"

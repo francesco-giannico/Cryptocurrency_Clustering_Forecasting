@@ -27,19 +27,21 @@ def find_by_dead_before():
 def find_uncomplete():
    folder_creator(PATH_PREPARATION_FOLDER + "selected/" + "uncomplete", 1)
    folder_creator(PATH_PREPARATION_FOLDER + "selected/" + "complete", 1)
-   #print(df.columns.values.tolist())
    for file in os.listdir(PATH_LESS_FEATURES):
     df = pd.read_csv(PATH_LESS_FEATURES+file, delimiter=',',header=0)
+    df = df.rename({'Adj Close': 'Adj_Close'}, axis=1)
     df=df.set_index("Date")
     #with null values
     if(df["Close"].isnull().any()):
          try:
-            shutil.copy(PATH_LESS_FEATURES+file,PATH_PREPARATION_FOLDER+"selected/uncomplete/"+file)
+            df.to_csv(PATH_PREPARATION_FOLDER+"selected/uncomplete/"+file)
+            #shutil.copy(PATH_LESS_FEATURES+file,PATH_PREPARATION_FOLDER+"selected/uncomplete/"+file)
          except:
              pass
     else:
         try:
-            shutil.copy(PATH_LESS_FEATURES + file, PATH_PREPARATION_FOLDER+ "selected/complete/" + file)
+            df.to_csv(PATH_PREPARATION_FOLDER+ "selected/complete/"+file)
+            #shutil.copy(PATH_LESS_FEATURES + file, PATH_PREPARATION_FOLDER+ "selected/complete/" + file)
         except:
             pass
 
