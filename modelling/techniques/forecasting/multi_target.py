@@ -41,13 +41,13 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
     folder_creator(EXPERIMENT_PATH  + MODELS_PATH + "/", 1)
     folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/", 1)
 
-    dataset, features, features_without_date, scaler_target_feature = \
-        prepare_input_forecasting(PREPROCESSED_PATH, DATA_PATH, horizontal_file,cryptos,features_to_use)
+    dataset, features, features_without_date = \
+        prepare_input_forecasting(PREPROCESSED_PATH, DATA_PATH, horizontal_name,cryptos,features_to_use)
 
     #takes all the target
     indexes_of_target_features = [features_without_date.index(f) for f in features_without_date if
                                    f.startswith('Close')]
-    print(features)
+    #print(features)
     # [(30, 128), (30, 256), (100, 128), (100, 256), (200, 128), (200, 256)]
     # print(np.array(dataset)[0]), takes the first row of the dataset (2018-01 2020...etc.)
 

@@ -14,6 +14,8 @@ def simple_prediction(data_path,test_set,result_folder):
     folder_creator(result_folder+final_folder,1)
 
     for crypto in os.listdir(data_path):
+        #todo remove this
+
         df= pd.read_csv(data_path+crypto,usecols=['Date','Close'])
 
         #new dataframe for output

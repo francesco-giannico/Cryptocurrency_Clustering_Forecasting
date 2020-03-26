@@ -30,9 +30,9 @@ def preprocessing():
 
     #transformation(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_TRANSFORMED_INT_FOLDER)
     # transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    #integration(input_path=PATH_CLEANED_FOLDER)
-    #construction(input_path=PATH_INTEGRATED_FOLDER)
-    construction(input_path=PATH_CLEANED_FOLDER)
+    integration(input_path=PATH_CLEANED_FOLDER)
+    construction(input_path=PATH_INTEGRATED_FOLDER)
+    #construction(input_path=PATH_CLEANED_FOLDER)
 
 
 #todo aggiustare qua

@@ -29,7 +29,7 @@ def main():
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    preprocessing()
+    #preprocessing()
     #Description after
     type="min_max_normalized"
     #features_to_use=['Close','Open','Low','High','Adj_Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
@@ -50,12 +50,9 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    features_to_use = ['Date','Close','Open','High','Low','Adj_Close']
+    #features_to_use = ['Date','Close','Open','High','Low','Adj_Close']
     #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close','Volume']
-    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
-                       'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200',
-                       'EMA_14','EMA_30', 'EMA_60', 'EMA_100','EMA_200',
-                       'SMA_14','SMA_30', 'SMA_60', 'SMA_100','SMA_200']"""
+    features_to_use = ['Date', 'Close','Open','High','Low','Adj_Close']
     """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
                        'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100', 'RSI_200',
                        'EMA_14', 'EMA_30', 'EMA_60', 'EMA_100', 'EMA_200']"""
@@ -71,18 +68,17 @@ def main():
     #features_to_use = ['Date', 'Close', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200']
 
     # General parameters
-    temporal_sequence=15
-    number_neurons =256
+    temporal_sequence=60
+    number_neurons =128
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
-    PATIENCE=45
+    PATIENCE=40
+    crypto = "VTC"
 
-    crypto = "DASH"
-
-    """single_target_main(TEST_SET,type,features_to_use,
+    single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequence,number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,crypto)"""
+                        EPOCHS,PATIENCE,crypto)
 
     #CLUSTERING
     start_date = "2014-10-01"
@@ -91,22 +87,22 @@ def main():
     #clustering_main(distance_measure,start_date,end_date,type)"""
 
     #MULTITARGET
-    temporal_sequence = 15
+    temporal_sequence = 60
     number_neurons = 256
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
-    PATIENCE = 45
-
+    PATIENCE = 40
     crypto = "LTC"
+    cluster_n="cluster_0"
     features_to_use = ['Close', 'Open', 'High', 'Low', 'Adj_Close']
-    multi_target_main(TEST_SET,type,features_to_use,
+    """multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequence,number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,crypto)
+                        EPOCHS,PATIENCE,crypto,cluster_n)"""
 
 def multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequence,number_neurons,learning_rate,
-                       DROPOUT,EPOCHS,PATIENCE,crypto):
+                       DROPOUT,EPOCHS,PATIENCE,crypto,cluster_n):
 
 
     out = ""
@@ -119,7 +115,7 @@ def multi_target_main(TEST_SET,type,features_to_use,
     DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/out_multi_"+crypto+"/" + output_name+ "/multi_target/"
 
-    cluster_n="cluster_0"
+
     folder_creator(EXPERIMENT_PATH + "clusters" +  "/" + cluster_n + "/", 0)
 
     #generate horizontal dataset
@@ -133,6 +129,11 @@ def multi_target_main(TEST_SET,type,features_to_use,
         for feature in features_to_use:
             features_to_use_multi.append(feature+"_" + str(i + 1))
 
+    # Baseline - VECTOR AUTOREGRESSION
+    OUTPUT_FOLDER_VAR = "../modelling/techniques/baseline/vector_autoregression/output/" + cluster_n+"/"
+    vector_autoregression(
+        EXPERIMENT_PATH + "clusters" + "/" +  cluster_n + "/" + "horizontal_dataset/horizontal.csv",
+        TEST_SET, OUTPUT_FOLDER_VAR, cryptos_in_the_cluster)
 
     multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
                  DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/",
@@ -142,10 +143,11 @@ def multi_target_main(TEST_SET,type,features_to_use,
                  dimension_last_layer=dim_last_layer,
                  testing_set=TEST_SET,
                  cryptos=cryptos_in_the_cluster,
-                 features_to_use=features_to_use,
+                 features_to_use=features_to_use_multi,
                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
                  )
 
+    report_multi(cluster_n,output_name,crypto)
     """for k_used in os.listdir(DATA_PATH):
         #todo remove this one
         if k_used=="k_sqrtNDiv2":
@@ -199,10 +201,11 @@ def single_target_main(TEST_SET,type,features_to_use,temporal_sequence,number_ne
     # SIMPLE PREDICTION
     DATA_PATH_SIMPLE = DATA_PATH
     OUTPUT_SIMPLE_PREDICTION= "../modelling/techniques/baseline/simple_prediction/output/"
-    simple_prediction(DATA_PATH_SIMPLE,TEST_SET,OUTPUT_SIMPLE_PREDICTION)
+    #simple_prediction(DATA_PATH_SIMPLE,TEST_SET,OUTPUT_SIMPLE_PREDICTION)
 
     # SINGLE TARGET LSTM
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/"+output_name+"/single_target/"
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/out_single_"+crypto+"/" + output_name+ "/single_target/"
+
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
     single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
@@ -214,7 +217,7 @@ def single_target_main(TEST_SET,type,features_to_use,temporal_sequence,number_ne
                   DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,crypto_name=crypto
                   )
 
-    report()
+    report_single(crypto)
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH,results_folder="result",
@@ -223,6 +226,79 @@ def single_target_main(TEST_SET,type,features_to_use,temporal_sequence,number_ne
     #report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
 
     #generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)"""
+
+def report_multi(cluster_n,folder,crypto_name):
+    OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
+    OUTPUT_VECTOR_AUTOREGRESSION="../modelling/techniques/baseline/vector_autoregression/output/"+cluster_n
+
+    output_name_multi="out_multi_"+crypto_name
+    output_name_single = "out_single_" + crypto_name
+    # baseline wins on the following cryptocurrencies:
+    #folder_creator("../modelling/techniques/forecasting/comparisons/multi_target/", 0)
+    gen_path_multi = "../modelling/techniques/forecasting/"+output_name_multi +"/"
+    gen_path_single = "../modelling/techniques/forecasting/" + output_name_single + "/"
+    for folder in os.listdir(gen_path_multi):
+        for subfold in os.listdir(gen_path_multi + folder + "/multi_target/clusters/"+cluster_n+"/result/"):
+            if subfold==crypto_name:
+                for subfold2 in os.listdir(gen_path_multi + folder + "/multi_target/clusters/"+cluster_n+"/result/" + subfold + "/"):
+                    df1 = pd.read_csv(
+                        gen_path_multi + folder + "/multi_target/clusters/"+cluster_n+"/result/" + subfold + "/" + subfold2 + "/stats/errors.csv",
+                        usecols=['rmse_norm'])
+
+
+                    file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/" + subfold, "r")
+                    simple_model = float(file.read())
+                    file.close()
+
+                    file = open(OUTPUT_VECTOR_AUTOREGRESSION + "/rmse/" + subfold, "r")
+                    vector_autoregression = float(file.read())
+                    file.close()
+                    best_single = 1000
+                    for folder in os.listdir(gen_path_single):
+                        for subfold in os.listdir(gen_path_single + folder + "/single_target/result/"):
+                            if subfold == crypto_name:
+                                for subfold2 in os.listdir(gen_path_single+ folder + "/single_target/result/" + subfold + "/"):
+                                    df2 = pd.read_csv(
+                                        gen_path_single + folder + "/single_target/result/" + "/" + subfold + "/" + subfold2 + "/stats/errors.csv",
+                                        usecols=['rmse_norm'])
+                                    rmse=df2['rmse_norm'][0]
+                                    if(rmse<best_single):
+                                        best_single=rmse
+
+                    print("With the following multitarget config: "+ folder)
+                    print("Simple baseline: " + str(simple_model))
+                    print("Single target " + str(best_single))
+                    print("VAR: " + str(vector_autoregression))
+                    print("Multitarget " + str(df1['rmse_norm'][0]))
+                    print("\n")
+
+def report_single(crypto_name):
+    OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
+
+    output_name_single = "out_single_" + crypto_name
+    # baseline wins on the following cryptocurrencies:
+    # folder_creator("../modelling/techniques/forecasting/comparisons/multi_target/", 0)
+    gen_path_single = "../modelling/techniques/forecasting/" + output_name_single + "/"
+
+    for folder in os.listdir(gen_path_single):
+        for subfold in os.listdir(gen_path_single + folder + "/single_target/result/"):
+            if subfold == crypto_name:
+                for subfold2 in os.listdir(
+                        gen_path_single + folder + "/single_target/result/" + subfold + "/"):
+                    df2 = pd.read_csv(
+                        gen_path_single + folder + "/single_target/result/" + "/" + subfold + "/" + subfold2 + "/stats/errors.csv",
+                        usecols=['rmse_norm'])
+
+                    file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/" + subfold, "r")
+                    simple_model = float(file.read())
+                    file.close()
+
+                    print("With the following single target config: " + folder)
+                    print("Simple baseline: " + str(simple_model))
+                    print("Single target " + str(df2['rmse_norm'][0]))
+                    if(df2['rmse_norm'][0]<simple_model):
+                        print("BATTUTO!")
+
 
 
 

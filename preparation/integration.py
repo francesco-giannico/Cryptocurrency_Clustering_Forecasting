@@ -7,7 +7,11 @@ from utility.folder_creator import folder_creator
 PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
 PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated/"
 FEATURE="Close"
-LOOKBACK = [14]
+
+#Loockbacks extracted from cryptocompare, in the chart section filters
+LOOKBACK_RSI =[14,21]
+LOOKBACK_EMA=[5,12,26,50]
+LOOKBACK_SMA=[5,13,20,30,50]
 
 def integrate_with_indicators(input_path):
     folder_creator(PATH_INTEGRATED_FOLDER,1)
@@ -17,9 +21,11 @@ def integrate_with_indicators(input_path):
 
         #df = df.sort_values('Date', ascending=True)
         data_series_of_feature = df[FEATURE]
-        for lookback_value in LOOKBACK:
+        for lookback_value in LOOKBACK_RSI:
             df[str('RSI_' + str(lookback_value))] = get_RSI(data_series_of_feature,lookback_value)
+        for lookback_value in LOOKBACK_SMA:
             df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_feature,lookback_value)
+        for lookback_value in LOOKBACK_EMA:
             df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_feature,lookback_value)
         df.fillna(value=0, inplace=True)
         df.to_csv(PATH_INTEGRATED_FOLDER+"/"+crypto,sep=",", index=False)

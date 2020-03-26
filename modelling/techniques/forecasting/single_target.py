@@ -15,13 +15,17 @@ import matplotlib.pyplot as plt
 from visualization.line_chart import plot_train_and_validation_loss
 import tensorflow_core as tf_core
 
+from tensorflow.keras import backend as K
 # np.random.seed(1)
 # stable results
 tf_core.random.set_seed(2)
 
+
 PREPROCESSED_PATH = "../preparation/preprocessed_dataset/cleaned/final/"
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neurons, learning_rate,
                   testing_set, features_to_use, DROPOUT, EPOCHS, PATIENCE,crypto_name):
+
+
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
@@ -49,6 +53,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neur
                                                   TENSOR_DATA_PATH + "/" + crypto_name + "/",
                                                   crypto_name)
 
+
     # DICTIONARY FOR STATISTICS
     """predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
                         'observed_denorm': [], 'predicted_denorm': []}
@@ -73,6 +78,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neur
     train_plot = DataFrame()
     val_plot = DataFrame()
     i = 0
+
     # starting from the testing set
     for date_to_predict in testing_set:
         # 2 days before the date to predict
@@ -105,8 +111,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neur
         # also, i will remove the "Close" feature, thanks to the third index (1)
         # x_train= train[:, :-1, index_of_target_feature:]
         x_train = train[:, :-1, :]
-        """print(x_train.shape)
-        print(x_train[0])"""
+
         # remove the last day before the day to predict, by doing -1
         # returns an array with all the values of the feature close
         # this contains values about the target feature!
@@ -183,7 +188,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window, num_neur
         i += 1
 
         # Predict for each date in the validation set
-        test_prediction = model.predict(x_test, use_multiprocessing=True)
+        test_prediction = model.predict(x_test)
 
         # denormalization
         # reshape(-1,1) means that you are not specifing only the column dimension, whist the row dimension is unknown

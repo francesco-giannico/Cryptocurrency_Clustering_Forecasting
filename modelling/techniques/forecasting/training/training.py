@@ -40,8 +40,6 @@ def get_scaler2(PREPROCESSED_PATH,crypto,start_date,end_date):
     return qt
 
 def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cryptos=None,features_to_use=None):
-    #already normalized
-
     if features_to_use!=None:
         df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto+".csv", sep=',',header=0,usecols=features_to_use)
     else:
@@ -153,10 +151,13 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
     if model is None:
         model = Sequential()
         # Add a LSTM layer with 128/256 internal units.
+        #model.add(LSTM(units=num_neurons,return_sequences=True,input_shape=(x_train.shape[1], x_train.shape[2])))
         model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
+
         #reduce the overfitting
         model.add(Dropout(dropout))
-        """model.add(LSTM(units=num_neurons))
+        """
+        model.add(LSTM(units=num_neurons))
         # reduce the overfitting
         model.add(Dropout(dropout))"""
         #number of neurons of the last layer
@@ -168,5 +169,5 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
 
     history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
-                       verbose=0,shuffle=False,callbacks=callbacks, use_multiprocessing=True)
+                       verbose=0,shuffle=False,callbacks=callbacks)
     return model, history
