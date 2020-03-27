@@ -1,7 +1,7 @@
 from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values, \
     remove_outliers_dbscan, remove_outliers_one
 from preparation.construction import min_max_scaling, max_abs_scaling, standardization, robust_scaling
-from preparation.integration import integrate_with_indicators
+from preparation.integration import integrate_with_indicators, integrate_with_lag
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
 from preparation.transformation import power_transformation, power_transformation2, quantile_transform, \
     quantile_transform2
@@ -65,6 +65,7 @@ def cleaning():
 
 def integration(input_path):
     integrate_with_indicators(input_path)
+    #integrate_with_lag(input_path)
 
 def construction(input_path):
     #feature scaling

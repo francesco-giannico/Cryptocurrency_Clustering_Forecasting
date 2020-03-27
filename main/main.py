@@ -29,7 +29,7 @@ def main():
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    #preprocessing()
+    preprocessing()
     #Description after
     type="min_max_normalized"
     #features_to_use=['Close','Open','Low','High','Adj_Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
@@ -41,9 +41,12 @@ def main():
                        'EMA_200', 'EMA_100']
     features_to_use = ['Close', 'Open', 'Low', 'High','Adj Close']
     #features_to_use=[]"""
-    """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+types+"/",
+    features_to_use = [ 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'RSI_14',
+                       'RSI_21', 'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30', 'SMA_50',
+                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50', 'lag_1', 'lag_7']
+    """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+type+"/",
              output_path="../preparation/preprocessed_dataset/",
-             name_folder_res=types,
+             name_folder_res=type,
              features_to_use=features_to_use)"""
 
     #TESTING SET
@@ -52,7 +55,10 @@ def main():
     #MODELLING
     #features_to_use = ['Date','Close','Open','High','Low','Adj_Close']
     #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close','Volume']
-    features_to_use = ['Date', 'Close','Open','High','Low','Adj_Close']
+    features_to_use = ['Date', 'Close','Open', 'High', 'Low', 'Adj_Close',
+                       'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30', 'SMA_50',
+                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50', 'lag_1', 'lag_7'
+                       ]
     """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
                        'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100', 'RSI_200',
                        'EMA_14', 'EMA_30', 'EMA_60', 'EMA_100', 'EMA_200']"""
@@ -68,23 +74,23 @@ def main():
     #features_to_use = ['Date', 'Close', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200']
 
     # General parameters
-    temporal_sequence=60
+    temporal_sequence=45
     number_neurons =128
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
-    PATIENCE=40
-    crypto = "VTC"
-
+    PATIENCE= 25
+    crypto = "BTS"
+    crypto = "DOGE"
     single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequence,number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,crypto)
-
+    #report_single(crypto)
     #CLUSTERING
     start_date = "2014-10-01"
     end_date = "2019-12-31"
     distance_measure = "dtw"
-    #clustering_main(distance_measure,start_date,end_date,type)"""
+    #clustering_main(distance_measure,start_date,end_date,type)
 
     #MULTITARGET
     temporal_sequence = 60
@@ -280,7 +286,15 @@ def report_single(crypto_name):
     # folder_creator("../modelling/techniques/forecasting/comparisons/multi_target/", 0)
     gen_path_single = "../modelling/techniques/forecasting/" + output_name_single + "/"
 
+    file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/" + crypto_name, "r")
+    simple_model = float(file.read())
+    file.close()
+    print("Simple baseline: " + str(simple_model))
+
+    min=10
+    config=""
     for folder in os.listdir(gen_path_single):
+        print( folder)
         for subfold in os.listdir(gen_path_single + folder + "/single_target/result/"):
             if subfold == crypto_name:
                 for subfold2 in os.listdir(
@@ -289,15 +303,20 @@ def report_single(crypto_name):
                         gen_path_single + folder + "/single_target/result/" + "/" + subfold + "/" + subfold2 + "/stats/errors.csv",
                         usecols=['rmse_norm'])
 
-                    file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/" + subfold, "r")
-                    simple_model = float(file.read())
-                    file.close()
+                    print(str(df2['rmse_norm'][0]))
 
-                    print("With the following single target config: " + folder)
-                    print("Simple baseline: " + str(simple_model))
-                    print("Single target " + str(df2['rmse_norm'][0]))
-                    if(df2['rmse_norm'][0]<simple_model):
-                        print("BATTUTO!")
+
+
+                    if(df2['rmse_norm'][0]<=min):
+                        min=df2['rmse_norm'][0]
+                        config=folder
+    print("\n")
+    print("Simple baseline: " + str(simple_model))
+    print("Minimo: "+ str(min))
+    print("Config: " + str(config))
+    if(min<=simple_model):
+            print("BATTUTO!")
+
 
 
 
@@ -383,4 +402,14 @@ def testing_set():
           "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
     return TEST_SET
 
+
+def main_clustering():
+    # CLUSTERING
+    type = "min_max_normalized"
+    start_date = "2014-10-01"
+    end_date = "2019-12-31"
+    distance_measure = "wasserstain"
+    clustering_main(distance_measure,start_date,end_date,type)
+
+#main_clustering()
 main()

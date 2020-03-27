@@ -27,8 +27,15 @@ def integrate_with_indicators(input_path):
             df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_feature,lookback_value)
         for lookback_value in LOOKBACK_EMA:
             df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_feature,lookback_value)
+
+        df['lag_1'] = df['Close'].shift(1)
+        df['lag_7'] = df['Close'].shift(7)
+        df = df.iloc[7:]
+
         df.fillna(value=0, inplace=True)
         df.to_csv(PATH_INTEGRATED_FOLDER+"/"+crypto,sep=",", index=False)
+
+
 
 
 def get_RSI(data_series_of_feature,lookback_value):
@@ -40,3 +47,14 @@ def get_SMA(data_series_of_feature,lookback_value):
 def get_EMA(data_series_of_feature,lookback_value):
     return panda.ema(data_series_of_feature, length=lookback_value)
 
+def integrate_with_lag(input_path):
+    folder_creator(PATH_INTEGRATED_FOLDER, 1)
+    for crypto in os.listdir(input_path):
+        df = pd.read_csv(input_path + crypto, sep=',', header=0)
+        df["Date"] = pd.to_datetime(df["Date"])
+        df['lag_1'] = df['Close'].shift(1)
+        df['lag_2'] = df['Close'].shift(2)
+        df['lag_3'] = df['Close'].shift(3)
+        df['lag_7'] = df['Close'].shift(7)
+        df = df.iloc[7:]
+        df.to_csv(PATH_INTEGRATED_FOLDER + "/" + crypto, sep=",", index=False)
