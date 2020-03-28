@@ -29,7 +29,7 @@ def main():
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    preprocessing()
+    #preprocessing()
     #Description after
     type="min_max_normalized"
     #features_to_use=['Close','Open','Low','High','Adj_Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
@@ -42,12 +42,12 @@ def main():
     features_to_use = ['Close', 'Open', 'Low', 'High','Adj Close']
     #features_to_use=[]"""
     features_to_use = [ 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'RSI_14',
-                       'RSI_21', 'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30', 'SMA_50',
-                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50', 'lag_1', 'lag_7']
-    """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+type+"/",
+                       'RSI_21', 'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30', 'SMA_50','SMA_100','SMA_200',
+                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50','EMA_100','EMA_200', 'lag_1', 'lag_7']
+    describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+type+"/",
              output_path="../preparation/preprocessed_dataset/",
              name_folder_res=type,
-             features_to_use=features_to_use)"""
+             features_to_use=features_to_use)
 
     #TESTING SET
     TEST_SET=testing_set()
@@ -74,17 +74,18 @@ def main():
     #features_to_use = ['Date', 'Close', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200']
 
     # General parameters
-    temporal_sequence=45
+    temporal_sequence=[15]
     number_neurons =128
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
-    PATIENCE= 25
+    PATIENCE= 40
     crypto = "BTS"
-    crypto = "DOGE"
-    single_target_main(TEST_SET,type,features_to_use,
-                       temporal_sequence,number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,crypto)
+    crypto = "NXT"
+    for temp in temporal_sequence:
+        single_target_main(TEST_SET,type,features_to_use,
+                           temp,number_neurons,learning_rate,DROPOUT,
+                            EPOCHS,PATIENCE,crypto)
     #report_single(crypto)
     #CLUSTERING
     start_date = "2014-10-01"
@@ -220,10 +221,9 @@ def single_target_main(TEST_SET,type,features_to_use,temporal_sequence,number_ne
                   window=temporal_sequence,
                   num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET, features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,crypto_name=crypto
-                  )
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,crypto_name=crypto)
 
-    report_single(crypto)
+    #report_single(crypto)
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH,results_folder="result",

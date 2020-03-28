@@ -9,9 +9,9 @@ PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated/"
 FEATURE="Close"
 
 #Loockbacks extracted from cryptocompare, in the chart section filters
-LOOKBACK_RSI =[14,21]
-LOOKBACK_EMA=[5,12,26,50]
-LOOKBACK_SMA=[5,13,20,30,50]
+LOOKBACK_RSI =[14,21,100,200]
+LOOKBACK_EMA=[5,12,26,50,100,200]
+LOOKBACK_SMA=[5,13,20,30,50,100,200]
 
 def integrate_with_indicators(input_path):
     folder_creator(PATH_INTEGRATED_FOLDER,1)
