@@ -70,7 +70,8 @@ def integration(input_path):
 def construction(input_path):
     #feature scaling
     min_max_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
-    #robust_scaling(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
-    """max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
-    standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)"""
+    standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)
+    robust_scaling(input_path,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
+    max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
+
 

@@ -22,43 +22,50 @@ from visualization.line_chart import generate_line_chart
 import numpy as np
 
 
-
 def main():
     #DATA UNDERSTANDING
     #cryptocurrencies=['BTC','ETH']
     #data_understanding(cryptocurrencies)
 
     #DATA PREPARATION
-    #preprocessing()
+    preprocessing()
     #Description after
-    type="min_max_normalized"
+    #type="min_max_normalized"
+    type = "min_max_normalized"
     #features_to_use=['Close','Open','Low','High','Adj_Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
     #features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200', 'SMA_200', 'SMA_100',
-     #                  'EMA_200', 'EMA_100']
+    #                  'EMA_200', 'EMA_100']
+
     """features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
                        'EMA_7', 'EMA_14', 'EMA_20']
     features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200',  'SMA_200', 'SMA_100',
                        'EMA_200', 'EMA_100']
     features_to_use = ['Close', 'Open', 'Low', 'High','Adj Close']
     #features_to_use=[]"""
-    features_to_use = [ 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'RSI_14',
+    """features_to_use = [ 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'RSI_14',
                        'RSI_21', 'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30', 'SMA_50','SMA_100','SMA_200',
-                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50','EMA_100','EMA_200', 'lag_1', 'lag_7']
-    describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+type+"/",
+                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50','EMA_100','EMA_200', 'lag_1', 'lag_7']"""
+    features_to_use = [ 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30',
+                      'RSI_14','RSI_21', 'SMA_50','EMA_5', 'EMA_12', 'EMA_26', 'EMA_50', 'MACDH_12_26_9', 'MACDS_12_26_9', 'MACD_12_26_9']
+    """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+type+"/",
              output_path="../preparation/preprocessed_dataset/",
              name_folder_res=type,
-             features_to_use=features_to_use)
+             features_to_use=features_to_use)"""
 
     #TESTING SET
     TEST_SET=testing_set()
 
     #MODELLING
+    #features_to_use=['Date','Close']
     #features_to_use = ['Date','Close','Open','High','Low','Adj_Close']
     #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close','Volume']
-    features_to_use = ['Date', 'Close','Open', 'High', 'Low', 'Adj_Close',
+
+    features_to_use=['Date','Close','Open','High','Low','Adj_Close',
+                       'MACDH_12_26_9', 'MACDS_12_26_9', 'MACD_12_26_9',
+                        'BBL_20','BBU_20','BBM_20']
+    """features_to_use = ['Date', 'Close','Open', 'High', 'Low', 'Adj_Close',
                        'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30', 'SMA_50',
-                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50', 'lag_1', 'lag_7'
-                       ]
+                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50']"""
     """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
                        'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100', 'RSI_200',
                        'EMA_14', 'EMA_30', 'EMA_60', 'EMA_100', 'EMA_200']"""
@@ -74,19 +81,18 @@ def main():
     #features_to_use = ['Date', 'Close', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200']
 
     # General parameters
-    temporal_sequence=[15]
-    number_neurons =128
+    temporal_sequence = 30
+    number_neurons = 256
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
-    PATIENCE= 40
+    PATIENCE= 100
     crypto = "BTS"
-    crypto = "NXT"
-    for temp in temporal_sequence:
-        single_target_main(TEST_SET,type,features_to_use,
-                           temp,number_neurons,learning_rate,DROPOUT,
-                            EPOCHS,PATIENCE,crypto)
-    #report_single(crypto)
+    crypto = "DOGE"
+    single_target_main(TEST_SET,type,features_to_use,
+                       temporal_sequence,number_neurons,learning_rate,DROPOUT,
+                        EPOCHS,PATIENCE,crypto)
+    report_single(crypto)
     #CLUSTERING
     start_date = "2014-10-01"
     end_date = "2019-12-31"
@@ -106,93 +112,6 @@ def main():
     """multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequence,number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,crypto,cluster_n)"""
-
-def multi_target_main(TEST_SET,type,features_to_use,
-                       temporal_sequence,number_neurons,learning_rate,
-                       DROPOUT,EPOCHS,PATIENCE,crypto,cluster_n):
-
-
-    out = ""
-    for ft in features_to_use:
-        out += ft + "_"
-    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
-                                                                            learning_rate,
-                                                                            temporal_sequence, PATIENCE)
-
-    DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/out_multi_"+crypto+"/" + output_name+ "/multi_target/"
-
-
-    folder_creator(EXPERIMENT_PATH + "clusters" +  "/" + cluster_n + "/", 0)
-
-    #generate horizontal dataset
-    cryptos_in_the_cluster = create_horizontal_dataset(DATA_PATH + cluster_n + "/",
-                            EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/")
-
-    dim_last_layer = len(cryptos_in_the_cluster)
-
-    features_to_use_multi = ['Date']
-    for i in range(len(cryptos_in_the_cluster)):
-        for feature in features_to_use:
-            features_to_use_multi.append(feature+"_" + str(i + 1))
-
-    # Baseline - VECTOR AUTOREGRESSION
-    OUTPUT_FOLDER_VAR = "../modelling/techniques/baseline/vector_autoregression/output/" + cluster_n+"/"
-    vector_autoregression(
-        EXPERIMENT_PATH + "clusters" + "/" +  cluster_n + "/" + "horizontal_dataset/horizontal.csv",
-        TEST_SET, OUTPUT_FOLDER_VAR, cryptos_in_the_cluster)
-
-    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
-                 DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/",
-                 TENSOR_DATA_PATH="clusters" + "/" + cluster_n + "/tensor_data/",
-                 window_sequence=temporal_sequence,
-                 num_neurons=number_neurons, learning_rate=learning_rate,
-                 dimension_last_layer=dim_last_layer,
-                 testing_set=TEST_SET,
-                 cryptos=cryptos_in_the_cluster,
-                 features_to_use=features_to_use_multi,
-                 DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
-                 )
-
-    report_multi(cluster_n,output_name,crypto)
-    """for k_used in os.listdir(DATA_PATH):
-        #todo remove this one
-        if k_used=="k_sqrtNDiv2":
-            folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used, 0)
-            for cluster in os.listdir(DATA_PATH + k_used):
-                if cluster.startswith("cluster_"):
-                    folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used + "/" + cluster + "/", 0)
-                    # generate horizontal dataset
-                    # leggere le criptovalute in questo dataset.
-                    cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
-
-                    # Baseline - VECTOR AUTOREGRESSION
-                    OUTPUT_FOLDER_VAR="../modelling/techniques/baseline/vector_autoregression/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/" + k_used+"/"+cluster+"/"
-                    vector_autoregression(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/horizontal.csv",TEST_SET, OUTPUT_FOLDER_VAR,cryptos_in_the_cluster)
-
-                    # LSTM
-                    dim_last_layer = len(cryptos_in_the_cluster)
-                    features_to_use=['Date']
-                    for i in range(len(cryptos_in_the_cluster)):
-                        features_to_use.append("Close_"+str(i+1))
-                    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
-                                      DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
-                                      TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
-                                      window_sequence=temporal_sequences,
-                                      list_num_neurons=number_neurons, learning_rate=learning_rate,
-                                      dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster,features_to_use=features_to_use)
-                    
-                    report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
-                                            experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
-                                            report_folder="report",output_filename="overall_report")
-                    """
-                    # report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
-
-                    # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
-
-                    # other charts for clustering
-
-
 
 def single_target_main(TEST_SET,type,features_to_use,temporal_sequence,number_neurons,
                        learning_rate,DROPOUT,EPOCHS,PATIENCE,crypto):
@@ -410,6 +329,90 @@ def main_clustering():
     end_date = "2019-12-31"
     distance_measure = "wasserstain"
     clustering_main(distance_measure,start_date,end_date,type)
+
+
+def multi_target_main(TEST_SET, type, features_to_use,
+                      temporal_sequence, number_neurons, learning_rate,
+                      DROPOUT, EPOCHS, PATIENCE, crypto, cluster_n):
+    out = ""
+    for ft in features_to_use:
+        out += ft + "_"
+    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
+                                                                            learning_rate,
+                                                                            temporal_sequence, PATIENCE)
+
+    DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/out_multi_" + crypto + "/" + output_name + "/multi_target/"
+
+    folder_creator(EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/", 0)
+
+    # generate horizontal dataset
+    cryptos_in_the_cluster = create_horizontal_dataset(DATA_PATH + cluster_n + "/",
+                                                       EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/")
+
+    dim_last_layer = len(cryptos_in_the_cluster)
+
+    features_to_use_multi = ['Date']
+    for i in range(len(cryptos_in_the_cluster)):
+        for feature in features_to_use:
+            features_to_use_multi.append(feature + "_" + str(i + 1))
+
+    # Baseline - VECTOR AUTOREGRESSION
+    OUTPUT_FOLDER_VAR = "../modelling/techniques/baseline/vector_autoregression/output/" + cluster_n + "/"
+    vector_autoregression(
+        EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/horizontal.csv",
+        TEST_SET, OUTPUT_FOLDER_VAR, cryptos_in_the_cluster)
+
+    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+                 DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/",
+                 TENSOR_DATA_PATH="clusters" + "/" + cluster_n + "/tensor_data/",
+                 window_sequence=temporal_sequence,
+                 num_neurons=number_neurons, learning_rate=learning_rate,
+                 dimension_last_layer=dim_last_layer,
+                 testing_set=TEST_SET,
+                 cryptos=cryptos_in_the_cluster,
+                 features_to_use=features_to_use_multi,
+                 DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
+                 )
+
+    report_multi(cluster_n, output_name, crypto)
+    """for k_used in os.listdir(DATA_PATH):
+        #todo remove this one
+        if k_used=="k_sqrtNDiv2":
+            folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used, 0)
+            for cluster in os.listdir(DATA_PATH + k_used):
+                if cluster.startswith("cluster_"):
+                    folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used + "/" + cluster + "/", 0)
+                    # generate horizontal dataset
+                    # leggere le criptovalute in questo dataset.
+                    cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
+
+                    # Baseline - VECTOR AUTOREGRESSION
+                    OUTPUT_FOLDER_VAR="../modelling/techniques/baseline/vector_autoregression/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/" + k_used+"/"+cluster+"/"
+                    vector_autoregression(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/horizontal.csv",TEST_SET, OUTPUT_FOLDER_VAR,cryptos_in_the_cluster)
+
+                    # LSTM
+                    dim_last_layer = len(cryptos_in_the_cluster)
+                    features_to_use=['Date']
+                    for i in range(len(cryptos_in_the_cluster)):
+                        features_to_use.append("Close_"+str(i+1))
+                    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
+                                      DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
+                                      TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
+                                      window_sequence=temporal_sequences,
+                                      list_num_neurons=number_neurons, learning_rate=learning_rate,
+                                      dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster,features_to_use=features_to_use)
+
+                    report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
+                                            experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
+                                            report_folder="report",output_filename="overall_report")
+                    """
+    # report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
+
+    # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
+
+    # other charts for clustering
+
 
 #main_clustering()
 main()

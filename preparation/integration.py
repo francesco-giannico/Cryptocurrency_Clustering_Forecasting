@@ -28,6 +28,18 @@ def integrate_with_indicators(input_path):
         for lookback_value in LOOKBACK_EMA:
             df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_feature,lookback_value)
 
+        df_macd= get_MACD(data_series_of_feature)
+        df['MACD_12_26_9'] = df_macd['MACD_12_26_9']
+        df['MACDH_12_26_9']=  df_macd['MACDH_12_26_9']
+        df['MACDS_12_26_9'] = df_macd['MACDS_12_26_9']
+
+        df_bbs=panda.bbands(data_series_of_feature)
+        df['BBL_20']=df_bbs['BBL_20']
+        df['BBM_20'] = df_bbs['BBM_20']
+        df['BBU_20'] = df_bbs['BBU_20']
+
+
+
         df['lag_1'] = df['Close'].shift(1)
         df['lag_7'] = df['Close'].shift(7)
         df = df.iloc[7:]
@@ -37,6 +49,8 @@ def integrate_with_indicators(input_path):
 
 
 
+def get_MACD(data_series_of_feature):
+    return panda.macd(data_series_of_feature)
 
 def get_RSI(data_series_of_feature,lookback_value):
    return panda.rsi(data_series_of_feature, length=lookback_value)

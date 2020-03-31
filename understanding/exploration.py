@@ -50,48 +50,48 @@ def describe(PATH_DATASET,output_path,name_folder_res=None,features_to_use=None)
     folder_creator(PATH_OUT,1)
     for crypto in os.listdir(PATH_DATASET):
         crypto_name = crypto.replace(".csv", "")
-        #if crypto_name=="BTC":
+        if crypto_name=="DOGE":
 
-        features_to_read=features_to_use+['Date']
-        df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0,usecols=features_to_read)
-        #df=cut_dataset_by_range(PATH_DATASET,crypto_name,'2017-07-20','2018-10-27')
-        #if(crypto_name=="BTC"):
-        PATH_CRYPTO=PATH_OUT+crypto_name+"/"
-        folder_creator(PATH_CRYPTO + "general_stats/", 1)
-        folder_creator(PATH_CRYPTO + "noscaling_vs_logscaling/", 1)
-        folder_creator(PATH_CRYPTO + "lag_plot/", 1)
-        folder_creator(PATH_CRYPTO + "box_plot/", 1)
-        folder_creator(PATH_CRYPTO + "distribution_plot/", 1)
-        folder_creator(PATH_CRYPTO + "correlation_heatmap/", 1)
-        folder_creator(PATH_CRYPTO + "normality_test/", 1)
-        folder_creator(PATH_CRYPTO + "stationary_test/", 1)
-        folder_creator(PATH_CRYPTO + "feature_selection/", 1)
-        """folder_creator(PATH_CRYPTO + "kurtosis_test/", 1)
-        folder_creator(PATH_CRYPTO + "skewness_test/", 1)"""
+            features_to_read=features_to_use+['Date']
+            df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0,usecols=features_to_read)
+            #df=cut_dataset_by_range(PATH_DATASET,crypto_name,'2017-07-20','2018-10-27')
+            #if(crypto_name=="BTC"):
+            PATH_CRYPTO=PATH_OUT+crypto_name+"/"
+            folder_creator(PATH_CRYPTO + "general_stats/", 1)
+            folder_creator(PATH_CRYPTO + "noscaling_vs_logscaling/", 1)
+            folder_creator(PATH_CRYPTO + "lag_plot/", 1)
+            folder_creator(PATH_CRYPTO + "box_plot/", 1)
+            folder_creator(PATH_CRYPTO + "distribution_plot/", 1)
+            folder_creator(PATH_CRYPTO + "correlation_heatmap/", 1)
+            folder_creator(PATH_CRYPTO + "normality_test/", 1)
+            folder_creator(PATH_CRYPTO + "stationary_test/", 1)
+            folder_creator(PATH_CRYPTO + "feature_selection/", 1)
+            """folder_creator(PATH_CRYPTO + "kurtosis_test/", 1)
+            folder_creator(PATH_CRYPTO + "skewness_test/", 1)"""
 
-        """df.describe().to_csv(PATH_CRYPTO + "general_stats/" + crypto, sep=",")
+            df.describe().to_csv(PATH_CRYPTO + "general_stats/" + crypto, sep=",")
+    
+            #no_scaling_vs_log_scaling(df,features_to_use,crypto_name,PATH_CRYPTO+"noscaling_vs_logscaling/")
 
-        no_scaling_vs_log_scaling(df,features_to_use,crypto_name,PATH_CRYPTO+"noscaling_vs_logscaling/")
-        """
-        feature_selection(df, features_to_use, crypto_name, PATH_CRYPTO+"feature_selection/")
-        correlation_matrix(df, crypto_name, PATH_CRYPTO + "correlation_heatmap/")
-        """lag_plott(df,features_to_use,crypto_name,PATH_CRYPTO + "lag_plot/")
+            feature_selection(df, features_to_use, crypto_name, PATH_CRYPTO+"feature_selection/")
+            correlation_matrix(df, crypto_name, PATH_CRYPTO + "correlation_heatmap/")
+            #lag_plott(df,features_to_use,crypto_name,PATH_CRYPTO + "lag_plot/")
+    
+            box_plot(df,crypto_name,PATH_CRYPTO + "box_plot/")
+    
+            distribution_plot(df,features_to_use,crypto_name,PATH_CRYPTO + "distribution_plot/")
+    
+            stationary_test(df, features_to_use, crypto_name, PATH_CRYPTO + "stationary_test/")
+    
+            
+    
+            normality_test(df, features_to_use, crypto_name, PATH_CRYPTO + "normality_test/")
+    
+            stationary_test(df, features_to_use, crypto_name, PATH_CRYPTO + "stationary_test/")
 
-        box_plot(df,crypto_name,PATH_CRYPTO + "box_plot/")
+            #kurtosis_normal_distribution(df,features_to_use,crypto_name,PATH_CRYPTO + "kurtosis_test/")
 
-        distribution_plot(df,features_to_use,crypto_name,PATH_CRYPTO + "distribution_plot/")
-
-        stationary_test(df, features_to_use, crypto_name, PATH_CRYPTO + "stationary_test/")
-
-        
-
-        normality_test(df, features_to_use, crypto_name, PATH_CRYPTO + "normality_test/")
-
-        stationary_test(df, features_to_use, crypto_name, PATH_CRYPTO + "stationary_test/")"""
-
-        #kurtosis_normal_distribution(df,features_to_use,crypto_name,PATH_CRYPTO + "kurtosis_test/")
-
-        """skewness_normal_distribution(df,features_to_use,crypto_name,PATH_CRYPTO + "skewness_test/")"""
+            """skewness_normal_distribution(df,features_to_use,crypto_name,PATH_CRYPTO + "skewness_test/")"""
 
 def feature_selection(df,features,crypto_name,output_path):
     dfnew = pd.DataFrame()
@@ -103,7 +103,7 @@ def feature_selection(df,features,crypto_name,output_path):
             dfnew.plot()
             plt.title(feature, fontsize=20)  # for title
             plt.xlabel("Date", fontsize=15)  # label for x-axis
-            plt.savefig(output_path + crypto_name + "_"  +feature + ".png", dpi=80)
+            plt.savefig(output_path + crypto_name + "_"  +feature + ".png", dpi=150)
             plt.clf()
 
             #plt.ylabel(feature, fontsize=15)  # label for y-axis
@@ -190,11 +190,12 @@ def box_plot(df,crypto_name,output_path):
 
 def distribution_plot(df,features,crypto_name,output_path):
     for feature in features:
-        filter_data = df.dropna(subset=[feature])
-        plt.figure(figsize=(14, 8))
-        ax=sns.distplot(filter_data[feature], kde=False)
-        ax.set_title("distribution_plot_" + feature + "_" + crypto_name)
-        plt.savefig(output_path + crypto_name + "_" + feature + ".png", dpi=120)
+        if feature!="Date":
+            filter_data = df.dropna(subset=[feature])
+            plt.figure(figsize=(14, 8))
+            ax=sns.distplot(filter_data[feature], kde=False)
+            ax.set_title("distribution_plot_" + feature + "_" + crypto_name)
+            plt.savefig(output_path + crypto_name + "_" + feature + ".png", dpi=120)
 
 
 """
