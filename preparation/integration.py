@@ -6,12 +6,12 @@ from utility.folder_creator import folder_creator
 
 PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
 PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated/"
-FEATURE="Close"
-
+TARGET_FEATURE="Close"
 #Loockbacks extracted from cryptocompare, in the chart section filters
 LOOKBACK_RSI =[14,21,100,200]
 LOOKBACK_EMA=[5,12,26,50,100,200]
 LOOKBACK_SMA=[5,13,20,30,50,100,200]
+LOOKBACK_TEST=[14,21,5,12,26,13,30,20,50,100,200]
 
 def integrate_with_indicators(input_path):
     folder_creator(PATH_INTEGRATED_FOLDER,1)
@@ -20,24 +20,39 @@ def integrate_with_indicators(input_path):
         df["Date"] = pd.to_datetime(df["Date"])
 
         #df = df.sort_values('Date', ascending=True)
-        data_series_of_feature = df[FEATURE]
-        for lookback_value in LOOKBACK_RSI:
-            df[str('RSI_' + str(lookback_value))] = get_RSI(data_series_of_feature,lookback_value)
+        data_series_of_target_feature = df[TARGET_FEATURE]
+        """for lookback_value in LOOKBACK_RSI:
+            df[str('RSI_' + str(lookback_value))] = get_RSI(data_series_of_target_feature,lookback_value)
+       
         for lookback_value in LOOKBACK_SMA:
-            df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_feature,lookback_value)
+            df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_target_feature,lookback_value)
         for lookback_value in LOOKBACK_EMA:
-            df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_feature,lookback_value)
+            df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_target_feature,lookback_value)
+        """
 
-        df_macd= get_MACD(data_series_of_feature)
+        for lookback_value in LOOKBACK_TEST:
+            df['VWAP']=panda.vwap(df['High'], df['Low'], df['Close'], df['Volume'], lookback_value=lookback_value)
+        for lookback_value in  LOOKBACK_TEST:
+            df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_target_feature, lookback_value)
+        for lookback_value in  LOOKBACK_TEST:
+            df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_target_feature, lookback_value)
+
+        df_macd= get_MACD(data_series_of_target_feature)
         df['MACD_12_26_9'] = df_macd['MACD_12_26_9']
         df['MACDH_12_26_9']=  df_macd['MACDH_12_26_9']
         df['MACDS_12_26_9'] = df_macd['MACDS_12_26_9']
 
-        df_bbs=panda.bbands(data_series_of_feature)
+        df_bbs=panda.bbands(data_series_of_target_feature)
         df['BBL_20']=df_bbs['BBL_20']
         df['BBM_20'] = df_bbs['BBM_20']
         df['BBU_20'] = df_bbs['BBU_20']
 
+        df['RSI'] = panda.rsi(data_series_of_target_feature)
+        df['MOM']=panda.mom(data_series_of_target_feature)
+        #df['STOCH']=panda.stoch(df['High'], df['Low'], df['Close'])
+        df['CMO']=panda.cmo(data_series_of_target_feature)
+        df['DPO']=panda.dpo(data_series_of_target_feature)
+        df['UO']=panda.uo(df['High'], df['Low'], df['Close'])
 
 
         df['lag_1'] = df['Close'].shift(1)
@@ -49,17 +64,17 @@ def integrate_with_indicators(input_path):
 
 
 
-def get_MACD(data_series_of_feature):
-    return panda.macd(data_series_of_feature)
+def get_MACD(data_series_of_target_feature):
+    return panda.macd(data_series_of_target_feature)
 
-def get_RSI(data_series_of_feature,lookback_value):
-   return panda.rsi(data_series_of_feature, length=lookback_value)
+def get_RSI(data_series_of_target_feature,lookback_value):
+   return panda.rsi(data_series_of_target_feature, length=lookback_value)
 
-def get_SMA(data_series_of_feature,lookback_value):
-    return panda.sma(data_series_of_feature, length=lookback_value)
+def get_SMA(data_series_of_target_feature,lookback_value):
+    return panda.sma(data_series_of_target_feature, length=lookback_value)
 
-def get_EMA(data_series_of_feature,lookback_value):
-    return panda.ema(data_series_of_feature, length=lookback_value)
+def get_EMA(data_series_of_target_feature,lookback_value):
+    return panda.ema(data_series_of_target_feature, length=lookback_value)
 
 def integrate_with_lag(input_path):
     folder_creator(PATH_INTEGRATED_FOLDER, 1)

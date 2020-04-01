@@ -39,8 +39,7 @@ If SD is zero, all the numbers in a dataset share the same value
 """
 
 def describe(PATH_DATASET,output_path,name_folder_res=None,features_to_use=None):
-    if features_to_use==None:
-        features_to_use=COLUMNS
+
 
     if name_folder_res==None:
         PATH_OUT=output_path+"descriptions/"
@@ -52,8 +51,13 @@ def describe(PATH_DATASET,output_path,name_folder_res=None,features_to_use=None)
         crypto_name = crypto.replace(".csv", "")
         if crypto_name=="DOGE":
 
-            features_to_read=features_to_use+['Date']
-            df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0,usecols=features_to_read)
+            if features_to_use!=None:
+                features_to_read = features_to_use + ['Date']
+                df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0,usecols=features_to_read)
+            else:
+                df = pd.read_csv(PATH_DATASET + crypto, delimiter=',', header=0)
+                features_to_use=df.columns.values
+
             #df=cut_dataset_by_range(PATH_DATASET,crypto_name,'2017-07-20','2018-10-27')
             #if(crypto_name=="BTC"):
             PATH_CRYPTO=PATH_OUT+crypto_name+"/"
@@ -134,16 +138,17 @@ def normality_test(df,features,crypto_name,output_path):
     alpha = 0.05
     res = {'feature': [], 'statistics': [], 'p-value': [],'is_gaussian':[]}
     for feature in features:
-        #trasform to be stationary
-        df = df.dropna(subset=[feature])
-        stat, p = stats.normaltest(df[feature])
-        res['feature'].append(feature)
-        res['statistics'].append(stat)
-        res['p-value'].append(p)
-        if p > alpha: #fail to reject H0
-            res['is_gaussian'].append('True')
-        else:
-            res['is_gaussian'].append('False')
+        if feature!="Date":
+            #trasform to be stationary
+            df = df.dropna(subset=[feature])
+            stat, p = stats.normaltest(df[feature])
+            res['feature'].append(feature)
+            res['statistics'].append(stat)
+            res['p-value'].append(p)
+            if p > alpha: #fail to reject H0
+                res['is_gaussian'].append('True')
+            else:
+                res['is_gaussian'].append('False')
     pd.DataFrame(data=res).to_csv(output_path + crypto_name +".csv",sep=",",index=False)
 
 def no_scaling_vs_log_scaling(df,features,crypto_name,output_path):
@@ -214,23 +219,25 @@ that you make about that particular model. LSTMs do not make that assumption. So
 But it easier for the neural network to learn, So although you don't need to do it, it may still be a good idea and give you a boost in performance.
 """
 def stationary_test(df,features,crypto_name,output_path):
+    df=df.set_index("Date")
     significance_level=0.05
     res = {'feature': [], 'adf_statistics': [], 'p-value': [],'1%':[],'5%':[],'10%':[],'is_stationary':[]}
     for feature in features:
-        #trasform to be stationary
-        df = df.dropna(subset=[feature])
-        X = df[feature].values
-        result = adfuller(X,autolag='AIC')
-        res["adf_statistics"].append(float(result[0]))
-        p_value=result[1]
-        res['p-value'].append(p_value)
-        res['feature'].append(feature)
-        for key, value in result[4].items():
-          res[key]=value
-        if (p_value < significance_level):
-            res['is_stationary'].append('True')
-        else:
-            res['is_stationary'].append('False')
+        if feature!="Date":
+            #trasform to be stationary
+            df = df.dropna(subset=[feature])
+            X = df[feature].values
+            result = adfuller(X,autolag='AIC')
+            res["adf_statistics"].append(float(result[0]))
+            p_value=result[1]
+            res['p-value'].append(p_value)
+            res['feature'].append(feature)
+            for key, value in result[4].items():
+              res[key]=value
+            if (p_value < significance_level):
+                res['is_stationary'].append('True')
+            else:
+                res['is_stationary'].append('False')
     pd.DataFrame(data=res).to_csv(output_path + crypto_name +".csv",sep=",",index=False)
 
 def correlation_matrix(df,crypto_name,output_path):

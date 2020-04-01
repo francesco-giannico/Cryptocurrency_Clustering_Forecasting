@@ -160,7 +160,7 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         # reduce the overfitting
         model.add(Dropout(dropout))"""
         #number of neurons of the last layer
-        model.add(Dense(units=dimension_last_layer,activation="sigmoid"))
+        model.add(Dense(units=dimension_last_layer))
         #optimizer
         adam=Adam(learning_rate=learning_rate)
         #print(model.summary())

@@ -25,68 +25,36 @@ import numpy as np
 def main():
     #DATA UNDERSTANDING
     #cryptocurrencies=['BTC','ETH']
-    #data_understanding(cryptocurrencies)
+    #data_understanding()
 
     #DATA PREPARATION
-    preprocessing()
+    #preprocessing()
     #Description after
     #type="min_max_normalized"
-    type = "min_max_normalized"
-    #features_to_use=['Close','Open','Low','High','Adj_Close','RSI_14','RSI_30','RSI_60','SMA_30','SMA_60','SMA_14','EMA_14','EMA_30','EMA_60']
-    #features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200', 'SMA_200', 'SMA_100',
-    #                  'EMA_200', 'EMA_100']
+    type = "max_abs_normalized"
 
-    """features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_14', 'RSI_7', 'RSI_20', 'SMA_7', 'SMA_14', 'SMA_20',
-                       'EMA_7', 'EMA_14', 'EMA_20']
-    features_to_use = ['Close', 'Open', 'Low', 'High', 'RSI_100', 'RSI_200',  'SMA_200', 'SMA_100',
-                       'EMA_200', 'EMA_100']
-    features_to_use = ['Close', 'Open', 'Low', 'High','Adj Close']
-    #features_to_use=[]"""
-    """features_to_use = [ 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'RSI_14',
-                       'RSI_21', 'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30', 'SMA_50','SMA_100','SMA_200',
-                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50','EMA_100','EMA_200', 'lag_1', 'lag_7']"""
-    features_to_use = [ 'Close', 'Open', 'High', 'Low', 'Adj_Close', 'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30',
-                      'RSI_14','RSI_21', 'SMA_50','EMA_5', 'EMA_12', 'EMA_26', 'EMA_50', 'MACDH_12_26_9', 'MACDS_12_26_9', 'MACD_12_26_9']
     """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+type+"/",
              output_path="../preparation/preprocessed_dataset/",
-             name_folder_res=type,
-             features_to_use=features_to_use)"""
+             name_folder_res=type)"""
 
     #TESTING SET
     TEST_SET=testing_set()
 
     #MODELLING
-    #features_to_use=['Date','Close']
-    #features_to_use = ['Date','Close','Open','High','Low','Adj_Close']
-    #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close','Volume']
-
-    features_to_use=['Date','Close','Open','High','Low','Adj_Close',
-                       'MACDH_12_26_9', 'MACDS_12_26_9', 'MACD_12_26_9',
-                        'BBL_20','BBU_20','BBM_20']
-    """features_to_use = ['Date', 'Close','Open', 'High', 'Low', 'Adj_Close',
-                       'SMA_5', 'SMA_13', 'SMA_20', 'SMA_30', 'SMA_50',
-                       'EMA_5', 'EMA_12', 'EMA_26', 'EMA_50']"""
-    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
-                       'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100', 'RSI_200',
-                       'EMA_14', 'EMA_30', 'EMA_60', 'EMA_100', 'EMA_200']"""
-    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
-                       'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200',
-                       'SMA_14', 'SMA_30', 'SMA_60', 'SMA_100', 'SMA_200'
-                       ]"""
-    """features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close',
-                       'EMA_14', 'EMA_30', 'EMA_60', 'EMA_100', 'EMA_200',
-                       'SMA_14', 'SMA_30', 'SMA_60', 'SMA_100', 'SMA_200'
-                       ]"""
-    #features_to_use = ['Date', 'Close', 'Open', 'High', 'Low', 'Adj_Close','RSI_14','RSI_30','RSI_60','RSI_100','RSI_200']
-    #features_to_use = ['Date', 'Close', 'Adj_Close', 'RSI_14', 'RSI_30', 'RSI_60', 'RSI_100','RSI_200']
+    features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
+       'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
+       'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
+       'EMA_12', 'EMA_26', 'EMA_13', 'EMA_30', 'EMA_20', 'EMA_50', 'EMA_100',
+       'EMA_200', 'MACD_12_26_9', 'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20',
+       'BBM_20', 'BBU_20', 'RSI', 'MOM', 'CMO', 'DPO', 'UO', 'lag_1', 'lag_7']
 
     # General parameters
     temporal_sequence = 30
-    number_neurons = 256
+    number_neurons = 128
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
-    PATIENCE= 100
+    PATIENCE= 40
     crypto = "BTS"
     crypto = "DOGE"
     single_target_main(TEST_SET,type,features_to_use,
@@ -118,8 +86,9 @@ def single_target_main(TEST_SET,type,features_to_use,temporal_sequence,number_ne
     DATA_PATH = "../preparation/preprocessed_dataset/constructed/"+type+"/"
 
     out = ""
-    for ft in features_to_use:
-        out += ft + "_"
+    """for ft in features_to_use:
+        out += ft + "_"""
+    out="All_features_"
     output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
                                                                             learning_rate,
                                                                             temporal_sequence, PATIENCE)
@@ -290,7 +259,7 @@ def report():
         df_out[experiment_name] = df['single_target']
 
     df_out.to_csv(path_out + "final.csv", index=False)
-def data_understanding(crypto_names):
+def data_understanding(crypto_names=None):
     #DATA UNDERSTANDING
     PATH_DATASET= "../acquisition/dataset/original/"
 
