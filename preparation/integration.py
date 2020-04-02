@@ -36,6 +36,8 @@ def integrate_with_indicators(input_path):
             df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_target_feature, lookback_value)
         for lookback_value in  LOOKBACK_TEST:
             df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_target_feature, lookback_value)
+        for lookback_value in LOOKBACK_RSI:
+            df[str('RSI_' + str(lookback_value))] = get_RSI(data_series_of_target_feature,lookback_value)
 
         df_macd= get_MACD(data_series_of_target_feature)
         df['MACD_12_26_9'] = df_macd['MACD_12_26_9']
@@ -47,17 +49,21 @@ def integrate_with_indicators(input_path):
         df['BBM_20'] = df_bbs['BBM_20']
         df['BBU_20'] = df_bbs['BBU_20']
 
-        df['RSI'] = panda.rsi(data_series_of_target_feature)
         df['MOM']=panda.mom(data_series_of_target_feature)
-        #df['STOCH']=panda.stoch(df['High'], df['Low'], df['Close'])
+
+        df_stoch=panda.stoch(df['High'], df['Low'], df['Close'])
+        df['STOCHF_14']=df_stoch['STOCHF_14']
+        df['STOCHF_3'] = df_stoch['STOCHF_3']
+        df['STOCH_5'] = df_stoch['STOCH_5']
+        df['STOCH_3'] = df_stoch['STOCH_3']
         df['CMO']=panda.cmo(data_series_of_target_feature)
         df['DPO']=panda.dpo(data_series_of_target_feature)
         df['UO']=panda.uo(df['High'], df['Low'], df['Close'])
 
 
         df['lag_1'] = df['Close'].shift(1)
-        df['lag_7'] = df['Close'].shift(7)
-        df = df.iloc[7:]
+        """df['lag_7'] = df['Close'].shift(7)
+        df = df.iloc[7:]"""
 
         df.fillna(value=0, inplace=True)
         df.to_csv(PATH_INTEGRATED_FOLDER+"/"+crypto,sep=",", index=False)

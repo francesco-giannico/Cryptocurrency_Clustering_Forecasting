@@ -40,7 +40,6 @@ If SD is zero, all the numbers in a dataset share the same value
 
 def describe(PATH_DATASET,output_path,name_folder_res=None,features_to_use=None):
 
-
     if name_folder_res==None:
         PATH_OUT=output_path+"descriptions/"
     else:

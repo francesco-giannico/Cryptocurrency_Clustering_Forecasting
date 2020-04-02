@@ -25,16 +25,15 @@ def plot_train_and_validation_loss(train,test,output_folder):
 
 #plot the actual value and the predicted value
 def plot_actual_vs_predicted(
-        input_data,cryptocurrencies, crypto, list_neurons, list_temporal_sequences, output_path):
+        input_data, crypto, list_neurons, list_temporal_sequences, output_path):
 
     #reads the csv (merged_predictions.csv)
     data = pd.read_csv(input_data)
-
     #for crypto, neurons, days in product(cryptocurrencies, list_neurons, list_temporal_sequences):
     #read a specific line from the file
     data_cut = data[(data["symbol"] == crypto)]
     for neurons, days in product(list_neurons, list_temporal_sequences):
-        data_cut=data_cut[(data_cut["neurons"] == neurons) & (data["days"] == days)]
+        data_cut_crypto=data_cut[(data_cut["neurons"] == neurons) & (data["days"] == days)]
 
         #create a figure
         fig = plt.figure(figsize=(12, 7),dpi=150)
@@ -47,12 +46,12 @@ def plot_actual_vs_predicted(
         labels = []
         #model oriented information
         #data_cut_model_oriented = data_cut[data["model"] == model]
-        ax.plot(range(0, len(data_cut["date"]), 1),data_cut["observed_value"])
+        ax.plot(range(0, len( data_cut_crypto["date"]), 1), data_cut_crypto["observed_value"])
         labels.append("REAL")
-        ax.plot(range(0, len(data_cut["date"]), 1), data_cut["predicted_value"])
+        ax.plot(range(0, len( data_cut_crypto["date"]), 1),  data_cut_crypto["predicted_value"])
         labels.append("PREDICTED")
 
-        plt.xticks(np.arange(12), data_cut["date"], rotation=65)
+        plt.xticks(np.arange(12),  data_cut_crypto["date"], rotation=65)
         plt.legend(labels, loc=4)
         plt.grid()
         fig.tight_layout()
@@ -70,7 +69,6 @@ def generate_line_chart(experiment_folder,list_temporal_sequences,list_neurons):
     for crypto in cryptocurrencies:
         folder_creator(experiment_folder+"/report/line_chart_images/"+crypto,1)
         plot_actual_vs_predicted(experiment_folder+"/result/merged_predictions.csv",
-                                 cryptocurrencies,
                                  crypto,
                                  list_neurons,
                                  list_temporal_sequences,

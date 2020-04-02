@@ -16,10 +16,6 @@ import tensorflow_core as tf_core
 #np.random.seed(1)
 #stable results
 tf_core.random.set_seed(2)
-"""for window, num_neurons in product(window_sequence, list_num_neurons):
-            print('Current configuration: ')
-            print("Crypto_symbol: ",crypto,"\t", "Window_sequence: ",window,"\t", "Neurons: ",num_neurons)
-"""
 
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequence, list_num_neurons, learning_rate,
