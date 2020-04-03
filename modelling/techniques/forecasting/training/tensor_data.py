@@ -1,10 +1,8 @@
 import os
-
 import numpy as np
-
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor
 
-
+#just for multi-target!
 def generate_tensor_data(path, TENSOR_PATH, temporal_sequence_considered, MultiFeaturesToExclude):
     #for path in DATA_PATHS:
     #series = os.listdir(path)

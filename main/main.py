@@ -7,6 +7,7 @@ import pandas as pd
 from modelling.techniques.baseline.simple_prediction.simple_prediction import simple_prediction
 from modelling.techniques.baseline.vector_autoregression.vector_autoregression import vector_autoregression
 from modelling.techniques.clustering.clustering import clustering
+from modelling.techniques.clustering.visualization import describe_new
 from modelling.techniques.forecasting.multi_target import multi_target
 from modelling.techniques.forecasting.single_target import single_target
 from modelling.techniques.forecasting.testing.test_set import generate_testset, get_testset, generate_testset2
@@ -42,13 +43,7 @@ def main():
 
     #MODELLING
     features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume']
-    """features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
-                       'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
-                       'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
-                       'EMA_12', 'EMA_26', 'EMA_13', 'EMA_30', 'EMA_20', 'EMA_50', 'EMA_100',
-                       'EMA_200', 'MACD_12_26_9', 'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20',
-                       'BBM_20', 'BBU_20', 'RSI', 'MOM', 'CMO', 'DPO', 'UO', 'lag_1', 'lag_7']:0.0031"
-    """
+
     features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
        'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
        'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
@@ -59,7 +54,7 @@ def main():
        'UO','lag_1']
 
     # General parameters
-    temporal_sequences =[15,30,45]
+    """temporal_sequences =[15,30,45]
     list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
@@ -68,27 +63,38 @@ def main():
 
     single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE)
+                        EPOCHS,PATIENCE)"""
 
     #CLUSTERING
-    start_date = "2014-10-01"
+    start_date = "2014-09-17"
     end_date = "2019-12-31"
-    distance_measure = "dtw"
+    distance_measure = "wasserstain"
     #clustering_main(distance_measure,start_date,end_date,type)
 
     #MULTITARGET
-    temporal_sequence = 60
-    number_neurons = 256
+    temporal_sequences =[15,30,45]
+    list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
     PATIENCE = 40
     crypto = "LTC"
     cluster_n="cluster_0"
-    features_to_use = ['Close', 'Open', 'High', 'Low', 'Adj_Close']
-    """multi_target_main(TEST_SET,type,features_to_use,
-                       temporal_sequence,number_neurons,learning_rate,DROPOUT,
+    features_to_use = ['Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
+                       'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
+                       'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
+                       'EMA_12', 'EMA_26', 'EMA_13', 'EMA_30', 'EMA_20', 'EMA_50', 'EMA_100',
+                       'EMA_200', 'RSI_14', 'RSI_21', 'RSI_100', 'RSI_200', 'MACD_12_26_9',
+                       'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20',
+                       'MOM', 'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO',
+                       'UO', 'lag_1']
+    """ multi_target_main(TEST_SET,type,features_to_use,
+                       temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,crypto,cluster_n)"""
+    describe_new(PATH_DATASET="../modelling/techniques/clustering/",
+             output_path="../modelling/techniques/clustering/",
+             name_folder_res=type)
+
 
 def single_target_main(TEST_SET,type,features_to_use,temporal_sequences,number_neurons,
                        learning_rate,DROPOUT,EPOCHS,PATIENCE):
@@ -113,22 +119,22 @@ def single_target_main(TEST_SET,type,features_to_use,temporal_sequences,number_n
     EXPERIMENT_PATH="../modelling/techniques/forecasting/outputs/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequences=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET, features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE)"""
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE)
 
     # visualization single_target
     report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH,results_folder="result",
                           report_folder="report",output_filename="overall_report")
 
-    #report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
+    report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
 
-    #generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)
+    generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)
 
 def data_understanding(crypto_names=None):
     #DATA UNDERSTANDING
@@ -172,17 +178,17 @@ def main_clustering():
 
 
 def multi_target_main(TEST_SET, type, features_to_use,
-                      temporal_sequence, number_neurons, learning_rate,
+                      temporal_sequences, list_number_neurons, learning_rate,
                       DROPOUT, EPOCHS, PATIENCE, crypto, cluster_n):
-    out = ""
+    """out = ""
     for ft in features_to_use:
         out += ft + "_"
     output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
                                                                             learning_rate,
                                                                             temporal_sequence, PATIENCE)
-
+    """
     DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/out_multi_" + crypto + "/" + output_name + "/multi_target/"
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/multi_target/"
 
     folder_creator(EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/", 0)
 
@@ -198,16 +204,16 @@ def multi_target_main(TEST_SET, type, features_to_use,
             features_to_use_multi.append(feature + "_" + str(i + 1))
 
     # Baseline - VECTOR AUTOREGRESSION
-    OUTPUT_FOLDER_VAR = "../modelling/techniques/baseline/vector_autoregression/output/" + cluster_n + "/"
+    """OUTPUT_FOLDER_VAR = "../modelling/techniques/baseline/vector_autoregression/output/" + cluster_n + "/"
     vector_autoregression(
         EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/horizontal.csv",
-        TEST_SET, OUTPUT_FOLDER_VAR, cryptos_in_the_cluster)
+        TEST_SET, OUTPUT_FOLDER_VAR, cryptos_in_the_cluster)"""
 
     multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
                  DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/",
                  TENSOR_DATA_PATH="clusters" + "/" + cluster_n + "/tensor_data/",
-                 window_sequence=temporal_sequence,
-                 num_neurons=number_neurons, learning_rate=learning_rate,
+                 window_sequences=temporal_sequences,
+                 list_num_neurons=list_number_neurons, learning_rate=learning_rate,
                  dimension_last_layer=dim_last_layer,
                  testing_set=TEST_SET,
                  cryptos=cryptos_in_the_cluster,

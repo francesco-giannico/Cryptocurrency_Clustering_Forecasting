@@ -49,8 +49,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             prepare_input_forecasting(PREPROCESSED_PATH, DATA_PATH, crypto_name, None, features_to_use)
 
         for window, num_neurons in product(window_sequences, list_num_neurons):
-            """print('Current configuration: ')
-            print("Crypto_symbol: ",crypto,"\t", "Window_sequence: ",window,"\t", "Neurons: ",num_neurons)"""
+            print('Current configuration: ')
+            print("Crypto_symbol: ",crypto,"\t", "Window_sequence: ",window,"\t", "Neurons: ",num_neurons)
             # print(np.array(dataset)[0]), takes the first row of the dataset (2018-01 2020...etc.)
             dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                           TENSOR_DATA_PATH + "/" + crypto_name + "/",
