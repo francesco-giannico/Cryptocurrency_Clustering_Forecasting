@@ -143,6 +143,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 print(get_factors(x_train.shape[0]))"""
                 #batch size must be a factor of the number of training elements
                 factors = get_factors(x_train.shape[0])
+
                 if len(factors) == 2:
                     BATCH_SIZE = factors[1]
                     #print("only 2 elements " + str(BATCH_SIZE))
@@ -158,7 +159,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
                     # BATCH_SIZE=np.min(factors[2:(len(factors)-2)])
                     #print("Batch used " + str(BATCH_SIZE))
-
                 # if the date to predict is the first date in the testing_set
                 if date_to_predict == testing_set[0]:
                     model, history = train_model(x_train, y_train, x_test, y_test,
@@ -185,7 +185,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                                                  dimension_last_layer=1,
                                                  model=model,
                                                  model_path=model_path)
-
+                """ filename="model_train_val_loss_bs_"+str(BATCH_SIZE)
+                plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
+                """
                 train_plot[str(i)] = pd.Series(history.history['loss'])
                 val_plot[str(i)] = pd.Series(history.history['val_loss'])
                 i += 1

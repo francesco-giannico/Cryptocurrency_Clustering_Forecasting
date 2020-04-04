@@ -28,8 +28,8 @@ def consensus_clustering(CLUSTERING_PATH):
     df1= pd.DataFrame(columns=['value'],index=['k_sqrtNBy4','k_sqrtNDiv4','k_sqrtNDiv2','k_sqrtNBy2','k_sqrtN',])
     #df1.at['k_1','value']= 1
     df1.at['k_sqrtN','value']= round(sqrt(N),0)
-    df1.at['k_sqrtNDiv2', 'value'] = round(sqrt(N/ 2),0)
-    df1.at['k_sqrtNBy2', 'value'] = round(sqrt(N* 2),0)
+    df1.at['k_sqrtNDiv2', 'value'] = round(sqrt(N / 2),0)
+    df1.at['k_sqrtNBy2', 'value'] = round(sqrt(N * 2),0)
     df1.at['k_sqrtNDiv4', 'value'] = round(sqrt(N / 4),0)
     df1.at['k_sqrtNBy4', 'value'] = round(sqrt(N*4),0)
 

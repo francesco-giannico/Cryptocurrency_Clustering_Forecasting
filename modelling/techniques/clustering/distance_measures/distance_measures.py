@@ -7,6 +7,7 @@ from modelling.techniques.clustering.distance_measures.coral_distance import COR
 from utility.dataset_utils import cut_dataset_by_range
 from utility.writer import save_distance_matrix
 from scipy.stats import wasserstein_distance
+import matplotlib.pyplot as plt
 
 
 def compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH):
@@ -61,6 +62,22 @@ def compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH):
             else:
                 return "Distance measure unrecognized"
             j+=1
+
+    dict_symbol_id=dict_symbol_id.reset_index()
+    print(dict_symbol_id.symbol.values)
+    df3=pd.DataFrame(data=distance_matrix,columns=dict_symbol_id.symbol.values,index=dict_symbol_id.symbol.values)
+    import seaborn as sns
+    plt.figure(figsize=(20, 10))
+    dist_chart=sns.heatmap(
+        df3,
+        cmap='OrRd',
+        linewidth=1,
+        annot=True,
+    )
+    dist_chart.set_xticklabels(dist_chart.get_xticklabels(), rotation=45, horizontalalignment='right')
+    dist_chart.set_yticklabels(dist_chart.get_yticklabels(), rotation=10)
+    dist_chart.set_title("Distance Matrix using Wasserstain Distance")
+    plt.savefig(CLUSTERING_PATH+"distance_matrix.png",dpi=120)
     #save the matrix
     save_distance_matrix(distance_matrix,CLUSTERING_PATH)
 

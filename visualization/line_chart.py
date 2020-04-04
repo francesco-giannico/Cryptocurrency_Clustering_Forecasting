@@ -10,7 +10,7 @@ from utility.folder_creator import folder_creator
 from utility.reader import get_crypto_symbols_from_folder
 
 
-def plot_train_and_validation_loss(train,test,output_folder):
+def plot_train_and_validation_loss(train,test,output_folder,filename=None):
     fig = plt.figure(figsize=(12, 7),dpi=150)
     plt.plot(train, color='blue', label='Train')
     plt.plot(test, color='orange', label='Validation')
@@ -20,7 +20,10 @@ def plot_train_and_validation_loss(train,test,output_folder):
     legend_elements = [Line2D([0], [0], color='blue', lw=2, label='Train'),
                        Line2D([0], [0], color='orange', lw=2, label='Validation'),]
     plt.legend(handles=legend_elements, loc='upper left')
-    plt.savefig(output_folder+"model_train_validation_loss.png",dpi=150)
+    if filename==None:
+        plt.savefig(output_folder+"model_train_validation_loss_overall.png",dpi=150)
+    else:
+        plt.savefig(output_folder + filename+".png", dpi=150)
 
 
 #plot the actual value and the predicted value

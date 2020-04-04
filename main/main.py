@@ -42,7 +42,7 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume']
+    #features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume']
 
     features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
        'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
@@ -54,22 +54,22 @@ def main():
        'UO','lag_1']
 
     # General parameters
-    """temporal_sequences =[15,30,45]
+    temporal_sequences =[15,30,45]
     list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
     PATIENCE= 40
 
-    single_target_main(TEST_SET,type,features_to_use,
+    """single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE)"""
 
     #CLUSTERING
-    start_date = "2014-09-17"
+    start_date = "2015-10-01"
     end_date = "2019-12-31"
     distance_measure = "wasserstain"
-    #clustering_main(distance_measure,start_date,end_date,type)
+    clustering_main(distance_measure,start_date,end_date,type)
 
     #MULTITARGET
     temporal_sequences =[15,30,45]
@@ -91,9 +91,9 @@ def main():
     """ multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,crypto,cluster_n)"""
-    describe_new(PATH_DATASET="../modelling/techniques/clustering/",
+    """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
-             name_folder_res=type)
+             name_folder_res=type)"""
 
 
 def single_target_main(TEST_SET,type,features_to_use,temporal_sequences,number_neurons,
