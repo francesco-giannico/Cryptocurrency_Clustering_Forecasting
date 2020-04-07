@@ -7,7 +7,7 @@ from utility.folder_creator import folder_creator
 from utility.reader import get_dict_symbol_id
 
 
-def clustering(distance_measure,start_date,end_date,type):
+def clustering(distance_measure,start_date,end_date,type,features_to_use=None):
     CLUSTERING_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/"
     PATH_SOURCE = "../preparation/preprocessed_dataset/constructed/"+type+"/"
 
@@ -19,7 +19,7 @@ def clustering(distance_measure,start_date,end_date,type):
     
     dict_symbol_id = get_dict_symbol_id(CLUSTERING_PATH)
     
-    compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH)
+    compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH,features_to_use)
     
     consensus_clustering(CLUSTERING_PATH)
 

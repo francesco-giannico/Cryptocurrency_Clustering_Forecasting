@@ -14,7 +14,6 @@ def report_configurations(temporal_sequence, num_neurons, experiment_folder,
     experiment_and_result_folder = experiment_folder + results_folder + "/"
     folder_creator(experiment_and_report_folder, 1)
 
-    #if exp_type=="single_target":
     kind_of_report = "configurations_oriented"
     folder_creator(experiment_and_report_folder + kind_of_report + "/", 1)
 

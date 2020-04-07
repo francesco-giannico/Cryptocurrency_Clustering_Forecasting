@@ -66,20 +66,29 @@ def main():
                         EPOCHS,PATIENCE)"""
 
     #CLUSTERING
-    start_date = "2015-10-01"
-    end_date = "2019-12-31"
-    distance_measure = "wasserstain"
-    clustering_main(distance_measure,start_date,end_date,type)
+    start_date_cluster = "2015-10-01"
+    end_date_cluster = "2018-12-31"
+    distance_measure = "pearson"
+    features_to_use = ['Close']
+    # clustering
+    """clustering(distance_measure, start_date=start_date_cluster,
+               end_date=end_date_cluster, type=type,
+               features_to_use=features_to_use)"""
+
 
     #MULTITARGET
-    temporal_sequences =[15,30,45]
+    #temporal_sequences =[15,30,45]
+    #mancano i 45 giorni
+    temporal_sequences = [60,100]
     list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 100
     PATIENCE = 40
-    crypto = "LTC"
+    crypto = "BTC"
     cluster_n="cluster_0"
+    start_date_multi = "2015-08-07"
+    end_date_multi= "2019-12-31"
     features_to_use = ['Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
                        'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
                        'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
@@ -88,105 +97,22 @@ def main():
                        'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20',
                        'MOM', 'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO',
                        'UO', 'lag_1']
-    """ multi_target_main(TEST_SET,type,features_to_use,
+    #[df=pd.read_csv("modelling/techniques/clustering/output_to_use/clusters/cluster_1/ETH.csv",header=0)
+    """df = pd.read_csv("ETH.csv", header=0)
+
+    print(df.isnull().sum())"""
+    multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,crypto,cluster_n)"""
+                        EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi)
     """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
-             name_folder_res=type)"""
-
-
-def single_target_main(TEST_SET,type,features_to_use,temporal_sequences,number_neurons,
-                       learning_rate,DROPOUT,EPOCHS,PATIENCE):
-    DATA_PATH = "../preparation/preprocessed_dataset/constructed/"+type+"/"
-
-    out = ""
-    """for ft in features_to_use:
-        out += ft + "_"""
-    """out="All_features_"
-    
-    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
-                                                                            learning_rate,
-                                                                            temporal_sequence, PATIENCE)"""
-    #print("Current configuration: "+ output_name)
-    # SIMPLE PREDICTION
-    DATA_PATH_SIMPLE = DATA_PATH
-    OUTPUT_SIMPLE_PREDICTION= "../modelling/techniques/baseline/simple_prediction/output/"
-    simple_prediction(DATA_PATH_SIMPLE,TEST_SET,OUTPUT_SIMPLE_PREDICTION)
-
-    # SINGLE TARGET LSTM
-    #EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/" + output_name+ "/single_target/"
-    EXPERIMENT_PATH="../modelling/techniques/forecasting/outputs/single_target/"
-    TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
-
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
-                  DATA_PATH=DATA_PATH,
-                  TENSOR_DATA_PATH=TENSOR_DATA_PATH,
-                  window_sequences=temporal_sequences,
-                  list_num_neurons=number_neurons, learning_rate=learning_rate,
-                  testing_set=TEST_SET, features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE)
-
-    # visualization single_target
-    report_configurations(temporal_sequence=temporal_sequences,num_neurons=number_neurons,
-                          experiment_folder=EXPERIMENT_PATH,results_folder="result",
-                          report_folder="report",output_filename="overall_report")
-
-    report_crypto(experiment_folder=EXPERIMENT_PATH,result_folder="result",report_folder="report",output_filename="report")
-
-    generate_line_chart(EXPERIMENT_PATH,temporal_sequences,number_neurons)
-
-def data_understanding(crypto_names=None):
-    #DATA UNDERSTANDING
-    PATH_DATASET= "../acquisition/dataset/original/"
-
-    #COLLECT INITIAL DATA
-    #data collecting from yahoo finance
-    #get_most_important_cryptos(crypto_names,startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
-
-    # EXPLORE DATA
-    #missing_values(PATH_DATASET)
-    #describe dataframes
-    OUTPUT_PATH="../understanding/output/"
-    describe(PATH_DATASET,OUTPUT_PATH,None,None)
-
-def clustering_main(distance_measure,start_date,end_date,type):
-    # clustering
-    clustering(distance_measure, start_date=start_date, end_date=end_date,type=type)
-
-def testing_set():
-    test_start_date="2019-01-01"
-    test_end_date="2019-12-31"
-    try:
-        TEST_SET = get_testset(
-            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
-    except:
-      # Test set HAS TO BE EQUAL AMONG ALL THE EXPERIMENTS!!!
-      generate_testset(test_start_date, test_end_date,"../modelling/techniques/forecasting/testing/")
-      TEST_SET = get_testset(
-          "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
-    return TEST_SET
-
-
-def main_clustering():
-    # CLUSTERING
-    type = "min_max_normalized"
-    start_date = "2014-10-01"
-    end_date = "2019-12-31"
-    distance_measure = "wasserstain"
-    clustering_main(distance_measure,start_date,end_date,type)
-
+             name_folder_res=type)
+    """
 
 def multi_target_main(TEST_SET, type, features_to_use,
                       temporal_sequences, list_number_neurons, learning_rate,
-                      DROPOUT, EPOCHS, PATIENCE, crypto, cluster_n):
-    """out = ""
-    for ft in features_to_use:
-        out += ft + "_"
-    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
-                                                                            learning_rate,
-                                                                            temporal_sequence, PATIENCE)
-    """
+                      DROPOUT, EPOCHS, PATIENCE, crypto, cluster_n,start_date,end_date):
+
     DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/multi_target/"
 
@@ -194,7 +120,8 @@ def multi_target_main(TEST_SET, type, features_to_use,
 
     # generate horizontal dataset
     cryptos_in_the_cluster = create_horizontal_dataset(DATA_PATH + cluster_n + "/",
-                                                       EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/")
+                                                       EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+                                                       start_date,end_date)
 
     dim_last_layer = len(cryptos_in_the_cluster)
 
@@ -211,7 +138,7 @@ def multi_target_main(TEST_SET, type, features_to_use,
 
     multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
                  DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/",
-                 TENSOR_DATA_PATH="clusters" + "/" + cluster_n + "/tensor_data/",
+                 TENSOR_DATA_PATH=EXPERIMENT_PATH +"clusters" + "/" + cluster_n + "/tensor_data/",
                  window_sequences=temporal_sequences,
                  list_num_neurons=list_number_neurons, learning_rate=learning_rate,
                  dimension_last_layer=dim_last_layer,
@@ -221,6 +148,18 @@ def multi_target_main(TEST_SET, type, features_to_use,
                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
                  )
 
+    report_configurations(temporal_sequence=temporal_sequences, num_neurons=list_number_neurons,
+                          experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+                          results_folder="result",
+                          report_folder="report", output_filename="overall_report")
+
+    report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+                  result_folder="result",
+                  report_folder="report",output_filename="report")
+
+    # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
+
+    # other charts for clustering
     #report_multi(cluster_n, output_name, crypto)
     """for k_used in os.listdir(DATA_PATH):
         #todo remove this one
@@ -248,17 +187,78 @@ def multi_target_main(TEST_SET, type, features_to_use,
                                       window_sequence=temporal_sequences,
                                       list_num_neurons=number_neurons, learning_rate=learning_rate,
                                       dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster,features_to_use=features_to_use)
-
-                    report_configurations(exp_type="multi_target",temporal_sequence=temporal_sequences,num_neurons=number_neurons,
-                                            experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",results_folder="result",
-                                            report_folder="report",output_filename="overall_report")
-                    """
-    # report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",result_folder="result",report_folder="report",output_filename="report")
-
-    # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
-
-    # other charts for clustering
+    """
 
 
-#main_clustering()
+def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, number_neurons,
+                       learning_rate, DROPOUT, EPOCHS, PATIENCE):
+    DATA_PATH = "../preparation/preprocessed_dataset/constructed/" + type + "/"
+
+    out = ""
+    """for ft in features_to_use:
+        out += ft + "_"""
+    """out="All_features_"
+
+    output_name = out + "neur{}-dp{}-ep{}-lr{}-tempseq{}-patience{}".format(number_neurons, DROPOUT, EPOCHS,
+                                                                            learning_rate,
+                                                                            temporal_sequence, PATIENCE)"""
+    # print("Current configuration: "+ output_name)
+    # SIMPLE PREDICTION
+    DATA_PATH_SIMPLE = DATA_PATH
+    OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
+    simple_prediction(DATA_PATH_SIMPLE, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
+
+    # SINGLE TARGET LSTM
+    # EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/" + output_name+ "/single_target/"
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
+    TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
+
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+                  DATA_PATH=DATA_PATH,
+                  TENSOR_DATA_PATH=TENSOR_DATA_PATH,
+                  window_sequences=temporal_sequences,
+                  list_num_neurons=number_neurons, learning_rate=learning_rate,
+                  testing_set=TEST_SET, features_to_use=features_to_use,
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE)
+
+    # visualization single_target
+    report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
+                          experiment_folder=EXPERIMENT_PATH, results_folder="result",
+                          report_folder="report", output_filename="overall_report")
+
+    report_crypto(experiment_folder=EXPERIMENT_PATH, result_folder="result", report_folder="report",
+                  output_filename="report")
+
+    generate_line_chart(EXPERIMENT_PATH, temporal_sequences, number_neurons)
+
+
+def data_understanding(crypto_names=None):
+    # DATA UNDERSTANDING
+    PATH_DATASET = "../acquisition/dataset/original/"
+
+    # COLLECT INITIAL DATA
+    # data collecting from yahoo finance
+    # get_most_important_cryptos(crypto_names,startdate=datetime(2010, 1, 2),enddate=datetime(2020, 1, 1))
+
+    # EXPLORE DATA
+    # missing_values(PATH_DATASET)
+    # describe dataframes
+    OUTPUT_PATH = "../understanding/output/"
+    describe(PATH_DATASET, OUTPUT_PATH, None, None)
+
+
+def testing_set():
+    test_start_date = "2019-01-01"
+    test_end_date = "2019-12-31"
+    try:
+        TEST_SET = get_testset(
+            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
+    except:
+        # Test set HAS TO BE EQUAL AMONG ALL THE EXPERIMENTS!!!
+        generate_testset(test_start_date, test_end_date, "../modelling/techniques/forecasting/testing/")
+        TEST_SET = get_testset(
+            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
+    return TEST_SET
+
+
 main()

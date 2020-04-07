@@ -248,7 +248,7 @@ def correlation_matrix(df,crypto_name,output_path):
 
 def bivariate_plot(df, features_name):
     threshold = 1.0
-    df=df.set_index('Date')
+    #df=df.set_index('Date')
     d = np.array(df)
     df_transposed = np.transpose(d)
 
@@ -263,7 +263,7 @@ def bivariate_plot(df, features_name):
 
         correlation_coeff, p_value = pearsonr(df_transposed[ind1], df_transposed[ind2])
         title = '\n{}-{}\nCorrelation:{}\nP_value:{}'.format(features_name[ind1], features_name[ind2], round(correlation_coeff, 10),round(p_value,10))
-        print(title)
+
         if correlation_coeff < threshold and correlation_coeff > -threshold:
              plot_correlationbtw2V(title, df_transposed[ind1], df_transposed[ind2], len(df_transposed), len(df_transposed), i, 'r*')
         else:

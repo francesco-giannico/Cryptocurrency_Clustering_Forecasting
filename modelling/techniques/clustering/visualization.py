@@ -27,6 +27,7 @@ def describe_new(PATH_DATASET, output_path, name_folder_res=None, features_to_us
 def feature_selection(df, features, crypto_name,crypto_symbol, output_path):
     dfnew = pd.DataFrame()
     dfnew['Date'] = df['Date']
+    #dfnew=dfnew.set_index("Date")
     #leggere il file che contiene
     #fai numero + 1
     #crypto_symbol=crypto_symbol.set_index("id")
@@ -49,12 +50,19 @@ def feature_selection(df, features, crypto_name,crypto_symbol, output_path):
             folder_creator(output_path + current_symbol + "/"+second_symbol+"/", 0)
             dfnew[str(f1)] = df[str(f1)]
             dfnew[str(f2)] = df[str(f2)]
-            dfnew.plot()
-            #plt.title(f1, fontsize=20)  # for title
-            plt.xlabel("Date", fontsize=15)  # label for x-axis
-            plt.savefig(output_path + current_symbol +"/"+second_symbol+"/"+ f1+"_"+f2 + ".png", dpi=150)
+
+            fig = plt.figure(figsize=(55,8))
+            ax = fig.add_subplot(1, 1, 1)
+            dfnew = dfnew.set_index("Date")
+            dfnew.plot(kind='line', ax=ax)
+
+            #ax.set_xticklabels(dfnew.index.values, rotation=45, fontsize=11)
+            plt.title(current_symbol +" VS "+second_symbol, fontsize=20)  # for title
+            #plt.xlabel("Date", fontsize=15)  # label for x-axis
+            plt.savefig(output_path + current_symbol +"/"+second_symbol+"/"+ f1+"_"+f2 + ".png", dpi=200)
             plt.clf()
             # plt.ylabel(feature, fontsize=15)  # label for y-axis
             # plt.show()
+            dfnew = dfnew.reset_index()
             dfnew = dfnew.drop(f1, axis=1)
             dfnew = dfnew.drop(f2, axis=1)

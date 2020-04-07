@@ -37,8 +37,8 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
     # create a folder for data in tensor format
     folder_creator(TENSOR_DATA_PATH + "/" + horizontal_name, 0)
     # create a folder for models
-    folder_creator(EXPERIMENT_PATH  + MODELS_PATH + "/", 1)
-    folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/", 1)
+    folder_creator(EXPERIMENT_PATH  + MODELS_PATH + "/", 0)
+    folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/", 0)
 
     dataset, features, features_without_date = \
         prepare_input_forecasting(PREPROCESSED_PATH, DATA_PATH, horizontal_file,cryptos,features_to_use)
@@ -76,7 +76,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
         model_path = EXPERIMENT_PATH + MODELS_PATH + "/" + configuration_name + "/"
         #todo
         #results_path = EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + horizontal_name + "/" + configuration_name + "/" + statistics +"/"
-        folder_creator(model_path,1)
+        folder_creator(model_path,0)
         #todo
         #folder_creator(results_path,1)
 

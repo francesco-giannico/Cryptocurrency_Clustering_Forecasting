@@ -1,6 +1,8 @@
 import os
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, MaxAbsScaler, RobustScaler
 import pandas as pd
+
+from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 
 
@@ -64,7 +66,7 @@ def standardization(input_path,output_path):
 
 
 #creates the horizontal dataset
-def create_horizontal_dataset(data_path,output_path):
+def create_horizontal_dataset(data_path,output_path,start_date,end_date):
     folder_creator(output_path+"horizontal_dataset/",1)
     dataframes=[]
     cryptocurrencies=os.listdir(data_path)
@@ -72,14 +74,14 @@ def create_horizontal_dataset(data_path,output_path):
 
     #take just the date column one time
     for crypto in cryptocurrencies:
-        df_date=pd.read_csv(data_path+crypto,usecols=['Date'])
-        dataframes.append(df_date)
+        df_date=cut_dataset_by_range(data_path, crypto.replace(".csv",""), start_date, end_date)
+        dataframes.append(df_date['Date'])
         break
 
     # creates Close_1,Open_1 ecc for each dataframe
     i=1
     for crypto in os.listdir(data_path):
-        df=pd.read_csv(data_path+crypto)
+        df=cut_dataset_by_range(data_path, crypto.replace(".csv",""), start_date, end_date)
         cryptos_in_the_cluster.append(crypto.replace(".csv",""))
         df=df.drop('Date',axis=1)
         df=df.add_suffix('_'+str(i))

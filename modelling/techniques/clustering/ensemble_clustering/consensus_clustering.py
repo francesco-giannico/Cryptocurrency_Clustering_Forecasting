@@ -15,7 +15,6 @@ from pyclustering.samples.definitions import FCPS_SAMPLES
 from pyclustering.utils import read_sample
 import matplotlib.pyplot as plt
 
-
 def consensus_clustering(CLUSTERING_PATH):
     df = pd.read_csv(CLUSTERING_PATH+"distance_matrix.csv", delimiter=',', header=None)
 
@@ -23,7 +22,7 @@ def consensus_clustering(CLUSTERING_PATH):
     sample = df.values
     #number of elements
     N= len(df.columns)
-
+    print(isinstance(np.asmatrix(sample),np.matrix))
     #rule of thumbs for k
     df1= pd.DataFrame(columns=['value'],index=['k_sqrtNBy4','k_sqrtNDiv4','k_sqrtNDiv2','k_sqrtNBy2','k_sqrtN',])
     #df1.at['k_1','value']= 1
@@ -46,7 +45,7 @@ def consensus_clustering(CLUSTERING_PATH):
         for iteration in range(iterations):
             k_value=int(df1.loc[k].values[0])
             initial_medoids = kmeans_plusplus_initializer(sample,k_value).initialize(return_index=True)
-            kmedoids_instance = kmedoids(sample, initial_medoids,data_type="distance_matrix")
+            kmedoids_instance = kmedoids(np.asmatrix(sample), initial_medoids,data_type="distance_matrix")
             kmedoids_instance.process()
             clusters = kmedoids_instance.get_clusters()
             coassociations_matrix= np.zeros((N, N))
@@ -68,7 +67,8 @@ def consensus_clustering(CLUSTERING_PATH):
     #Hierarchical clustering
     for k in df1.index:
         k_value = int(df1.loc[k].values[0])
-        agglomerative_instance = agglomerative(distance_matrix,k_value, type_link.AVERAGE_LINK)
+
+        agglomerative_instance = agglomerative(distance_matrix,k_value, type_link.COMPLETE_LINK)
         agglomerative_instance.process()
         # Obtain results of clustering
         clusters = agglomerative_instance.get_clusters()
