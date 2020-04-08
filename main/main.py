@@ -71,15 +71,15 @@ def main():
     distance_measure = "pearson"
     features_to_use = ['Close']
     # clustering
-    """clustering(distance_measure, start_date=start_date_cluster,
+    clustering(distance_measure, start_date=start_date_cluster,
                end_date=end_date_cluster, type=type,
-               features_to_use=features_to_use)"""
+               features_to_use=features_to_use)
 
 
     #MULTITARGET
     #temporal_sequences =[15,30,45]
     #mancano i 45 giorni
-    temporal_sequences = [60,100]
+    temporal_sequences = [15,30,45]
     list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
@@ -101,9 +101,9 @@ def main():
     """df = pd.read_csv("ETH.csv", header=0)
 
     print(df.isnull().sum())"""
-    multi_target_main(TEST_SET,type,features_to_use,
+    """multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi)
+                        EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi)"""
     """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
              name_folder_res=type)
@@ -136,7 +136,7 @@ def multi_target_main(TEST_SET, type, features_to_use,
         EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/horizontal.csv",
         TEST_SET, OUTPUT_FOLDER_VAR, cryptos_in_the_cluster)"""
 
-    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+    """multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
                  DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/",
                  TENSOR_DATA_PATH=EXPERIMENT_PATH +"clusters" + "/" + cluster_n + "/tensor_data/",
                  window_sequences=temporal_sequences,
@@ -146,7 +146,7 @@ def multi_target_main(TEST_SET, type, features_to_use,
                  cryptos=cryptos_in_the_cluster,
                  features_to_use=features_to_use_multi,
                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
-                 )
+                 )"""
 
     report_configurations(temporal_sequence=temporal_sequences, num_neurons=list_number_neurons,
                           experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
@@ -159,35 +159,6 @@ def multi_target_main(TEST_SET, type, features_to_use,
 
     # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
 
-    # other charts for clustering
-    #report_multi(cluster_n, output_name, crypto)
-    """for k_used in os.listdir(DATA_PATH):
-        #todo remove this one
-        if k_used=="k_sqrtNDiv2":
-            folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used, 0)
-            for cluster in os.listdir(DATA_PATH + k_used):
-                if cluster.startswith("cluster_"):
-                    folder_creator(EXPERIMENT_PATH + "clusters" + "/" + k_used + "/" + cluster + "/", 0)
-                    # generate horizontal dataset
-                    # leggere le criptovalute in questo dataset.
-                    cryptos_in_the_cluster=create_horizontal_dataset(DATA_PATH+k_used+"/"+cluster+"/",EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/")
-
-                    # Baseline - VECTOR AUTOREGRESSION
-                    OUTPUT_FOLDER_VAR="../modelling/techniques/baseline/vector_autoregression/output/" + distance_measure + "/" + start_date + "_" + end_date + "/clusters/" + k_used+"/"+cluster+"/"
-                    vector_autoregression(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/horizontal.csv",TEST_SET, OUTPUT_FOLDER_VAR,cryptos_in_the_cluster)
-
-                    # LSTM
-                    dim_last_layer = len(cryptos_in_the_cluster)
-                    features_to_use=['Date']
-                    for i in range(len(cryptos_in_the_cluster)):
-                        features_to_use.append("Close_"+str(i+1))
-                    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",
-                                      DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/"+"horizontal_dataset/",
-                                      TENSOR_DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/" "tensor_data/",
-                                      window_sequence=temporal_sequences,
-                                      list_num_neurons=number_neurons, learning_rate=learning_rate,
-                                      dimension_last_layer=dim_last_layer,testing_set=TEST_SET,cryptos=cryptos_in_the_cluster,features_to_use=features_to_use)
-    """
 
 
 def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, number_neurons,

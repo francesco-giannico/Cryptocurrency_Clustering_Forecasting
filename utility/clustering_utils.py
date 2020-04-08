@@ -1,5 +1,7 @@
 import ast
 import os
+from shutil import copyfile
+
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 from utility.reader import get_dict_symbol_id, get_crypto_symbols_from_folder
@@ -22,11 +24,13 @@ def generate_cryptocurrencies_dictionary(PATH_TO_READ,PATH_OUTPUT):
 def prepare_dataset_for_clustering(start_date,end_date,input_path,output_path):
     for crypto in os.listdir(input_path):
         try:
+            #dataset to cut
             df = cut_dataset_by_range(input_path, crypto.replace(".csv",""), start_date, end_date)
             df = df.set_index("Date")
             if (df.index[0] == start_date):
                 df = df.reset_index()
                 df.to_csv(output_path + "cut_datasets/" + crypto, sep=",", index=False)
+                copyfile(input_path + crypto, output_path + "original_datasets/" + crypto)
         except:
             pass
 

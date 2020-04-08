@@ -19,7 +19,8 @@ def save_clusters(clusters,k_used,CLUSTERING_PATH):
 
         folder_creator(CLUSTERING_PATH + "clusters/"+k_used+"/cluster_"+str(i)+"/", 1,)
         for crypto in cryptocurrencies:
-            copyfile(CLUSTERING_PATH + "cut_datasets/" + crypto + ".csv",
+            #todo questo va cambiato
+            copyfile(CLUSTERING_PATH + "original_datasets/" + crypto + ".csv",
                  CLUSTERING_PATH + "clusters/" + k_used + "/cluster_"+str(i)+"/" + crypto + ".csv")
 
         df = df.append({'cluster_id': str(i), 'cryptos': cryptocurrencies}, ignore_index=True)

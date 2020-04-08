@@ -27,4 +27,5 @@ def clustering(distance_measure,start_date,end_date,type,features_to_use=None):
 def folder_setup(CLUSTERING_PATH):
     folder_creator(CLUSTERING_PATH, 1)
     folder_creator(CLUSTERING_PATH + "cut_datasets/", 1)
+    folder_creator(CLUSTERING_PATH + "original_datasets/", 1)
     return
