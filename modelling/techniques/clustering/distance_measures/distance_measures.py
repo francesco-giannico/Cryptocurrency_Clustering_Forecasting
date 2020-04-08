@@ -28,6 +28,7 @@ def compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH,feat
                 distances = []
                 for col in df.columns:
                     distance=dtw.distance(np.array(df[col].values).astype(np.float).squeeze(), np.array(df1[col].values).astype(np.float).squeeze())
+                    #distance=dtw.distance(df[col].to_numpy(dtype="float"),df1[col].to_numpy(dtype="float"))
                     distances.append(distance)
                 ensemble_distance = np.average(distances)
                 distance_matrix[i][j] = ensemble_distance

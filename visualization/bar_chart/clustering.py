@@ -1,9 +1,68 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from itertools import product
 import os
 from utility.folder_creator import folder_creator
+import seaborn as sns
+
+def compare_multi_baseline_single_target_chart(input_path):
+    #leggi ogni file di report che ho creato
+    for cluster in os.listdir(input_path):
+        df=pd.read_csv(os.path.join(input_path,cluster))
+        #fare la media di ogni colonna
+        """mean_rmse_multi=df['lowest_rmse_multi'].mean()
+        mean_rmse_single = df['lowest_rmse_single'].mean()
+        mean_baseline = df['baseline'].mean()
+        print(cluster)
+        print(mean_rmse_single)
+        print(mean_rmse_multi)
+        print(mean_baseline)"""
+        ax=sns.barplot(data=df,ci=None)
+        title=cluster.replace(".csv","")+" ["
+        for symbol in df['symbol'].values:
+            title+=symbol +","
+        title+="]"
+        plt.title(title)
+        ax.set(xlabel='Competitors', ylabel='Average RMSE')
+        plt.savefig(input_path+"/"+cluster.replace(".csv","")+".png",dpi=100)
+
+
+def compare_multi_baseline_single_target(path_baseline,path_single,path_multi,output_path):
+    folder_creator(output_path,0)
+    for cluster in os.listdir(path_multi):
+        output_file = {'symbol': [], 'lowest_rmse_multi': [], 'lowest_rmse_single': [], 'baseline': []}
+        #vai in result del cluster in corso
+        for crypto in os.listdir(os.path.join(path_multi,cluster,"result")):
+            #leggere da baseline
+            file = open(os.path.join(path_baseline,crypto), "r")
+            rmse_baseline= float(file.read())
+            file.close()
+
+            #lowest single target
+            min_single=100
+            conf_name_single=""
+            for configuration in os.listdir(os.path.join(path_single,crypto)):
+                df=pd.read_csv(os.path.join(path_single,crypto,configuration,"stats/errors.csv"),header=0)
+                if df["rmse_norm"][0]< min_single:
+                    min_single=df["rmse_norm"][0]
+                    conf_name_single=configuration
+
+            # lowest multi target
+            min_multi = 100
+            conf_name_multi= ""
+            for configuration in os.listdir(os.path.join(path_multi,cluster,"result",crypto)):
+                df = pd.read_csv(os.path.join(path_multi,cluster,"result",crypto,configuration,"stats/errors.csv"), header=0)
+                if df["rmse_norm"][0] < min_multi:
+                    min_multi= df["rmse_norm"][0]
+                    conf_name_multi = configuration
+
+            output_file['symbol'].append(crypto)
+            output_file['lowest_rmse_single'].append(min_single)
+            output_file['lowest_rmse_multi'].append(min_multi)
+            output_file['baseline'].append(rmse_baseline)
+
+            pd.DataFrame(data=output_file).to_csv(os.path.join(output_path,cluster+".csv"), index=False)
+    compare_multi_baseline_single_target_chart(output_path)
 
 def report_clustering(path, pathToSave):
     final_csv = pd.read_csv(path)

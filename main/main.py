@@ -18,6 +18,7 @@ from understanding.exploration import describe
 from utility.clustering_utils import merge_predictions
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
+from visualization.bar_chart.clustering import compare_multi_baseline_single_target
 from visualization.bar_chart.forecasting import report_configurations, report_crypto
 from visualization.line_chart import generate_line_chart
 import numpy as np
@@ -68,12 +69,12 @@ def main():
     #CLUSTERING
     start_date_cluster = "2015-10-01"
     end_date_cluster = "2018-12-31"
-    distance_measure = "pearson"
+    distance_measure = "dtw"
     features_to_use = ['Close']
     # clustering
-    clustering(distance_measure, start_date=start_date_cluster,
+    """clustering(distance_measure, start_date=start_date_cluster,
                end_date=end_date_cluster, type=type,
-               features_to_use=features_to_use)
+               features_to_use=features_to_use)"""
 
 
     #MULTITARGET
@@ -101,6 +102,11 @@ def main():
     """df = pd.read_csv("ETH.csv", header=0)
 
     print(df.isnull().sum())"""
+    path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_rmse/"
+    path_single_target = "../modelling/techniques/forecasting/outputs_single_target/single_target/result/"
+    path_multi_target = "../modelling/techniques/forecasting/outputs_sqrtN/multi_target/clusters/"
+    output_path="../modelling/techniques/forecasting/outputs_sqrtN/reports/"
+    compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)
     """multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi)"""
@@ -148,14 +154,14 @@ def multi_target_main(TEST_SET, type, features_to_use,
                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
                  )"""
 
-    report_configurations(temporal_sequence=temporal_sequences, num_neurons=list_number_neurons,
+    """report_configurations(temporal_sequence=temporal_sequences, num_neurons=list_number_neurons,
                           experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
                           results_folder="result",
-                          report_folder="report", output_filename="overall_report")
+                          report_folder="report", output_filename="overall_report")"""
 
-    report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+    """report_crypto(experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
                   result_folder="result",
-                  report_folder="report",output_filename="report")
+                  report_folder="report",output_filename="report")"""
 
     # generate_line_chart(EXPERIMENT_PATH + "clusters" + "/" + k_used+"/"+cluster+"/",temporal_sequences,number_neurons)
 
