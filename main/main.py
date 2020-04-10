@@ -102,10 +102,11 @@ def main():
     """df = pd.read_csv("ETH.csv", header=0)
 
     print(df.isnull().sum())"""
+    current="outputs_N"
     path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_rmse/"
     path_single_target = "../modelling/techniques/forecasting/outputs_single_target/single_target/result/"
-    path_multi_target = "../modelling/techniques/forecasting/outputs_sqrtN/multi_target/clusters/"
-    output_path="../modelling/techniques/forecasting/outputs_sqrtN/reports/"
+    path_multi_target = "../modelling/techniques/forecasting/"+current+"/multi_target/clusters/"
+    output_path="../modelling/techniques/forecasting/"+current+"/reports/"
     compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)
     """multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
