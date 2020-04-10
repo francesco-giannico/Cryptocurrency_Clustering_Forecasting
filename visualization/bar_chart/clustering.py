@@ -5,6 +5,45 @@ import os
 from utility.folder_creator import folder_creator
 import seaborn as sns
 
+def crypto_oriented(path_multitarget,types):
+    #creare un dataframe contenente, per ogni cripto
+    #data una cripto, apri ogni file cluster_N.csv e cerca la cripto.
+    df_final= pd.DataFrame(columns=['symbol','k_1','k_sqrtN','k_sqrtNby2',
+                                    'k_sqrtNby4','k_sqrtNdiv2','k_sqrtNdiv4','lowest_single_target',
+                                    'baseline'])
+
+    for csv in os.listdir(os.path.join(path_multitarget,"outputs_k1","reports")):
+      if csv.endswith(".csv"):
+        df=pd.read_csv(os.path.join(path_multitarget,"outputs_k1","reports",csv))
+        df_final.symbol=df.symbol
+        df_final.k_1=df.avg_rmse_multi
+        df_final.lowest_single_target=df.avg_rmse_single
+        df_final.baseline = df.baseline
+    df_final=df_final.set_index("symbol")
+
+    for k in types:
+        if k!="outputs_k1":
+            for csv in os.listdir(os.path.join(path_multitarget,k,"reports")):
+              if csv.endswith(".csv"):
+                df=pd.read_csv(os.path.join(path_multitarget,k,"reports",csv))
+                index=k.replace("outputs_","")
+                for crypto in df.symbol.values:
+                 df = df.set_index("symbol")
+                 df_final.at[crypto,index] = df.at[crypto,"avg_rmse_multi"]
+                 df=df.reset_index()
+
+    df_final=df_final.reset_index()
+    folder_creator(os.path.join(path_multitarget,"reports_multi"),1)
+
+    for crypto in df_final.symbol.values:
+        plt.figure(figsize=(20,20))
+        ax = sns.barplot(data=df_final[df_final.symbol == crypto], ci=None)
+        title = crypto
+        plt.title(title)
+        ax.set(xlabel='Competitors', ylabel='RMSE')
+        plt.savefig(os.path.join(path_multitarget,"reports_multi", crypto + ".png"), dpi=100)
+
+
 def compare_multi_baseline_single_target_chart(input_path,output_path):
 
     for cluster in os.listdir(input_path):
