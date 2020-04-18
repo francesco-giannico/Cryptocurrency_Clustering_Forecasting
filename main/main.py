@@ -55,16 +55,16 @@ def main():
        'UO','lag_1']
 
     # General parameters
-    temporal_sequences =[15,30,45]
+    temporal_sequences =[15,30]
     list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 100
-    PATIENCE= 40
+    EPOCHS = 1000
+    PATIENCE= 500
 
-    """single_target_main(TEST_SET,type,features_to_use,
+    single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE)"""
+                        EPOCHS,PATIENCE)
 
     #CLUSTERING
     start_date_cluster = "2015-10-01"
@@ -80,14 +80,14 @@ def main():
     #MULTITARGET
     #temporal_sequences =[15,30,45]
     #mancano i 45 giorni
-    temporal_sequences = [15,30,45]
-    list_number_neurons = [128,256]
+    temporal_sequences = [10]
+    list_number_neurons = [10]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 100
-    PATIENCE = 40
+    EPOCHS = 1
+    PATIENCE = 1
     crypto = "BTC"
-    cluster_n="cluster_0"
+    cluster_n="cluster_3"
     start_date_multi = "2015-08-07"
     end_date_multi= "2019-12-31"
     features_to_use = ['Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
@@ -98,23 +98,24 @@ def main():
                        'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20',
                        'MOM', 'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO',
                        'UO', 'lag_1']
+    #features_to_use = ['Open', 'High', 'Low', 'Close']
     #[df=pd.read_csv("modelling/techniques/clustering/output_to_use/clusters/cluster_1/ETH.csv",header=0)
     """df = pd.read_csv("ETH.csv", header=0)
 
     print(df.isnull().sum())"""
     """types=["outputs_k1","outputs_k_sqrtN","outputs_k_sqrtNby2","outputs_k_sqrtNby4",
            "outputs_k_sqrtNdiv2","outputs_k_sqrtNdiv4"]"""
-    types = ["outputs_k1", "outputs_k_sqrtN", "outputs_k_sqrtNby2", "outputs_k_sqrtNby4",
-              "outputs_k_sqrtNdiv4"]
-    """for current in types:
+    """types=["outputs_multi_2000_600"]
+    single_target="outputs_single_target_5000_500"
+    for current in types:
         path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_rmse/"
-        path_single_target = "../modelling/techniques/forecasting/outputs_single_target/single_target/result/"
+        path_single_target = "../modelling/techniques/forecasting/"+single_target+"/single_target/result/"
         path_multi_target = "../modelling/techniques/forecasting/"+current+"/multi_target/clusters/"
         output_path="../modelling/techniques/forecasting/"+current+"/reports/"
-        compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)
-    """
-    path_multi_target = "../modelling/techniques/forecasting/"
-    crypto_oriented(path_multi_target,types)
+        compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)"""
+
+    """path_multi_target = "../modelling/techniques/forecasting/"
+    crypto_oriented(path_multi_target,types)"""
 
     """multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
@@ -151,7 +152,7 @@ def multi_target_main(TEST_SET, type, features_to_use,
         EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/horizontal.csv",
         TEST_SET, OUTPUT_FOLDER_VAR, cryptos_in_the_cluster)"""
 
-    """multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
                  DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_dataset/",
                  TENSOR_DATA_PATH=EXPERIMENT_PATH +"clusters" + "/" + cluster_n + "/tensor_data/",
                  window_sequences=temporal_sequences,
@@ -161,7 +162,7 @@ def multi_target_main(TEST_SET, type, features_to_use,
                  cryptos=cryptos_in_the_cluster,
                  features_to_use=features_to_use_multi,
                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE
-                 )"""
+                 )
 
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=list_number_neurons,
                           experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
@@ -190,32 +191,32 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
                                                                             temporal_sequence, PATIENCE)"""
     # print("Current configuration: "+ output_name)
     # SIMPLE PREDICTION
-    DATA_PATH_SIMPLE = DATA_PATH
+    """DATA_PATH_SIMPLE = DATA_PATH
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
-    simple_prediction(DATA_PATH_SIMPLE, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
+    simple_prediction(DATA_PATH_SIMPLE, TEST_SET, OUTPUT_SIMPLE_PREDICTION)"""
 
     # SINGLE TARGET LSTM
     # EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/" + output_name+ "/single_target/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequences=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET, features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE)
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE)"""
 
     # visualization single_target
-    report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
+    """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH, results_folder="result",
-                          report_folder="report", output_filename="overall_report")
+                          report_folder="report", output_filename="overall_report")"""
 
     report_crypto(experiment_folder=EXPERIMENT_PATH, result_folder="result", report_folder="report",
                   output_filename="report")
 
-    generate_line_chart(EXPERIMENT_PATH, temporal_sequences, number_neurons)
+    #generate_line_chart(EXPERIMENT_PATH, temporal_sequences, number_neurons)
 
 
 def data_understanding(crypto_names=None):

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
@@ -7,7 +9,6 @@ from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
 from tensorflow.keras.optimizers import Adam,SGD
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
-from tensorflow.keras.layers import LSTM,Dropout,Dense
 from tensorflow.keras.layers import LSTM,Dropout,Dense,Activation
 import matplotlib.pyplot as plt
 from tensorflow_core.python.keras.utils.vis_utils import plot_model
@@ -109,9 +110,11 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
         return lstm_tensor
 
 
-def get_training_testing_set(dataset_tensor_format, date_to_predict):
+def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
     train = []
+    validation=[]
     test = []
+
 
     index_feature_date = 0
     for sample in dataset_tensor_format:
@@ -126,26 +129,38 @@ def get_training_testing_set(dataset_tensor_format, date_to_predict):
         #if the candidate date is equal to the date to predict then it will be in test set.
         #it happens just one time for each date to predict.
         #Test will be: [[items]] in which the items goes N(30,100,200) days before the date to predict.
-        if candidate == pd.to_datetime(date_to_predict):
+        #d_validation = pd.to_datetime(date_to_predict) - timedelta(days=3)
+        d1 = pd.to_datetime(date_to_predict) - timedelta(days=2)
+        d2 = pd.to_datetime(date_to_predict) - timedelta(days=1)
+        d3 = pd.to_datetime(date_to_predict)
+
+        """if candidate == pd.to_datetime(date_to_predict):
+                   test.append(sample)"""
+        """elif candidate > pd.to_datetime(date_to_predict):
+            pass"""
+        """if candidate == d_validation:
+                    validation.append(sample)"""
+        if candidate == d1 or candidate == d2 or candidate == d3:
             test.append(sample)
-        #if the candidate date is after the date to predict then ignore it.
-        elif candidate > pd.to_datetime(date_to_predict):
+        #if the candidate date is after oldest date:
+        elif candidate > d1:
             pass
         #otherwise,it will be in the training set
         else:
             train.append(sample)
-    return np.array(train), np.array(test)
+    #return np.array(train), np.array(validation),np.array(test)
+    return np.array(train),np.array(test)
 
-def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
-                model_path='', model=None):
+def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
+                date_to_predict,model_path='', model=None):
     #note: it's an incremental way to get a final model.
     #
     callbacks = [
-        EarlyStopping(monitor='loss', patience=patience),
+        EarlyStopping(monitor='val_loss', patience=patience,mode='min'),
         ModelCheckpoint(
-            monitor='loss', save_best_only=True,
-            filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}.h5'.format(
-                num_neurons, dropout, epochs, batch_size))
+            monitor='val_loss', save_best_only=True, mode='min',
+            filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}-target{}.h5'.format(
+                num_neurons, dropout, epochs, batch_size,date_to_predict))
     ]
 
     if model is None:
@@ -167,6 +182,9 @@ def train_model(x_train, y_train, x_test, y_test, num_neurons, learning_rate, dr
         #sgd=SGD(learning_rate=learning_rate)
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
 
-    history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_test, y_test),
-                       verbose=0,shuffle=False,callbacks=callbacks)
+    """history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_val, y_val),
+                       verbose=0,shuffle=False,callbacks=callbacks)"""
+    history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.3,
+              verbose=0, shuffle=False,callbacks=callbacks)
+
     return model, history
