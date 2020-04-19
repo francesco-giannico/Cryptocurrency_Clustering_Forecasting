@@ -24,7 +24,7 @@ tf_core.random.set_seed(2)
 
 PREPROCESSED_PATH = "../preparation/preprocessed_dataset/cleaned/final/"
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences, list_num_neurons, learning_rate,
-                  testing_set, features_to_use, DROPOUT, EPOCHS, PATIENCE):
+                  testing_set, features_to_use, DROPOUT, EPOCHS, PATIENCE,number_of_days_to_predict,start_date,end_date):
 
 
     #################### FOLDER SETUP ####################
@@ -46,7 +46,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
         folder_creator(EXPERIMENT_PATH + "/" + TIME_PATH + "/" + crypto_name, 1)
 
         dataset, features, features_without_date = \
-            prepare_input_forecasting(PREPROCESSED_PATH, DATA_PATH, crypto_name, None, features_to_use)
+            prepare_input_forecasting(PREPROCESSED_PATH, DATA_PATH, crypto_name,start_date,end_date,None, features_to_use)
 
         start_time = time.time()
         for window, num_neurons in product(window_sequences, list_num_neurons):
@@ -64,7 +64,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}"""
             predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': []}
             errors_file = {'symbol': [], 'rmse_norm': []}
-            predictions_file_1 = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': []}
+            #predictions_file_1 = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': []}
             errors_file_1= {'symbol': [], 'rmse_norm': []}
             """predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
                                 'observed_detrans': [], 'predicted_detrans': []}
@@ -85,6 +85,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             val_plot = DataFrame()
             i = 0
 
+            rmses=[]
             # starting from the testing set
             for date_to_predict in testing_set:
                 """the format of train and test is the following one:
@@ -100,7 +101,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                   3)e.g items
                 """
                 #train, validation,test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
-                train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
+                train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict,number_of_days_to_predict)
                 # ['2018-01-01' other numbers separated by comma],it removes the date.
                 train = train[:, :, 1:]
                 #validation = validation[:, :, 1:]
@@ -150,9 +151,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # returns an array with all the values of the feature close to predict!
                 y_test = test[:, -1, index_of_target_feature]
 
-                """print("Y_TEST")
+                print("Y_TEST")
                 print(y_test)
-                print(y_test.shape)"""
+                print(y_test.shape)
 
                 # change the data type, from object to float
                 # print(x_train[0][0])
@@ -164,141 +165,67 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 x_test = x_test.astype('float')
                 y_test = y_test.astype('float')
 
-                """print(x_train.shape[0])
-                print(get_factors(x_train.shape[0]))"""
                 #batch size must be a factor of the number of training elements
                 BATCH_SIZE=x_train.shape[0]
-                #BATCH_SIZE=256
-                factors = get_factors(x_train.shape[0])
-                """if len(factors) == 2:
-                    BATCH_SIZE = factors[1]
-                    #print("only 2 elements " + str(BATCH_SIZE))
-                elif len(factors) % 2 != 0:  # odd
-                    BATCH_SIZE = int(np.median(factors))
-                    #print("is odd: " + str(BATCH_SIZE))
-                else:  # even
-                    # vectors=np.split(np.asarray(factors),2)
-                    # print(vectors)
-                    # BATCH_SIZE=vectors[1][0]
-                    BATCH_SIZE = factors[(len(factors) - 2)]
-                    # BATCH_SIZE=int(np.median(factors))"""
 
-                    # BATCH_SIZE=np.min(factors[2:(len(factors)-2)])
-                    #print("Batch used " + str(BATCH_SIZE))
                 # if the date to predict is the first date in the testing_set
-                if date_to_predict == testing_set[0]:
-                    model, history = train_model(x_train, y_train,
-                                                 num_neurons=num_neurons,
-                                                 learning_rate=learning_rate,
-                                                 dropout=DROPOUT,
-                                                 epochs=EPOCHS,
-                                                 batch_size=BATCH_SIZE,
-                                                 patience=PATIENCE,
-                                                 dimension_last_layer=1,
-                                                 date_to_predict=date_to_predict,
-                                                 model_path=model_path)
-                    # information about neural network created
-                    """plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
-                               show_layer_names=True, expand_nested=True, dpi=150)"""
-                else:
-                    model, history = train_model(x_train, y_train,
-                                                 num_neurons=num_neurons,
-                                                 learning_rate=learning_rate,
-                                                 dropout=DROPOUT,
-                                                 epochs=EPOCHS,
-                                                 batch_size=BATCH_SIZE,
-                                                 patience=PATIENCE,
-                                                 dimension_last_layer=1,
-                                                 date_to_predict=date_to_predict,
-                                                 model=model,
-                                                 model_path=model_path)
+                #if date_to_predict == testing_set[0]:
+                model, history = train_model(x_train, y_train,
+                                             num_neurons=num_neurons,
+                                             learning_rate=learning_rate,
+                                             dropout=DROPOUT,
+                                             epochs=EPOCHS,
+                                             batch_size=BATCH_SIZE,
+                                             patience=PATIENCE,
+                                             dimension_last_layer=1,
+                                             date_to_predict=date_to_predict,
+                                             model_path=model_path)
+                # information about neural network created
+                """plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
+                           show_layer_names=True, expand_nested=True, dpi=150)"""
+
                 filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
                 plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
-
-                """train_plot[str(i)] = pd.Series(history.history['loss'])
-                val_plot[str(i)] = pd.Series(history.history['val_loss'])"""
-                i += 1
 
                 # Predict for each date in the validation set
                 test_prediction = model.predict(x_test)
 
-                # denormalization
-                # reshape(-1,1) means that you are not specifing only the column dimension, whist the row dimension is unknown
-                """y_test_denorm = scaler_target_feature.inverse_transform(y_test.reshape(-1, 1))
-                test_prediction_denorm = scaler_target_feature.inverse_transform(test_prediction)"""
-
-                # detransformation
-                """" y_test_detransformed = qt.inverse_transform(y_test_denorm.reshape(-1, 1))
-                test_prediction_detransformed = qt.inverse_transform(test_prediction_denorm)"""
-
                 # changing data types
-                # normalized
-
                 #test_prediction = float(test_prediction)
                 test_prediction=test_prediction.astype("float")
 
-                # denormalized
-                """y_test_denorm = float(y_test_denorm)
-                test_prediction_denorm = float(test_prediction_denorm)"""
-
-                # detransformed
-                """y_test_detr = float(y_test_detransformed)
-                test_prediction_detr = float(test_prediction_detransformed)"""
                 print("Num of entries for training: ", x_train.shape[0])
                 # print("Num of element for validation: ", x_test.shape[0])
-                print("Training until: ", pd.to_datetime(date_to_predict) - timedelta(days=3))
+                #print("Training until: ", pd.to_datetime(date_to_predict) - timedelta(days=3))
 
-                d1 = pd.to_datetime(date_to_predict) - timedelta(days=2)
-                d2 = pd.to_datetime(date_to_predict) - timedelta(days=1)
+                days = []
+                i = number_of_days_to_predict-1
+                while i > 0:
+                    d = pd.to_datetime(date_to_predict) - timedelta(days=i)
+                    days.append(d)
+                    i -= 1
+                days.append(pd.to_datetime(date_to_predict))
 
-                print("Predicting for: ", d1)
-                print("Predicted: ", test_prediction[0][0])
-                print("Actual: ", y_test[0])
-
-                print("Predicting for: ", d2)
-                print("Predicted: ", test_prediction[1][0])
-                print("Actual: ", y_test[1])
-
-                print("Predicting for: ", date_to_predict)
-                print("Predicted: ", test_prediction[2][0])
-                print("Actual: ", y_test[2])
-
+                i=0
+                for d in days:
+                    print("Predicting for: ", d)
+                    print("Predicted: ", test_prediction[i][0])
+                    print("Actual: ", y_test[i])
+                    i+=1
                 print("\n")
 
-                """
-                print("Predicting for: ", date_to_predict)
-                print("Predicted: ", test_prediction_detr)
-                print("Actual: ", y_test_detr)
-                print("\n")
-                """
+                #saving the rmse on these predictions
+                rmse=get_rmse(y_test, test_prediction)
+                rmses.append(rmse)
 
-                # Saving the predictions on the dictionaries
-                predictions_file['symbol'].append(crypto_name)
-                predictions_file['date'].append(d1)
-                predictions_file['observed_norm'].append(y_test[0])
-                predictions_file['predicted_norm'].append(test_prediction[0][0])
-
-                predictions_file['symbol'].append(crypto_name)
-                predictions_file['date'].append(d2)
-                predictions_file['observed_norm'].append(y_test[1])
-                predictions_file['predicted_norm'].append(test_prediction[1][0])
-
-                predictions_file['symbol'].append(crypto_name)
-                predictions_file['date'].append(date_to_predict)
-                predictions_file['observed_norm'].append(y_test[2])
-                predictions_file['predicted_norm'].append(test_prediction[2][0])
-
-                predictions_file_1['symbol'].append(crypto_name)
-                predictions_file_1['date'].append(date_to_predict)
-                predictions_file_1['observed_norm'].append(y_test[2])
-                predictions_file_1['predicted_norm'].append(test_prediction[2][0])
-                """predictions_file['observed_denorm'].append(y_test_denorm)
-                predictions_file['predicted_denorm'].append(test_prediction_denorm)"""
-                """predictions_file['observed_detrans'].append(y_test_detr)
-                predictions_file['predicted_detrans'].append(test_prediction_detr)"""
-
-            """ # Plot training & validation loss values
-            plot_train_and_validation_loss(train_plot, val_plot, model_path)"""
+                # Saving the predictions on the dictionarie
+                i=0
+                for d in days:
+                    predictions_file['symbol'].append(crypto_name)
+                    predictions_file['date'].append(d)
+                    predictions_file['observed_norm'].append(y_test[i])
+                    predictions_file['predicted_norm'].append(test_prediction[i][0])
+                    i+=1
 
             # Saving the RMSE into the dictionaries
             errors_file['symbol'].append(crypto_name)
@@ -308,13 +235,12 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             errors_file['rmse_norm'].append(rmse)
 
             errors_file_1['symbol'].append(crypto_name)
-            rmse_1= get_rmse(predictions_file_1['observed_norm'], predictions_file_1['predicted_norm'])
-            errors_file_1['rmse_norm'].append(rmse_1)
+            avg_rmse=(1/len(rmses))*np.sum(rmses)
+            errors_file_1['rmse_norm'].append(avg_rmse)
 
             # serialization
             pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv', index=False)
             pd.DataFrame(data=errors_file).to_csv(results_path + 'errors.csv', index=False)
-            pd.DataFrame(data=predictions_file_1).to_csv(results_path + 'predictions_1.csv', index=False)
             pd.DataFrame(data=errors_file_1).to_csv(results_path + 'errors_1.csv', index=False)
 
         time_spent=time.time() - start_time

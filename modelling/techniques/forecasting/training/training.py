@@ -40,11 +40,12 @@ def get_scaler2(PREPROCESSED_PATH,crypto,start_date,end_date):
             n_t += 1
     return qt
 
-def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,cryptos=None,features_to_use=None):
+def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,start_date,end_date,cryptos=None,features_to_use=None):
     if features_to_use!=None:
-        df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto+".csv", sep=',',header=0,usecols=features_to_use)
+        #df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto+".csv", sep=',',header=0,usecols=features_to_use)
+        df=cut_dataset_by_range(CLUSTERING_CRYPTO_PATH, crypto.replace(".csv", ""), start_date, end_date,features_to_use)
     else:
-        df = pd.read_csv(CLUSTERING_CRYPTO_PATH + crypto+".csv", sep=',', header=0)
+        df = cut_dataset_by_range(CLUSTERING_CRYPTO_PATH, crypto.replace(".csv", ""), start_date, end_date)
 
     df=df.set_index("Date")
     start_date=df.index[0]
@@ -110,7 +111,7 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
         return lstm_tensor
 
 
-def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
+def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,number_of_days_to_predict):
     train = []
     validation=[]
     test = []
@@ -130,24 +131,27 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
         #it happens just one time for each date to predict.
         #Test will be: [[items]] in which the items goes N(30,100,200) days before the date to predict.
         #d_validation = pd.to_datetime(date_to_predict) - timedelta(days=3)
-        d1 = pd.to_datetime(date_to_predict) - timedelta(days=2)
+        """d1 = pd.to_datetime(date_to_predict) - timedelta(days=2)
         d2 = pd.to_datetime(date_to_predict) - timedelta(days=1)
-        d3 = pd.to_datetime(date_to_predict)
+        d3 = pd.to_datetime(date_to_predict)"""
+        days=[]
+        i=number_of_days_to_predict-1
+        while i>0:
+            d = pd.to_datetime(date_to_predict) - timedelta(days=i)
+            days.append(d)
+            i-=1
+        days.append(pd.to_datetime(date_to_predict))
 
-        """if candidate == pd.to_datetime(date_to_predict):
-                   test.append(sample)"""
-        """elif candidate > pd.to_datetime(date_to_predict):
-            pass"""
-        """if candidate == d_validation:
-                    validation.append(sample)"""
-        if candidate == d1 or candidate == d2 or candidate == d3:
-            test.append(sample)
-        #if the candidate date is after oldest date:
-        elif candidate > d1:
+        # if the candidate date is after oldest date:
+        if candidate > days[number_of_days_to_predict-1]:
             pass
-        #otherwise,it will be in the training set
         else:
-            train.append(sample)
+            for d in days:
+                if candidate == d:
+                    test.append(sample)
+                #otherwise,it will be in the training set
+                else:
+                    train.append(sample)
     #return np.array(train), np.array(validation),np.array(test)
     return np.array(train),np.array(test)
 

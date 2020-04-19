@@ -1,5 +1,0 @@
-Configurazione:
-100 epoche
-50 patience
-0.02 (circa 30 giorni) per il validation
-3 giorni da predire.
