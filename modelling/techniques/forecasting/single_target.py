@@ -81,10 +81,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             folder_creator(model_path, 1)
             folder_creator(results_path, 1)
 
-            train_plot = DataFrame()
-            val_plot = DataFrame()
-            i = 0
-
             rmses=[]
             # starting from the testing set
             for date_to_predict in testing_set:
@@ -103,6 +99,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 #train, validation,test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
                 train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict,number_of_days_to_predict)
                 # ['2018-01-01' other numbers separated by comma],it removes the date.
+
                 train = train[:, :, 1:]
                 #validation = validation[:, :, 1:]
                 test = test[:, :, 1:]
@@ -116,16 +113,16 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # also, i will remove the "Close" feature, thanks to the third index (1)
                 # x_train= train[:, :-1, index_of_target_feature:]
                 x_train = train[:, :-1, :]
-                """print("X_TRAIN")
+                print("X_TRAIN")
                 print(x_train)
-                print(x_train.shape)"""
+                print(x_train.shape)
                 # remove the last day before the day to predict, by doing -1
                 # returns an array with all the values of the feature close
                 # this contains values about the target feature!
                 y_train = train[:, -1, index_of_target_feature]
-                """print("Y_TRAIN")
+                print("Y_TRAIN")
                 print(y_train)
-                print(y_train.shape)"""
+                print(y_train.shape)
 
                 #x_val = validation[:, :-1, :]
                 """print("X_VAL")
@@ -144,9 +141,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # x_test = test[:, :-1, index_of_target_feature:]
 
                 x_test = test[:, :-1, :]
-                """print("X_TEST")
+                print("X_TEST")
                 print(x_test)
-                print(x_test.shape)"""
+                print(x_test.shape)
                 # remove the last day before the day to predict, by doing -1
                 # returns an array with all the values of the feature close to predict!
                 y_test = test[:, -1, index_of_target_feature]

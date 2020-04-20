@@ -26,7 +26,11 @@ def compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH,feat
             df1=df1.set_index("Date")
             if (distance_measure=="dtw"):
                 distances = []
-                for col in df.columns:
+                if features_to_use == None:
+                    features = df.columns
+                else:
+                    features = features_to_use
+                for col in features:
                     distance=dtw.distance(np.array(df[col].values).astype(np.float).squeeze(), np.array(df1[col].values).astype(np.float).squeeze())
                     #distance=dtw.distance(df[col].to_numpy(dtype="float"),df1[col].to_numpy(dtype="float"))
                     distances.append(distance)

@@ -146,12 +146,14 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
         if candidate > days[number_of_days_to_predict-1]:
             pass
         else:
+            added=False
             for d in days:
                 if candidate == d:
                     test.append(sample)
-                #otherwise,it will be in the training set
-                else:
-                    train.append(sample)
+                    added=True
+            #otherwise,it will be in the training set
+            if not added:
+                train.append(sample)
     #return np.array(train), np.array(validation),np.array(test)
     return np.array(train),np.array(test)
 
@@ -188,7 +190,7 @@ def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, b
 
     """history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_val, y_val),
                        verbose=0,shuffle=False,callbacks=callbacks)"""
-    history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.3,
+    history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.02,
               verbose=0, shuffle=False,callbacks=callbacks)
 
     return model, history

@@ -55,8 +55,8 @@ def main():
        'UO','lag_1']
 
     # General parameters
-    temporal_sequences = [15]
-    list_number_neurons = [30]
+    temporal_sequences = [10,30]
+    list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 1
@@ -67,12 +67,11 @@ def main():
 
     """single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)
+                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)"""
 
-    """
     #CLUSTERING
-    start_date_cluster = "2019-01-01"
-    end_date_cluster = "2019-03-01"
+    start_date_cluster = "2019-10-01"
+    end_date_cluster = "2019-12-16"
     distance_measure = "pearson"
     features_to_use = ['Close']
     type_clustering="min_max_normalized"
@@ -86,7 +85,7 @@ def main():
     #MULTITARGET
     #temporal_sequences =[15,30,45]
     #mancano i 45 giorni
-    temporal_sequences = [15]
+    temporal_sequences = [15,30]
     list_number_neurons = [30]
     learning_rate = 0.001
     DROPOUT = 0.45
@@ -113,21 +112,22 @@ def main():
     print(df.isnull().sum())"""
     """types=["outputs_k1","outputs_k_sqrtN","outputs_k_sqrtNby2","outputs_k_sqrtNby4",
            "outputs_k_sqrtNdiv2","outputs_k_sqrtNdiv4"]"""
-    """types=["outputs_multi"]
-    single_target="outputs_1000_500_single"
+    types=["outputs_multi_10000_500"]
+    single_target="outputs_single"
     for current in types:
         path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_rmse/"
         path_single_target = "../modelling/techniques/forecasting/"+single_target+"/single_target/result/"
         path_multi_target = "../modelling/techniques/forecasting/"+current+"/multi_target/clusters/"
         output_path="../modelling/techniques/forecasting/"+current+"/reports/"
-        compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)"""
+        compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)
 
     """path_multi_target = "../modelling/techniques/forecasting/"
     crypto_oriented(path_multi_target,types)"""
 
-    multi_target_main(TEST_SET,type,features_to_use,
+    """"multi_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi,number_of_days_to_predict)
+    """
     """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
              name_folder_res=type)
@@ -203,7 +203,8 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
     # SIMPLE PREDICTION
     """DATA_PATH_SIMPLE = DATA_PATH
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
-    simple_prediction(DATA_PATH_SIMPLE, TEST_SET, OUTPUT_SIMPLE_PREDICTION)"""
+    TEST_SET_BASELINE= testing_set_baseline()
+    simple_prediction(DATA_PATH_SIMPLE, TEST_SET_BASELINE, OUTPUT_SIMPLE_PREDICTION)"""
 
     # SINGLE TARGET LSTM
     # EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/" + output_name+ "/single_target/"
@@ -244,6 +245,12 @@ def data_understanding(crypto_names=None):
     OUTPUT_PATH = "../understanding/output/"
     describe(PATH_DATASET, OUTPUT_PATH, None, None)
 
+def testing_set_baseline():
+    test_start_date = "2019-01-01"
+    test_end_date = "2019-12-31"
+    TEST_SET = get_testset(
+            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + "_baseline.txt")
+    return TEST_SET
 
 def testing_set():
     test_start_date = "2019-01-01"
