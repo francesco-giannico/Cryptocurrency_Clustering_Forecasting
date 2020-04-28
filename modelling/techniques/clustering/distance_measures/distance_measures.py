@@ -103,7 +103,7 @@ def compute_distance_matrix(dict_symbol_id,distance_measure,CLUSTERING_PATH,feat
     dict_symbol_id=dict_symbol_id.reset_index()
     df3=pd.DataFrame(data=distance_matrix,columns=dict_symbol_id.symbol.values,index=dict_symbol_id.symbol.values)
     import seaborn as sns
-    plt.figure(figsize=(20, 10))
+    plt.figure(figsize=(25, 15))
     dist_chart=sns.heatmap(
         df3,
         cmap='OrRd',

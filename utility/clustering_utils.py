@@ -21,16 +21,16 @@ def generate_cryptocurrencies_dictionary(PATH_TO_READ,PATH_OUTPUT):
 
 
 #selects only the datasets which cover the period of time of interest.
-def prepare_dataset_for_clustering(start_date,end_date,input_path,output_path):
-    for crypto in os.listdir(input_path):
+def prepare_dataset_for_clustering(start_date,end_date,input_path_type_for_clustering,input_path_type_for_prediction,output_path):
+    for crypto in os.listdir(input_path_type_for_clustering):
         try:
             #dataset to cut
-            df = cut_dataset_by_range(input_path, crypto.replace(".csv",""), start_date, end_date)
+            df = cut_dataset_by_range(input_path_type_for_clustering, crypto.replace(".csv",""), start_date, end_date)
             df = df.set_index("Date")
             if (df.index[0] == start_date):
                 df = df.reset_index()
                 df.to_csv(output_path + "cut_datasets/" + crypto, sep=",", index=False)
-                copyfile(input_path + crypto, output_path + "original_datasets/" + crypto)
+                copyfile(input_path_type_for_prediction + crypto, output_path + "original_datasets/" + crypto)
         except:
             pass
 

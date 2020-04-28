@@ -186,7 +186,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
                 # Predict for each date in the validation set
                 test_prediction = model.predict(x_test)
-
+                # this is important!!
+                K.clear_session()
                 # changing data types
                 #test_prediction = float(test_prediction)
                 test_prediction=test_prediction.astype("float")

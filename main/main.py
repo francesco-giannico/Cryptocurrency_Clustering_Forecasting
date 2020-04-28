@@ -55,7 +55,7 @@ def main():
        'UO','lag_1']
 
     # General parameters
-    temporal_sequences = [10,30]
+    temporal_sequences = [15,30]
     list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
@@ -68,17 +68,16 @@ def main():
     """single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)"""
-
     #CLUSTERING
-    start_date_cluster = "2019-10-01"
-    end_date_cluster = "2019-12-16"
+    start_date_cluster = "2019-03-16"
+    end_date_cluster = "2019-06-16"
     distance_measure = "pearson"
     features_to_use = ['Close']
     type_clustering="min_max_normalized"
 
     # clustering
     """clustering(distance_measure, start_date=start_date_cluster,
-               end_date=end_date_cluster, type=type_clustering,
+               end_date=end_date_cluster, type_for_clustering=type_clustering, type_for_prediction=type,
                features_to_use=features_to_use)"""
 
 
@@ -86,7 +85,7 @@ def main():
     #temporal_sequences =[15,30,45]
     #mancano i 45 giorni
     temporal_sequences = [15,30]
-    list_number_neurons = [30]
+    list_number_neurons = [128,256]
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 1
@@ -112,7 +111,7 @@ def main():
     print(df.isnull().sum())"""
     """types=["outputs_k1","outputs_k_sqrtN","outputs_k_sqrtNby2","outputs_k_sqrtNby4",
            "outputs_k_sqrtNdiv2","outputs_k_sqrtNdiv4"]"""
-    types=["outputs_multi_10000_500"]
+    types=["outputs_multi"]
     single_target="outputs_single"
     for current in types:
         path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_rmse/"
@@ -201,17 +200,17 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
                                                                             temporal_sequence, PATIENCE)"""
     # print("Current configuration: "+ output_name)
     # SIMPLE PREDICTION
-    """DATA_PATH_SIMPLE = DATA_PATH
+    DATA_PATH_SIMPLE = DATA_PATH
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
     TEST_SET_BASELINE= testing_set_baseline()
-    simple_prediction(DATA_PATH_SIMPLE, TEST_SET_BASELINE, OUTPUT_SIMPLE_PREDICTION)"""
+    simple_prediction(DATA_PATH_SIMPLE, TEST_SET_BASELINE, OUTPUT_SIMPLE_PREDICTION)
 
     # SINGLE TARGET LSTM
     # EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/" + output_name+ "/single_target/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequences=temporal_sequences,
@@ -219,7 +218,7 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
                   testing_set=TEST_SET, features_to_use=features_to_use,
                   DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,number_of_days_to_predict=number_of_days_to_predict,
                   start_date=start_date,end_date=end_date)
-
+"""
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH, results_folder="result",

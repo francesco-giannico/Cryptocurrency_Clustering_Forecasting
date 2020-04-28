@@ -7,13 +7,15 @@ from utility.folder_creator import folder_creator
 from utility.reader import get_dict_symbol_id
 
 
-def clustering(distance_measure,start_date,end_date,type,features_to_use=None):
+def clustering(distance_measure,start_date,end_date,type_for_clustering,type_for_prediction,features_to_use=None):
     CLUSTERING_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/" + start_date + "_" + end_date + "/"
-    PATH_SOURCE = "../preparation/preprocessed_dataset/constructed/"+type+"/"
+    PATH_SOURCE_CLUST= "../preparation/preprocessed_dataset/constructed/"+type_for_clustering+"/"
+    PATH_SOURCE_PRED= "../preparation/preprocessed_dataset/constructed/" + type_for_prediction + "/"
 
     folder_setup(CLUSTERING_PATH)
 
-    prepare_dataset_for_clustering(start_date,end_date,input_path=PATH_SOURCE,output_path=CLUSTERING_PATH)
+    prepare_dataset_for_clustering(start_date,end_date,input_path_type_for_clustering=PATH_SOURCE_CLUST,
+                                   input_path_type_for_prediction=PATH_SOURCE_PRED,output_path=CLUSTERING_PATH)
     
     generate_cryptocurrencies_dictionary(CLUSTERING_PATH+"cut_datasets/",CLUSTERING_PATH)
     

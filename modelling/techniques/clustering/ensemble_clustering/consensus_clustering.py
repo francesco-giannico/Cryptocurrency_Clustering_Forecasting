@@ -68,7 +68,7 @@ def consensus_clustering(CLUSTERING_PATH):
     for k in df1.index:
         k_value = int(df1.loc[k].values[0])
 
-        agglomerative_instance = agglomerative(distance_matrix,k_value, type_link.COMPLETE_LINK)
+        agglomerative_instance = agglomerative(distance_matrix,k_value, type_link.AVERAGE_LINK)
         agglomerative_instance.process()
         # Obtain results of clustering
         clusters = agglomerative_instance.get_clusters()

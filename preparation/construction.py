@@ -25,6 +25,24 @@ def min_max_scaling(input_path,output_path):
         #todo we have to round 8 since the neural network takes floating numbers with this limit (df.round(8))
         df.to_csv(output_path+crypto,sep=",", index=False)
 
+#SCALING
+"""Normalization is the process of scaling individual samples to have unit norm. 
+This process can be useful if you plan to use a quadratic form such 
+as the dot-product or any other kernel to quantify the similarity of any pair of samples.
+This assumption is the base of the Vector Space Model often used in text classification and clustering contexts.
+If you want to cluster based on similar shape in the cluster rather then similar variance (standardization)"""
+def min_max_one_minusone_scaling(input_path,output_path):
+    folder_creator(output_path,1)
+    excluded_features = ['Date']
+    for crypto in os.listdir(input_path):
+        df = pd.read_csv(input_path+crypto,delimiter=',', header=0)
+        scaler = MinMaxScaler(feature_range=(-1, 1))
+        for col in df.columns:
+            if col not in excluded_features:
+                normalized = scaler.fit_transform(df[col].values.reshape(-1, 1))
+                df[col] = pd.Series(normalized.reshape(-1))
+        #todo we have to round 8 since the neural network takes floating numbers with this limit (df.round(8))
+        df.to_csv(output_path+crypto,sep=",", index=False)
 
 #SCALING
 

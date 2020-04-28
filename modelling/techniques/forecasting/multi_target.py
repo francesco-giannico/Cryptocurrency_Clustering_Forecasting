@@ -13,6 +13,8 @@ from utility.computations import get_factors
 from utility.folder_creator import folder_creator
 from visualization.line_chart import plot_train_and_validation_loss
 import tensorflow_core as tf_core
+
+from tensorflow.keras import backend as K
 #np.random.seed(0)
 tf_core.random.set_seed(2)
 
@@ -136,7 +138,8 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             # information about neural network created
             plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
                        show_layer_names=True, expand_nested=True, dpi=150)
-
+            # this is important!!
+            K.clear_session()
             filename = "model_train_val_loss_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
             plot_train_and_validation_loss(pd.Series(history.history['loss']), pd.Series(history.history['val_loss']),
                                            model_path, filename)
