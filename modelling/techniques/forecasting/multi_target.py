@@ -13,10 +13,11 @@ from utility.computations import get_factors
 from utility.folder_creator import folder_creator
 from visualization.line_chart import plot_train_and_validation_loss
 import tensorflow_core as tf_core
-
+import random as rn
 from tensorflow.keras import backend as K
-#np.random.seed(0)
-tf_core.random.set_seed(2)
+np.random.seed(42)
+rn.seed(42)
+tf_core.random.set_seed(42)
 
 # features_to_exclude_from_scaling = ['Symbol_1','Symbol_2','Symbol_3','Symbol_4','Symbol_5','Symbol_6','Symbol_7','Symbol_8']
 
@@ -138,15 +139,16 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             # information about neural network created
             plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
                        show_layer_names=True, expand_nested=True, dpi=150)
-            # this is important!!
-            K.clear_session()
+
             filename = "model_train_val_loss_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
             plot_train_and_validation_loss(pd.Series(history.history['loss']), pd.Series(history.history['val_loss']),
                                            model_path, filename)
 
             # Predict for each date in the validation set
             test_prediction = model.predict(x_test)
-
+            # this is important!!
+            K.clear_session()
+            tf_core.random.set_seed(42)
             print("Num of entries for training: ", x_train.shape[0])
             # print("Num of element for validation: ", x_test.shape[0])
             # print("Training until: ", pd.to_datetime(date_to_predict) - timedelta(days=3))

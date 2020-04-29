@@ -10,6 +10,7 @@ from tensorflow.keras.optimizers import Adam,SGD
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
 from tensorflow.keras.layers import LSTM,Dropout,Dense,Activation
+import tensorflow as tf
 import matplotlib.pyplot as plt
 from tensorflow_core.python.keras.utils.vis_utils import plot_model
 from utility.dataset_utils import cut_dataset_by_range
@@ -181,7 +182,7 @@ def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, b
         # reduce the overfitting
         model.add(Dropout(dropout))"""
         #number of neurons of the last layer
-        model.add(Dense(units=dimension_last_layer))
+        model.add(Dense(units=dimension_last_layer,kernel_initializer=tf.keras.initializers.glorot_uniform(seed=66)))
         #optimizer
         adam=Adam(learning_rate=learning_rate)
         #print(model.summary())

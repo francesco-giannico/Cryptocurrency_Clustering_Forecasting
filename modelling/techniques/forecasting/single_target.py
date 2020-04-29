@@ -15,11 +15,12 @@ import matplotlib.pyplot as plt
 from visualization.line_chart import plot_train_and_validation_loss
 import tensorflow_core as tf_core
 import time
-
+import random as rn
 from tensorflow.keras import backend as K
-# np.random.seed(1)
+np.random.seed(42)
+rn.seed(42)
 # stable results
-tf_core.random.set_seed(2)
+tf_core.random.set_seed(42)
 
 
 PREPROCESSED_PATH = "../preparation/preprocessed_dataset/cleaned/final/"
@@ -186,8 +187,11 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
                 # Predict for each date in the validation set
                 test_prediction = model.predict(x_test)
+
                 # this is important!!
                 K.clear_session()
+                tf_core.random.set_seed(42)
+
                 # changing data types
                 #test_prediction = float(test_prediction)
                 test_prediction=test_prediction.astype("float")

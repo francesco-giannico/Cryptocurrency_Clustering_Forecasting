@@ -85,7 +85,7 @@ def main():
     #temporal_sequences =[15,30,45]
     #mancano i 45 giorni
     temporal_sequences = [15,30]
-    list_number_neurons = [128,256]
+    list_number_neurons = [500]
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 1
