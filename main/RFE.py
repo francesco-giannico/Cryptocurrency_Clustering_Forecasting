@@ -15,19 +15,19 @@ ranks = {}
     return dict(zip(names, ranks))"""
 
 #X, y = make_friedman1(n_samples=5, n_features=10, random_state=0)
-csv=pd.read_csv("../preparation/preprocessed_dataset/integrated/DOGE.csv",header=0)
+csv=pd.read_csv("../preparation/preprocessed_dataset/constructed/max_abs_normalized/BTC.csv",header=0)
 print(csv.columns)
 
 csv= csv.set_index("Date")
 X= np.array(csv)
 columns=csv.columns
 y=csv['Close']
-rf = RandomForestRegressor(n_jobs=-1, n_estimators=100, verbose=0)
+rf = RandomForestRegressor(n_jobs=-1, n_estimators=14, verbose=0)
 rf.fit(X,y)
 #print(rf.feature_importances_)
 """ranks["RF"] = ranking(rf.feature_importances_, columns)
 print(ranks)"""
-selector = RFE(rf, n_features_to_select=15, step=1)
+selector = RFE(rf, n_features_to_select=3, step=1)
 selector = selector.fit(X,y)
 """print "Features sorted by their rank:"""
 print (sorted(zip(map(lambda x: round(x, 4), selector.ranking_), columns)))

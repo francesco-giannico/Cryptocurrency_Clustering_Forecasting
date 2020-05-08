@@ -5,6 +5,78 @@ import os
 from utility.folder_creator import folder_creator
 import seaborn as sns
 
+
+def crypto_cluster_oriented(path_multitarget,path_singletarget,path_output):
+    folder_creator(path_output,1)
+    output_file = {'symbol': [], 'cluster': [],'lowest_rmse_multi':[],'related_cryptos':[],'lowest_rmse_single':[]}
+    for cluster in os.listdir(path_multitarget):
+       related_cryptos = []
+       for crypto in os.listdir(os.path.join(path_multitarget,cluster,"result")):
+           related_cryptos.append(crypto)
+           # lowest single target
+           min_single = 100
+           conf_name_single = ""
+           for configuration in os.listdir(os.path.join(path_singletarget, crypto)):
+               df = pd.read_csv(os.path.join(path_singletarget, crypto, configuration, "stats/errors.csv"), header=0)
+               if df["rmse_norm"][0] < min_single:
+                   min_single = df["rmse_norm"][0]
+                   conf_name_single = configuration
+
+
+           min_multi = 100
+           conf_name_multi = ""
+           for configuration in os.listdir(os.path.join(path_multitarget,cluster,"result",crypto)):
+               df = pd.read_csv(os.path.join(path_multitarget, cluster, "result", crypto, configuration, "stats/errors.csv"), header=0)
+               if df["rmse_norm"][0] < min_multi:
+                   min_multi = df["rmse_norm"][0]
+                   conf_name_multi = configuration
+
+           output_file['symbol'].append(crypto)
+           output_file['cluster'].append(cluster)
+           output_file['lowest_rmse_multi'].append(min_multi)
+           output_file['lowest_rmse_single'].append(min_single)
+       i=0
+       while i < len(related_cryptos):
+        output_file['related_cryptos'].append(related_cryptos)
+        i+=1
+    pd.DataFrame(data=output_file).to_csv(os.path.join(path_output, "clusters.csv"), index=False)
+    crypto_cluster_oriented_plot(os.path.join(path_output, "clusters.csv"))
+
+def crypto_cluster_oriented_plot(path_input_file):
+    df = pd.read_csv(path_input_file)
+    crypto_names=set(df.symbol)
+    for crypto in crypto_names:
+       df1=df[df.symbol==crypto]
+       df2=pd.DataFrame()
+       for cluster in df1.cluster.values:
+         """print(cluster)
+         print(df1.cluster)"""
+         #print(df1[df1.cluster==cluster].lowest_rmse_multi)
+         df2['lowest_rmse_single_target'] = df1[df1.cluster == cluster].lowest_rmse_single.values
+         df2["lowest_rmse_"+cluster]=df1[df1.cluster==cluster].lowest_rmse_multi.values
+
+             #df1[df1.cluster==cluster].lowest_rmse_multi
+       plt.figure()
+       ax = sns.barplot(data=df2, ci=None)
+       plt.title(crypto)
+       ax.set(xlabel='Competitors', ylabel='Root mean squared error')
+       """ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),
+                 fancybox=True, shadow=True, ncol=2)"""
+       #plt.legend([df2.lowest_rmse_cluster_1.values, df2.lowest_rmse_single_target.values, ['u', 'v']])
+       #plt.legend(labels=['test_label1','test_label2'])
+       import matplotlib.patches as mpatches
+       # where some data has already been plotted to ax
+       legend = ax.legend()
+       patches=[]
+       import ast
+       for cluster in df1.cluster.values:
+           patches.append(mpatches.Patch(color="Blue", label=cluster+": "+str(df1[df1.cluster == cluster].related_cryptos.values).replace("[\"","").replace("\"]","")))
+       plt.legend(handles=patches, bbox_to_anchor=(0., -0.20), loc=2, borderaxespad=0.,prop={"size":5})
+       # Put the legend out of the figure
+
+       plt.show()
+       #plt.savefig(output_path + "/" + cluster.replace(".csv", "") + ".png", dpi=100)
+
 def crypto_oriented(path_multitarget,types):
     #creare un dataframe contenente, per ogni cripto
     #data una cripto, apri ogni file cluster_N.csv e cerca la cripto.
@@ -12,9 +84,9 @@ def crypto_oriented(path_multitarget,types):
                                     'k_sqrtNby4','k_sqrtNdiv2','k_sqrtNdiv4','lowest_single_target',
                                     'baseline'])
 
-    for csv in os.listdir(os.path.join(path_multitarget,"outputs_k1","reports")):
+    for csv in os.listdir(os.path.join(path_multitarget,"k_1","reports")):
       if csv.endswith(".csv"):
-        df=pd.read_csv(os.path.join(path_multitarget,"outputs_k1","reports",csv))
+        df=pd.read_csv(os.path.join(path_multitarget,"k_1","reports",csv))
         df_final.symbol=df.symbol
         df_final.k_1=df.avg_rmse_multi
         df_final.lowest_single_target=df.avg_rmse_single
@@ -22,7 +94,7 @@ def crypto_oriented(path_multitarget,types):
     df_final=df_final.set_index("symbol")
 
     for k in types:
-        if k!="outputs_k1":
+        if k!="k_1":
             for csv in os.listdir(os.path.join(path_multitarget,k,"reports")):
               if csv.endswith(".csv"):
                 df=pd.read_csv(os.path.join(path_multitarget,k,"reports",csv))
@@ -53,11 +125,12 @@ def compare_multi_baseline_single_target_chart(input_path,output_path):
             for crypto in df.symbol.values:
                 #print(df[df.symbol==crypto])
                 plt.figure()
-                df_new= pd.DataFrame(columns=['symbol','lowest_rmse_multi','lowest_rmse_single','baseline'])
+                #df_new= pd.DataFrame(columns=['symbol','lowest_rmse_multi','lowest_rmse_single','baseline'])
+                df_new = pd.DataFrame(columns=['symbol', 'lowest_rmse_multi', 'lowest_rmse_single'])
                 df_new['symbol']=df.symbol
                 df_new['lowest_rmse_multi'] = df.avg_rmse_multi
                 df_new['lowest_rmse_single'] = df.avg_rmse_single
-                df_new['baseline'] = df.baseline
+                #df_new['baseline'] = df.baseline
                 ax = sns.barplot(data=df_new[df_new.symbol==crypto], ci=None)
                 title = crypto
                 plt.title(title)
@@ -85,7 +158,8 @@ def compare_multi_baseline_single_target(path_baseline,path_single,path_multi,ou
     folder_creator(os.path.join(output_path,"averages"),1)
     folder_creator(os.path.join(output_path,"single_crypto"), 1)
     for cluster in os.listdir(path_multi):
-        output_file = {'symbol': [], 'avg_rmse_multi': [], 'avg_rmse_single': [], 'baseline': []}
+        #output_file = {'symbol': [], 'avg_rmse_multi': [], 'avg_rmse_single': [], 'baseline': []}
+        output_file = {'symbol': [], 'avg_rmse_multi': [], 'avg_rmse_single': []}
         #vai in result del cluster in corso
         for crypto in os.listdir(os.path.join(path_multi,cluster,"result")):
             #leggere da baseline
@@ -101,7 +175,7 @@ def compare_multi_baseline_single_target(path_baseline,path_single,path_multi,ou
                 if df["rmse_norm"][0]< min_single:
                     min_single=df["rmse_norm"][0]
                     conf_name_single=configuration
-
+            print(conf_name_single)
             # lowest multi target
             min_multi = 100
             conf_name_multi= ""
@@ -110,11 +184,11 @@ def compare_multi_baseline_single_target(path_baseline,path_single,path_multi,ou
                 if df["rmse_norm"][0] < min_multi:
                     min_multi= df["rmse_norm"][0]
                     conf_name_multi = configuration
-
+            print(conf_name_multi)
             output_file['symbol'].append(crypto)
             output_file['avg_rmse_single'].append(min_single)
             output_file['avg_rmse_multi'].append(min_multi)
-            output_file['baseline'].append(rmse_baseline)
+            #output_file['baseline'].append(rmse_baseline)
 
             pd.DataFrame(data=output_file).to_csv(os.path.join(output_path,cluster+".csv"), index=False)
     compare_avg_multi_baseline_single_target_chart(output_path,os.path.join(output_path,"averages"))

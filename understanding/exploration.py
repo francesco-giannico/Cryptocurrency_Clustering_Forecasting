@@ -48,7 +48,7 @@ def describe(PATH_DATASET,output_path,name_folder_res=None,features_to_use=None)
     folder_creator(PATH_OUT,1)
     for crypto in os.listdir(PATH_DATASET):
         crypto_name = crypto.replace(".csv", "")
-        if crypto_name=="DOGE":
+        if crypto_name=="BTC":
 
             if features_to_use!=None:
                 features_to_read = features_to_use + ['Date']
@@ -77,10 +77,10 @@ def describe(PATH_DATASET,output_path,name_folder_res=None,features_to_use=None)
             #no_scaling_vs_log_scaling(df,features_to_use,crypto_name,PATH_CRYPTO+"noscaling_vs_logscaling/")
 
             feature_selection(df, features_to_use, crypto_name, PATH_CRYPTO+"feature_selection/")
-            correlation_matrix(df, crypto_name, PATH_CRYPTO + "correlation_heatmap/")
+            #correlation_matrix(df, crypto_name, PATH_CRYPTO + "correlation_heatmap/")
             #lag_plott(df,features_to_use,crypto_name,PATH_CRYPTO + "lag_plot/")
     
-            box_plot(df,crypto_name,PATH_CRYPTO + "box_plot/")
+            """box_plot(df,crypto_name,PATH_CRYPTO + "box_plot/")
     
             distribution_plot(df,features_to_use,crypto_name,PATH_CRYPTO + "distribution_plot/")
     
@@ -90,7 +90,7 @@ def describe(PATH_DATASET,output_path,name_folder_res=None,features_to_use=None)
     
             normality_test(df, features_to_use, crypto_name, PATH_CRYPTO + "normality_test/")
     
-            stationary_test(df, features_to_use, crypto_name, PATH_CRYPTO + "stationary_test/")
+            stationary_test(df, features_to_use, crypto_name, PATH_CRYPTO + "stationary_test/")"""
 
             #kurtosis_normal_distribution(df,features_to_use,crypto_name,PATH_CRYPTO + "kurtosis_test/")
 
