@@ -40,9 +40,9 @@ def crypto_cluster_oriented(path_multitarget,path_singletarget,path_output):
         output_file['related_cryptos'].append(related_cryptos)
         i+=1
     pd.DataFrame(data=output_file).to_csv(os.path.join(path_output, "clusters.csv"), index=False)
-    crypto_cluster_oriented_plot(os.path.join(path_output, "clusters.csv"))
+    crypto_cluster_oriented_plot(os.path.join(path_output, "clusters.csv"),path_output)
 
-def crypto_cluster_oriented_plot(path_input_file):
+def crypto_cluster_oriented_plot(path_input_file,path_output):
     df = pd.read_csv(path_input_file)
     crypto_names=set(df.symbol)
     for crypto in crypto_names:
@@ -56,7 +56,7 @@ def crypto_cluster_oriented_plot(path_input_file):
          df2["lowest_rmse_"+cluster]=df1[df1.cluster==cluster].lowest_rmse_multi.values
 
              #df1[df1.cluster==cluster].lowest_rmse_multi
-       plt.figure()
+       plt.figure(figsize=(20,15))
        ax = sns.barplot(data=df2, ci=None)
        plt.title(crypto)
        ax.set(xlabel='Competitors', ylabel='Root mean squared error')
@@ -68,14 +68,44 @@ def crypto_cluster_oriented_plot(path_input_file):
        # where some data has already been plotted to ax
        legend = ax.legend()
        patches=[]
+       colors=["Orange","Green","Red","Violet","Black"]
        import ast
+       i=0
        for cluster in df1.cluster.values:
-           patches.append(mpatches.Patch(color="Blue", label=cluster+": "+str(df1[df1.cluster == cluster].related_cryptos.values).replace("[\"","").replace("\"]","")))
-       plt.legend(handles=patches, bbox_to_anchor=(0., -0.20), loc=2, borderaxespad=0.,prop={"size":5})
+           patches.append(mpatches.Patch(color=colors[i], label=cluster+": "+str(df1[df1.cluster == cluster].related_cryptos.values).replace("[\"","").replace("\"]","")))
+           i+=1
+       plt.legend(handles=patches, bbox_to_anchor=(0., -0.05), loc=2, borderaxespad=0.,prop={"size":10})
        # Put the legend out of the figure
 
-       plt.show()
-       #plt.savefig(output_path + "/" + cluster.replace(".csv", "") + ".png", dpi=100)
+       plt.savefig(path_output + "/" + crypto+".png", dpi=100)
+
+def multi_vs_single(path_multitarget,types):
+    df_final = {'k_1':[],'k_sqrtN':[], 'k_sqrtNby2':[],
+                                     'k_sqrtNby4':[], 'k_sqrtNdiv2':[], 'k_sqrtNdiv4':[], 'single_target':[]}
+    for csv in os.listdir(os.path.join(path_multitarget, "k_1", "reports")):
+        if csv.endswith(".csv"):
+            df = pd.read_csv(os.path.join(path_multitarget, "k_1", "reports", csv))
+            df_final['k_1'].append(np.average(df.avg_rmse_multi))
+            df_final['single_target'].append(np.average(df.avg_rmse_single))
+
+    for k in types:
+        if k != "k_1":
+            frames=[]
+            for csv in os.listdir(os.path.join(path_multitarget, k, "reports")):
+                if csv.endswith(".csv"):
+                    frames.append(pd.read_csv(os.path.join(path_multitarget, k, "reports", csv)))
+            joined=pd.concat(frames)
+            df_final[k].append(np.average(joined.avg_rmse_multi))
+
+    dataframe = pd.DataFrame(data=df_final)
+    folder_creator(os.path.join(path_multitarget, "reports_multi"), 1)
+    plt.figure(figsize=(20, 20))
+    ax = sns.barplot(data=dataframe, ci=None)
+    title = "multi_target vs single_target overall"
+    plt.title(title)
+    ax.set(xlabel='Competitors', ylabel='Average rmse')
+    plt.savefig(os.path.join(path_multitarget, "reports_multi", title+".png"), dpi=100)
+
 
 def crypto_oriented(path_multitarget,types):
     #creare un dataframe contenente, per ogni cripto
