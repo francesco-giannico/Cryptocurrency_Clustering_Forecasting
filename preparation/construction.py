@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta
+
 from sklearn.preprocessing import MinMaxScaler, StandardScaler, MaxAbsScaler, RobustScaler
 import pandas as pd
 
@@ -114,4 +116,16 @@ def create_horizontal_dataset(data_path,output_path,start_date,end_date):
 
     return cryptos_in_the_cluster
 
-
+def add_trend_feature(input_path,output_path,percent):
+    for crypto in os.listdir(input_path):
+        df= pd.read_csv(os.path.join(input_path,crypto),sep=",",header=0)
+        df['pct_change'] = df['Close'].pct_change()
+        df['pct_change']= df['pct_change'].apply(lambda x: x*100)
+        #0 is stable
+        #1 is down
+        #2 is up
+        df['trend']=0
+        df.loc[df['pct_change'] < -percent, 'trend'] = 1 #down
+        df.loc[df['pct_change'] > percent, 'trend'] = 2  #up
+        #print(df[['pct_change','trend']])
+        df.to_csv(output_path + crypto, sep=",", index=False)

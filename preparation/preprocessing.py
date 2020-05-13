@@ -1,7 +1,7 @@
 from preparation.cleaning import remove_uncomplete_rows_by_range, input_missing_values, \
     remove_outliers_dbscan, remove_outliers_one
 from preparation.construction import min_max_scaling, max_abs_scaling, standardization, robust_scaling, \
-    min_max_one_minusone_scaling
+    min_max_one_minusone_scaling, add_trend_feature
 from preparation.integration import integrate_with_indicators, integrate_with_lag
 from preparation.selection import find_by_dead_before, find_uncomplete,remove_features
 from preparation.transformation import power_transformation, power_transformation2, quantile_transform, \
@@ -74,7 +74,9 @@ def construction(input_path):
     #min_max_one_minusone_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
     #min_max_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
     """standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)"""
-    robust_scaling(input_path,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
+    #robust_scaling(input_path,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
     #max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
+    #add qualitative feature Trend
+    add_trend_feature(input_path=PATH_MAXABSNORMALIZED_FOLDER,output_path=PATH_MAXABSNORMALIZED_FOLDER,percent=1)
 
 

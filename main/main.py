@@ -31,7 +31,7 @@ def main():
     #data_understanding()
 
     #DATA PREPARATION
-    #preprocessing()
+    preprocessing()
     #Description after
     #type="min_max_normalized"
     type = "max_abs_normalized"
@@ -138,8 +138,8 @@ def main():
 
 
     #NEW 2
-    path_multi_target = "../modelling/techniques/forecasting/"
-    multi_vs_single(path_multi_target, types)
+    """path_multi_target = "../modelling/techniques/forecasting/"
+    multi_vs_single(path_multi_target, types)"""
 
 def multi_target_main(TEST_SET, type, features_to_use,
                       temporal_sequences, list_number_neurons, learning_rate,
