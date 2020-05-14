@@ -31,7 +31,7 @@ def main():
     #data_understanding()
 
     #DATA PREPARATION
-    preprocessing()
+    #preprocessing()
     #Description after
     #type="min_max_normalized"
     type = "max_abs_normalized"
@@ -46,29 +46,22 @@ def main():
     #MODELLING
     #features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume']
 
-    features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
-       'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
-       'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
-       'EMA_12', 'EMA_26', 'EMA_13', 'EMA_30', 'EMA_20', 'EMA_50', 'EMA_100',
-       'EMA_200', 'RSI_14', 'RSI_21', 'RSI_100', 'RSI_200', 'MACD_12_26_9',
-       'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20',
-       'MOM', 'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO',
-       'UO']
+    features_to_use=['Date','Close','DPO','trend']
 
     # General parameters
-    temporal_sequences = [15, 30, 45, 60]
-    list_number_neurons = [128, 256, 300, 500, 600, 800, 1000]
+    temporal_sequences = [10]
+    list_number_neurons = [50]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 1
+    EPOCHS = 2
     PATIENCE= 1
-    number_of_days_to_predict=15
+    number_of_days_to_predict=365
     start_date_single="2015-09-01"
     end_date_single="2019-12-31"
 
-    """single_target_main(TEST_SET,type,features_to_use,
+    single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)"""
+                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)
     #CLUSTERING
     start_date_cluster = "2015-10-01"
     end_date_cluster = "2018-12-31"
@@ -212,14 +205,14 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
     DATA_PATH_SIMPLE = DATA_PATH
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
     TEST_SET_BASELINE= testing_set_baseline()
-    simple_prediction(DATA_PATH_SIMPLE, TEST_SET_BASELINE, OUTPUT_SIMPLE_PREDICTION)
+    #simple_prediction(DATA_PATH_SIMPLE, TEST_SET_BASELINE, OUTPUT_SIMPLE_PREDICTION)
 
     # SINGLE TARGET LSTM
     # EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/" + output_name+ "/single_target/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequences=temporal_sequences,
@@ -227,7 +220,7 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
                   testing_set=TEST_SET, features_to_use=features_to_use,
                   DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,number_of_days_to_predict=number_of_days_to_predict,
                   start_date=start_date,end_date=end_date)
-"""
+
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH, results_folder="result",
@@ -270,7 +263,7 @@ def testing_set():
     test_end_date = "2019-12-31"
     try:
         TEST_SET = get_testset(
-            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + "_baseline.txt")
+            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + ".txt")
     except:
         # Test set HAS TO BE EQUAL AMONG ALL THE EXPERIMENTS!!!
         generate_testset(test_start_date, test_end_date, "../modelling/techniques/forecasting/testing/")

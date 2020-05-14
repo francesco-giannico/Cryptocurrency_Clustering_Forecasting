@@ -2,22 +2,23 @@ import os
 from datetime import timedelta
 import pandas as pd
 import numpy as np
-from modelling.techniques.forecasting.evaluation.error_measures import get_rmse
+from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_accuracy
 from utility.folder_creator import folder_creator
 
 
 partial_folder="predictions"
-final_folder="average_rmse"
+folder_rmse="average_rmse"
+folder_accuracy="average_accuracy"
 
 def simple_prediction(data_path,test_set,result_folder):
     folder_creator(result_folder+partial_folder+"/",1)
-    folder_creator(result_folder+final_folder,1)
-
+    folder_creator(result_folder+folder_rmse,1)
+    folder_creator(result_folder + folder_accuracy, 1)
     for crypto in os.listdir(data_path):
-        df= pd.read_csv(data_path+crypto,usecols=['Date','Close'])
+        df= pd.read_csv(data_path+crypto,usecols=['Date','Close','trend'])
 
         #new dataframe for output
-        df1=pd.DataFrame(columns=["date","observed_value","predicted_value"])
+        df1=pd.DataFrame(columns=["date","observed_value","predicted_value","observed_class","predicted_class"])
         for date_to_predict in test_set:
             day_before = (pd.to_datetime(date_to_predict,format="%Y-%m-%d") - timedelta(days=1)).strftime('%Y-%m-%d')
 
@@ -27,18 +28,34 @@ def simple_prediction(data_path,test_set,result_folder):
             row_day_to_predict=df[df['Date']==date_to_predict]
             row_day_to_predict=row_day_to_predict.set_index('Date')
 
-            df1 = df1.append({'date':date_to_predict,'observed_value':row_day_to_predict.loc[date_to_predict,'Close'],'predicted_value':row_day_before.loc[day_before,'Close']},ignore_index=True)
+            df1 = df1.append({'date':date_to_predict,'observed_value':row_day_to_predict.loc[date_to_predict,'Close'],
+                              'predicted_value':row_day_before.loc[day_before,'Close'],
+                              'observed_class': row_day_to_predict.loc[date_to_predict, 'trend'],
+                              'predicted_class': row_day_before.loc[day_before, 'trend'],
+                              },ignore_index=True)
         df1.to_csv(result_folder+partial_folder+"/"+crypto,sep=",",index=False)
 
+    #accuracy and rmse
     rmses=[]
+    accuracies=[]
     for crypto in os.listdir(result_folder+partial_folder+"/"):
         df = pd.read_csv(result_folder+partial_folder+"/"+crypto)
         #get rmse for each crypto
         rmse = get_rmse(df['observed_value'], df['predicted_value'])
+        accuracy= get_accuracy(df['observed_class'], df['predicted_class'])
         rmses.append(rmse)
-        with open(os.path.join(result_folder,final_folder, crypto.replace(".csv","")), 'w+') as out:
+        accuracies.append(accuracy)
+        with open(os.path.join(result_folder,folder_rmse, crypto.replace(".csv","")), 'w+') as out:
             out.write(str(rmse))
+        with open(os.path.join(result_folder,folder_accuracy, crypto.replace(".csv","_accuracy.txt")), 'w+') as out:
+            out.write(str(accuracy))
 
-    with open(os.path.join(result_folder,final_folder,"average_rmse.txt"), 'w+') as out:
+    #average rmse
+    with open(os.path.join(result_folder,folder_rmse,"average_rmse.txt"), 'w+') as out:
         final = np.mean(rmses)
+        out.write(str(final))
+
+    # average accuracy
+    with open(os.path.join(result_folder, folder_accuracy, "average_accuracy.txt"), 'w+') as out:
+        final = np.mean(accuracies)
         out.write(str(final))

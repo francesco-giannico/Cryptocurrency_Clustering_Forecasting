@@ -14,8 +14,8 @@ def plot_train_and_validation_loss(train,test,output_folder,filename=None):
     fig = plt.figure(figsize=(12, 7),dpi=150)
     plt.plot(train, color='blue', label='Train')
     plt.plot(test, color='orange', label='Validation')
-    plt.title('model train vs validation loss')
-    plt.ylabel('loss')
+    plt.title('model train vs validation accuracy')
+    plt.ylabel('accuracy')
     plt.xlabel('epoch')
     legend_elements = [Line2D([0], [0], color='blue', lw=2, label='Train'),
                        Line2D([0], [0], color='orange', lw=2, label='Validation'),]

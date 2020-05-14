@@ -158,7 +158,7 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
     #return np.array(train), np.array(validation),np.array(test)
     return np.array(train),np.array(test)
 
-def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
+"""def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
                 date_to_predict,model_path='', model=None):
     #note: it's an incremental way to get a final model.
     #
@@ -177,10 +177,6 @@ def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, b
         model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
         #reduce the overfitting
         model.add(Dropout(dropout))
-        """
-        model.add(LSTM(units=num_neurons))
-        # reduce the overfitting
-        model.add(Dropout(dropout))"""
         #number of neurons of the last layer
         model.add(Dense(units=dimension_last_layer,kernel_initializer=tf.keras.initializers.glorot_uniform(seed=66)))
         #optimizer
@@ -189,9 +185,36 @@ def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, b
         #sgd=SGD(learning_rate=learning_rate)
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
 
-    """history = model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size, validation_data=(x_val, y_val),
-                       verbose=0,shuffle=False,callbacks=callbacks)"""
     history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.02,
               verbose=0, shuffle=False,callbacks=callbacks)
 
     return model, history
+"""
+def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
+                date_to_predict,model_path='', model=None):
+    #note: it's an incremental way to get a final model.
+    #
+    """callbacks = [
+        EarlyStopping(monitor='val_loss', patience=patience,mode='acc'),
+        ModelCheckpoint(
+            monitor='val_loss', save_best_only=True, mode='acc',
+            filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}-target{}.h5'.format(
+                num_neurons, dropout, epochs, batch_size,date_to_predict))
+    ]"""
+    if model is None:
+        model = Sequential()
+        # Add a LSTM layer with 128/256 internal units.
+        #model.add(LSTM(units=num_neurons,return_sequences=True,input_shape=(x_train.shape[1], x_train.shape[2])))
+        model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
+        #reduce the overfitting
+        model.add(Dropout(dropout))
+        model.add(Dense(units=num_neurons, activation='relu'))
+        model.add(Dense(units=dimension_last_layer, activation='softmax'))
+        # optimizer
+        adam = Adam(learning_rate=learning_rate)
+        model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+    history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.02,
+              verbose=0, shuffle=False)
+
+    return model, history
+

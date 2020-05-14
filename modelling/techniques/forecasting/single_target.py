@@ -5,7 +5,10 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from tensorflow.keras.utils import plot_model
-from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_r_square
+from tensorflow_core.python.keras.utils.np_utils import to_categorical
+
+from modelling.techniques.forecasting.evaluation.error_measures import get_rmse,  \
+    get_classification_stats
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
     train_model, get_training_validation_testing_set
 from utility.computations import get_factors
@@ -63,10 +66,10 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             """predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
                                 'observed_denorm': [], 'predicted_denorm': []}
             errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}"""
-            predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': []}
-            errors_file = {'symbol': [], 'rmse_norm': []}
+            predictions_file = {'symbol': [], 'date': [], 'observed_class': [], 'predicted_class': []}
+            macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
             #predictions_file_1 = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': []}
-            errors_file_1= {'symbol': [], 'rmse_norm': []}
+            #errors_file_1= {'symbol': [], 'rmse_norm': []}
             """predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
                                 'observed_detrans': [], 'predicted_detrans': []}
             errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_detrans': []}"""
@@ -82,7 +85,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             folder_creator(model_path, 1)
             folder_creator(results_path, 1)
 
-            rmses=[]
+            accuracies=[]
             # starting from the testing set
             for date_to_predict in testing_set:
                 """the format of train and test is the following one:
@@ -102,10 +105,9 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # ['2018-01-01' other numbers separated by comma],it removes the date.
 
                 train = train[:, :, 1:]
-                #validation = validation[:, :, 1:]
                 test = test[:, :, 1:]
 
-                index_of_target_feature = features_without_date.index('Close')
+                index_of_target_feature = features_without_date.index('trend')
 
                 # print(index_of_target_feature)
                 # remove the last day before the day to predict:
@@ -113,17 +115,18 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # e.g [[items],[items2],[items3]] becames [[items1],[items2]]
                 # also, i will remove the "Close" feature, thanks to the third index (1)
                 # x_train= train[:, :-1, index_of_target_feature:]
-                x_train = train[:, :-1, :]
-                print("X_TRAIN")
+                #todo qua ho messo index of target feature
+                x_train = train[:, :-1, :index_of_target_feature]
+                """print("X_TRAIN")
                 print(x_train)
-                print(x_train.shape)
+                print(x_train.shape)"""
                 # remove the last day before the day to predict, by doing -1
                 # returns an array with all the values of the feature close
                 # this contains values about the target feature!
                 y_train = train[:, -1, index_of_target_feature]
-                print("Y_TRAIN")
+                """print("Y_TRAIN")
                 print(y_train)
-                print(y_train.shape)
+                print(y_train.shape)"""
 
                 #x_val = validation[:, :-1, :]
                 """print("X_VAL")
@@ -140,29 +143,35 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # e.g date to predict 2019-01-07 thus the data about 2019-01-07 will be discarded.
                 # e.g [[items],[items2],[items3]] becames [[items1],[items2]]
                 # x_test = test[:, :-1, index_of_target_feature:]
-
-                x_test = test[:, :-1, :]
-                print("X_TEST")
+                # todo qua ho messo index of target feature
+                x_test = test[:, :-1, :index_of_target_feature]
+                """print("X_TEST")
                 print(x_test)
-                print(x_test.shape)
+                print(x_test.shape)"""
                 # remove the last day before the day to predict, by doing -1
                 # returns an array with all the values of the feature close to predict!
                 y_test = test[:, -1, index_of_target_feature]
 
-                print("Y_TEST")
+                """print("Y_TEST")
                 print(y_test)
-                print(y_test.shape)
+                print(y_test.shape)"""
 
                 # change the data type, from object to float
                 # print(x_train[0][0])
                 x_train = x_train.astype('float')
                 # print(x_train[0][0])
-                y_train = y_train.astype('float')
-                """x_val = x_val.astype('float')
-                y_val = y_val.astype('float')"""
+                #y_train = y_train.astype('float')
                 x_test = x_test.astype('float')
-                y_test = y_test.astype('float')
+                #y_test = y_test.astype('float')
 
+                # one hot encode y
+                y_train  = to_categorical(y_train)
+                y_test = to_categorical(y_test)
+                """print(y_train)
+                print(y_test)"""
+                """print(y_train)
+                print(y_test)"""
+                #print(np.argmax(y_test))
                 #batch size must be a factor of the number of training elements
                 BATCH_SIZE=x_train.shape[0]
 
@@ -175,26 +184,28 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                                              epochs=EPOCHS,
                                              batch_size=BATCH_SIZE,
                                              patience=PATIENCE,
-                                             dimension_last_layer=1,
+                                             dimension_last_layer=len(y_train[0]),
                                              date_to_predict=date_to_predict,
                                              model_path=model_path)
                 # information about neural network created
                 """plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
                            show_layer_names=True, expand_nested=True, dpi=150)"""
 
-                filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
-                plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
+                #filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
+                #plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
+                filename = "model_train_val_accuracy_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
+                plot_train_and_validation_loss(pd.Series(history.history['accuracy']),
+                                               pd.Series(history.history['val_accuracy']), model_path, filename)
 
                 # Predict for each date in the validation set
                 test_prediction = model.predict(x_test)
-
                 # this is important!!
                 K.clear_session()
                 tf_core.random.set_seed(42)
 
                 # changing data types
                 #test_prediction = float(test_prediction)
-                test_prediction=test_prediction.astype("float")
+                #test_prediction=test_prediction.astype("float")
 
                 print("Num of entries for training: ", x_train.shape[0])
                 # print("Num of element for validation: ", x_test.shape[0])
@@ -208,48 +219,46 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                     i -= 1
                 days.append(pd.to_datetime(date_to_predict))
 
+                # invert encoding: argmax of numpy takes the higher value in the array
+
                 i=0
                 for d in days:
                     print("Predicting for: ", d)
-                    print("Predicted: ", test_prediction[i][0])
-                    print("Actual: ", y_test[i])
+                    print("Predicted: ", np.argmax(test_prediction[i]))
+                    print("Actual: ", np.argmax(y_test[i]))
                     i+=1
                 print("\n")
 
-                #saving the rmse on these predictions
-                rmse=get_rmse(y_test, test_prediction)
-                rmses.append(rmse)
-
+                #todo RMSE AND ACCURACY
+                # saving the accuracy on these predictions
+                """confusion_matrix,performances=get_classification_stats(y_test, test_prediction)
+                accuracies.append(performances.get('macro avg').get('recall'))"""
                 # Saving the predictions on the dictionarie
-                i=0
+                i = 0
                 for d in days:
                     predictions_file['symbol'].append(crypto_name)
                     predictions_file['date'].append(d)
-                    predictions_file['observed_norm'].append(y_test[i])
-                    predictions_file['predicted_norm'].append(test_prediction[i][0])
-                    i+=1
+                    predictions_file['observed_class'].append(np.argmax(y_test[i]))
+                    predictions_file['predicted_class'].append(np.argmax(test_prediction[i]))
+                    i += 1
 
-            # Saving the RMSE into the dictionaries
-            errors_file['symbol'].append(crypto_name)
+            # Saving the accuracy into the dictionaries
+            macro_avg_recall_file['symbol'].append(crypto_name)
 
-            # normalized RMSE
-            rmse = get_rmse(predictions_file['observed_norm'], predictions_file['predicted_norm'])
-            errors_file['rmse_norm'].append(rmse)
-
-            errors_file_1['symbol'].append(crypto_name)
-            avg_rmse=(1/len(rmses))*np.sum(rmses)
-            errors_file_1['rmse_norm'].append(avg_rmse)
+            # accuracy
+            confusion_matrix,performances= get_classification_stats(predictions_file['observed_class'], predictions_file['predicted_class'])
+            macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
 
             # serialization
             pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv', index=False)
-            pd.DataFrame(data=errors_file).to_csv(results_path + 'errors.csv', index=False)
-            pd.DataFrame(data=errors_file_1).to_csv(results_path + 'errors_1.csv', index=False)
-
+            pd.DataFrame(data=macro_avg_recall_file).to_csv(results_path + 'macro_avg_recall.csv', index=False)
+            #confusion_matrix.to_csv(results_path + 'confusion_matrix.csv', index=False)
+            #pd.DataFrame(data=performances).to_csv(results_path + 'performances.csv', index=False)
         time_spent=time.time() - start_time
         f=open(EXPERIMENT_PATH + "/" + TIME_PATH + "/" + crypto_name+"/"+"time_spent.txt","w+")
         f.write(str(time_spent))
         f.close()
-
+        break
     return
 
 

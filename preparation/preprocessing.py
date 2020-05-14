@@ -78,5 +78,6 @@ def construction(input_path):
     #max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
     #add qualitative feature Trend
     add_trend_feature(input_path=PATH_MAXABSNORMALIZED_FOLDER,output_path=PATH_MAXABSNORMALIZED_FOLDER,percent=1)
+    #todo add trend also for other constructed if needed
 
 
