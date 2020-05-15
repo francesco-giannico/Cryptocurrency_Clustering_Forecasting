@@ -194,13 +194,13 @@ def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, b
                 date_to_predict,model_path='', model=None):
     #note: it's an incremental way to get a final model.
     #
-    """callbacks = [
-        EarlyStopping(monitor='val_loss', patience=patience,mode='acc'),
+    callbacks = [
+        EarlyStopping(monitor='val_accuracy', patience=patience,mode='max'),
         ModelCheckpoint(
-            monitor='val_loss', save_best_only=True, mode='acc',
+            monitor='val_accuracy', save_best_only=True, mode='max',
             filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}-target{}.h5'.format(
                 num_neurons, dropout, epochs, batch_size,date_to_predict))
-    ]"""
+    ]
     if model is None:
         model = Sequential()
         # Add a LSTM layer with 128/256 internal units.

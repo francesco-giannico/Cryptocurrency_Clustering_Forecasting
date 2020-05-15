@@ -39,8 +39,17 @@ def get_accuracy(actual,prediction):
 
 # (True positive class 0/#elem_class_n + True positive class 1/#elem_class_1 +  True positive class 2/#elem_class_2) / number of classes =3
 def get_classification_stats(actual,prediction):
+    """true_positives=np.diagonal(confusion_matrix)
+    #compute the number of element on each class
+    partial_averages=[]
+    i=0
+    while i< len(true_positives):
+        partial_averages.append(np.divide(true_positives[i],np.sum(confusion_matrix[i])))
+        i+=1
+    print(np.average(partial_averages))"""
     confusion_matrix=metrics.confusion_matrix(actual, prediction)
     confusion_matrix = pd.DataFrame({'Stable': confusion_matrix[:, 0], 'Down':  confusion_matrix[:, 1],'Up':  confusion_matrix[:, 2]})
     performances = metrics.classification_report(actual, prediction, digits=3, output_dict=True)
     #print(metrics.classification_report(actual, prediction, digits=3))
     return confusion_matrix,performances
+

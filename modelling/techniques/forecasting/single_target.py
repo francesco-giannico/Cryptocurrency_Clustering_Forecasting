@@ -169,8 +169,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 y_test = to_categorical(y_test)
                 """print(y_train)
                 print(y_test)"""
-                """print(y_train)
-                print(y_test)"""
+                print(y_train)
+                """print(y_test)"""
                 #print(np.argmax(y_test))
                 #batch size must be a factor of the number of training elements
                 BATCH_SIZE=x_train.shape[0]

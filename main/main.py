@@ -50,18 +50,18 @@ def main():
 
     # General parameters
     temporal_sequences = [10]
-    list_number_neurons = [50]
+    list_number_neurons = [128]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 2
-    PATIENCE= 1
-    number_of_days_to_predict=365
+    EPOCHS = 100
+    PATIENCE= 50
+    number_of_days_to_predict=1
     start_date_single="2015-09-01"
     end_date_single="2019-12-31"
 
-    single_target_main(TEST_SET,type,features_to_use,
+    """single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)
+                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)"""
     #CLUSTERING
     start_date_cluster = "2015-10-01"
     end_date_cluster = "2018-12-31"
@@ -77,27 +77,30 @@ def main():
     #MULTITARGET
     #temporal_sequences =[15,30,45]
     #mancano i 45 giorni
-    temporal_sequences = [15,30]
-    list_number_neurons = [500]
+    temporal_sequences = [10]
+    list_number_neurons = [50]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 1
-    PATIENCE = 1
+    EPOCHS = 100
+    PATIENCE = 50
     crypto = "BTC"
-    cluster_n="cluster_3"
+    cluster_n="cluster"
     start_date_multi = "2015-10-01"
     end_date_multi= "2019-12-31"
     #0 means 1 day
-    number_of_days_to_predict = 2
-    features_to_use = ['Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
-                       'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
-                       'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
-                       'EMA_12', 'EMA_26', 'EMA_13', 'EMA_30', 'EMA_20', 'EMA_50', 'EMA_100',
-                       'EMA_200', 'RSI_14', 'RSI_21', 'RSI_100', 'RSI_200', 'MACD_12_26_9',
-                       'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20',
-                       'MOM', 'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO',
-                       'UO', 'lag_1']
+    number_of_days_to_predict = 5
+    features_to_use = ['Close','DPO','trend']
     #features_to_use = ['Open', 'High', 'Low', 'Close']
+
+    multi_target_main(TEST_SET,type,features_to_use,
+                          temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
+                           EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi,number_of_days_to_predict)
+    """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
+             output_path="../modelling/techniques/clustering/",
+             name_folder_res=type)
+    """
+
+
     #[df=pd.read_csv("modelling/techniques/clustering/output_to_use/clusters/cluster_1/ETH.csv",header=0)
     """df = pd.read_csv("ETH.csv", header=0)
 
@@ -114,14 +117,7 @@ def main():
     """path_multi_target = "../modelling/techniques/forecasting/"
     crypto_oriented(path_multi_target,types)"""
 
-    """"multi_target_main(TEST_SET,type,features_to_use,
-                       temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi,number_of_days_to_predict)
-    """
-    """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
-             output_path="../modelling/techniques/clustering/",
-             name_folder_res=type)
-    """
+
 
     #NEW
     """path_multitarget="../modelling/techniques/forecasting/clusters/"

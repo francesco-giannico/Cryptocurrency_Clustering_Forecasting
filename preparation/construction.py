@@ -6,7 +6,7 @@ import pandas as pd
 
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
-
+import numpy as np
 
 #SCALING
 """Normalization is the process of scaling individual samples to have unit norm. 
@@ -116,6 +116,7 @@ def create_horizontal_dataset(data_path,output_path,start_date,end_date):
 
     return cryptos_in_the_cluster
 
+#[close(i+1)-close(i)/close(i)*100]
 def add_trend_feature(input_path,output_path,percent):
     for crypto in os.listdir(input_path):
         df= pd.read_csv(os.path.join(input_path,crypto),sep=",",header=0)
@@ -129,3 +130,38 @@ def add_trend_feature(input_path,output_path,percent):
         df.loc[df['pct_change'] > percent, 'trend'] = 2  #up
         #print(df[['pct_change','trend']])
         df.to_csv(output_path + crypto, sep=",", index=False)
+
+"""def add_trend_feature(input_path,output_path,percent):
+    for crypto in os.listdir(input_path):
+        df= pd.read_csv(os.path.join(input_path,crypto),sep=",",header=0)
+
+        df['trend']=0
+        for day in df.Date.values:
+            if day!=df.Date.values[0]:
+                day_before = (pd.to_datetime(day, format="%Y-%m-%d") - timedelta(days=1)).strftime('%Y-%m-%d')
+
+                row_day_before = df[df['Date'] == day_before]
+                row_day_before = row_day_before.set_index('Date')
+
+                row_current_day = df[df['Date'] == day]
+                row_current_day  = row_current_day .set_index('Date')
+
+                delta_percent=np.multiply(
+                    np.divide(np.subtract(row_current_day.loc[day,'Close'],
+                                          row_day_before.loc[day_before,'Close']),
+                              row_day_before.loc[day_before,'Close']),100)
+
+                print(delta_percent)
+                df = df.set_index("Date")
+                if delta_percent>percent:
+                    #Up:2
+                    df.at[day,'trend']=2
+                elif delta_percent<percent:
+                    #down:1
+                    df.at[day, 'trend']=1
+                else:
+                    pass
+                df=df.reset_index()
+        df.to_csv(output_path + crypto, sep=",", index=False)
+        break"""
+

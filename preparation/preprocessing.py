@@ -75,7 +75,7 @@ def construction(input_path):
     #min_max_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
     """standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)"""
     #robust_scaling(input_path,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
-    #max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
+    max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
     #add qualitative feature Trend
     add_trend_feature(input_path=PATH_MAXABSNORMALIZED_FOLDER,output_path=PATH_MAXABSNORMALIZED_FOLDER,percent=1)
     #todo add trend also for other constructed if needed
