@@ -10,7 +10,7 @@ from tensorflow_core.python.keras.utils.np_utils import to_categorical
 from modelling.techniques.forecasting.evaluation.error_measures import get_rmse,  \
     get_classification_stats
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
-    train_model, get_training_validation_testing_set
+    get_training_validation_testing_set, train_single_target_model
 from utility.computations import get_factors
 from utility.folder_creator import folder_creator
 from datetime import datetime, timedelta
@@ -177,7 +177,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
                 # if the date to predict is the first date in the testing_set
                 #if date_to_predict == testing_set[0]:
-                model, history = train_model(x_train, y_train,
+                model, history = train_single_target_model(x_train, y_train,
                                              num_neurons=num_neurons,
                                              learning_rate=learning_rate,
                                              dropout=DROPOUT,
@@ -187,12 +187,15 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                                              num_categories=len(y_train[0]),
                                              date_to_predict=date_to_predict,
                                              model_path=model_path)
-                # information about neural network created
+                # plot neural network's architecture
                 plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
                            show_layer_names=True, expand_nested=True, dpi=150)
 
-                #filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
-                #plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
+                #plot loss
+                filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
+                plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
+
+                #plot accuracy
                 filename = "model_train_val_accuracy_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
                 plot_train_and_validation_loss(pd.Series(history.history['accuracy']),
                                                pd.Series(history.history['val_accuracy']), model_path, filename)
@@ -258,7 +261,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
         f=open(EXPERIMENT_PATH + "/" + TIME_PATH + "/" + crypto_name+"/"+"time_spent.txt","w+")
         f.write(str(time_spent))
         f.close()
-        break
     return
 
 

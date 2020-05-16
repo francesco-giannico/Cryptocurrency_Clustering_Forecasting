@@ -8,7 +8,7 @@ from tensorflow_core.python.keras.utils.vis_utils import plot_model
 from tensorflow_core.python.keras.utils.np_utils import to_categorical
 from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_classification_stats
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
-    get_training_validation_testing_set, train_model, train_model_new
+    get_training_validation_testing_set, train_multi_target_model
 from utility.computations import get_factors
 from utility.folder_creator import folder_creator
 from visualization.line_chart import plot_train_and_validation_loss
@@ -124,60 +124,75 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             x_test = np.delete(x_test, indexes_of_target_features, 2)
             # remove the last day before the day to predict, by doing -1
             # returns an array with all the values of the feature close to predict!
-            y_test = test[:, -1, indexes_of_target_features]
-
+            y_tests = []
+            for index in indexes_of_target_features:
+                y_tests.append(test[:, -1, index])
+            #print(np.asarray(y_tests))
             # change the data type, from object to float
             x_train = x_train.astype('float')
             #y_train = y_train.astype('float')
             x_test = x_test.astype('float')
             #y_test = y_test.astype('float')
 
-            #print(y_train)
-
             #one hot encode for each y_train and y_test
             y_trains_encoded=[]
             for y_train in y_trains:
                 y_trains_encoded.append(to_categorical(y_train))
             y_trains_encoded=np.asarray(y_trains_encoded)
-            #print(y_train_encoded)
-            y_test = to_categorical(y_test)
-            #print(y_trains_encoded[0])
-            #print(y_test)
-            #print(y_test)
-            #print(y_train)
-            #todo per farlo funzionare con la rete neurale.
-            """y_train= [elem.flatten() for elem in y_train]
-            y_train=np.asarray(y_train)"""
 
+            y_tests_encoded = []
+            for y_test in y_tests:
+                y_tests_encoded.append(to_categorical(y_test))
+            y_tests_encoded = np.asarray(y_tests_encoded)
 
             BATCH_SIZE=x_train.shape[0]
             # if the date to predict is the first date in the testing_set
             #if date_to_predict == testing_set[0]:
-            model, history = train_model_new(x_train, y_trains_encoded,
+            model, history = train_multi_target_model(x_train, y_trains_encoded,
                                          num_neurons=num_neurons,
                                          learning_rate=learning_rate,
                                          dropout=DROPOUT,
                                          epochs=EPOCHS,
                                          batch_size=BATCH_SIZE,
-                                         num_categories=3,
+                                         num_categories=len(y_trains_encoded[0][0]),
                                          date_to_predict=date_to_predict,
                                          model_path=model_path,patience=PATIENCE)
-            # information about neural network created
+            # plot neural network's architecture
             plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
                        show_layer_names=True, expand_nested=True, dpi=150)
 
-            filename = "model_train_val_loss_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
-            plot_train_and_validation_loss(pd.Series(history.history['loss']), pd.Series(history.history['val_loss']),
-                                           model_path, filename)
+            #todo generalizzare.....
+            #print(history.history.keys())
 
-            """# Predict for each date in the validation set
+            #plot total loss
+            filename = "total_train_val_loss_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
+            plot_train_and_validation_loss(pd.Series(history.history['loss']),
+                                           pd.Series(history.history['val_loss']),
+                                           model_path, filename)
+            m = 0
+            while m < len(y_trains_encoded):
+                curr_crypto="trend_"+str(m)
+                filename = curr_crypto+"_train_val_loss_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
+                plot_train_and_validation_loss(pd.Series(history.history[curr_crypto+'_loss']),
+                                               pd.Series(history.history['val_'+curr_crypto+'_loss']),
+                                               model_path, filename)
+                # plot accuracy
+                filename = curr_crypto+"_train_val_accuracy_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
+                plot_train_and_validation_loss(pd.Series(history.history[curr_crypto+'_accuracy']),
+                                               pd.Series(history.history['val_'+curr_crypto+'_accuracy']), model_path,
+                                               filename)
+                m+=1
+
+            # Predict for each date in the validation set
             test_prediction = model.predict(x_test)
+
             # this is important!!
             K.clear_session()
             tf_core.random.set_seed(42)
             print("Num of entries for training: ", x_train.shape[0])
             # print("Num of element for validation: ", x_test.shape[0])
             # print("Training until: ", pd.to_datetime(date_to_predict) - timedelta(days=3))
+
             days = []
             i = number_of_days_to_predict-1
             while i > 0:
@@ -186,25 +201,20 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
                 i -= 1
             days.append(pd.to_datetime(date_to_predict))
 
-
             #save the accuracies values
-            i = 0
+            i = 0 #i represents the number of current day
             for d in days:
                 predictions_file['date'].append(d)
-
                 observed_decoded = []
                 predicted_decoded = []
                 print("Predicting for: ", d)
-                j=0
-                while j < len(y_test[i]):
-                    observed_decoded.append(np.argmax(y_test[i][j]))
+
+                j=0 #j represents the number of cryptocurrencies
+                while j < len(y_tests):
+                    observed_decoded.append(np.argmax(y_tests_encoded[j][i]))
+                    predicted_decoded.append(np.argmax(test_prediction[j][i]))
                     j+=1
 
-                test_prediction_div= np.split(test_prediction[i], len(y_test[i]))
-                j = 0
-                while j < len(test_prediction_div):
-                    predicted_decoded.append(np.argmax(test_prediction_div[j]))
-                    j += 1
                 for crypto, observed in zip(cryptos, np.asarray(observed_decoded)):
                     predictions_file[crypto + "_observed_class"].append(observed)
                 for crypto, predicted in zip(cryptos, np.asarray(predicted_decoded)):
@@ -233,6 +243,6 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
 
             #serialization
             pd.DataFrame(data=crypto_prediction_file).to_csv(PATH_CRYPTO + 'predictions.csv',index=False)
-            pd.DataFrame(data=crypto_macro_avg_recall_file).to_csv(PATH_CRYPTO + 'macro_avg_accuracy.csv',index=False)"""
+            pd.DataFrame(data=crypto_macro_avg_recall_file).to_csv(PATH_CRYPTO + 'macro_avg_accuracy.csv',index=False)
 
     return

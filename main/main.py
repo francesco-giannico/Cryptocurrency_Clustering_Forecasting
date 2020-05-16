@@ -77,18 +77,18 @@ def main():
     #MULTITARGET
     #temporal_sequences =[15,30,45]
     #mancano i 45 giorni
-    temporal_sequences = [10]
-    list_number_neurons = [50]
+    temporal_sequences = [15]
+    list_number_neurons = [256]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 10
-    PATIENCE = 4
+    EPOCHS = 100
+    PATIENCE = 10
     crypto = "BTC"
     cluster_n="cluster"
     start_date_multi = "2018-10-01"
     end_date_multi= "2019-12-31"
     #0 means 1 day
-    number_of_days_to_predict = 1
+    number_of_days_to_predict = 5
     features_to_use = ['Close','DPO','trend']
     #features_to_use = ['Open', 'High', 'Low', 'Close']
 

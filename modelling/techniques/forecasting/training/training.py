@@ -186,14 +186,14 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
 
     return model, history
 """
-def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
+def train_single_target_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
                 date_to_predict,model_path='', model=None):
     #note: it's an incremental way to get a final model.
     #
     callbacks = [
-        EarlyStopping(monitor='val_accuracy', patience=patience,mode='max'),
+        EarlyStopping(monitor='val_loss', patience=patience,mode='min'),
         ModelCheckpoint(
-            monitor='val_accuracy', save_best_only=True, mode='max',
+            monitor='val_loss', save_best_only=True, mode='min',
             filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}-target{}.h5'.format(
                 num_neurons, dropout, epochs, batch_size,date_to_predict))
     ]
@@ -262,8 +262,15 @@ def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, b
 
     return model, history"""
 
-def train_model_new(x_train, y_trains_encoded, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
+def train_multi_target_model(x_train, y_trains_encoded, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
                 date_to_predict,model_path='', model=None):
+    callbacks = [
+        EarlyStopping(monitor='val_loss', patience=patience, mode='min'),
+        ModelCheckpoint(
+            monitor='val_loss', save_best_only=True, mode='min',
+            filepath=model_path + 'lstm_neur{}-do{}-ep{}-bs{}-target{}.h5'.format(
+                num_neurons, dropout, epochs, batch_size, date_to_predict))
+    ]
     #note: it's an incremental way to get a final model.
     #
     inputs_stm = Input(shape=(x_train.shape[1], x_train.shape[2]))
@@ -273,24 +280,41 @@ def train_model_new(x_train, y_trains_encoded, num_neurons, learning_rate, dropo
     lstm=Dropout(dropout)(lstm)
     lstm = Dense(units=num_neurons, activation='relu')(lstm)
 
-    #trend_btc=Dense(units=num_neurons, activation='relu')(lstm)
+    cryptocurrencies=[]
+    losses = {}
+    losses_weights = {}
+    y_train_dict = {}
+    loss = "categorical_crossentropy"
+    loss_weight = 1.0
+    i = 0
+    while i < len(y_trains_encoded):
+        losses['trend_' + str(i)] = loss
+        losses_weights['trend_' + str(i)] = loss_weight
+        y_train_dict['trend_' + str(i)] = y_trains_encoded[i]
+        cryptocurrencies.append(Dense(units=num_categories, activation='softmax', name='trend_' + str(i))(lstm))
+        i += 1
+    #todo da generalizzare.
+    """#trend_btc=Dense(units=num_neurons, activation='relu')(lstm)
     trend_btc=Dense(units=num_categories, activation='softmax',name='trend_btc')(lstm)
-
     #trend_eth=Dense(units=num_neurons, activation='relu')(lstm)
-    trend_eth= Dense(units=num_categories, activation='softmax',name='trend_eth')(lstm)
+    trend_eth= Dense(units=num_categories, activation='softmax',name='trend_eth')(lstm)"""
 
-    model = Model(
+    """model = Model(
         inputs=inputs_stm,
         outputs=[trend_btc,trend_eth],
+        name="multitarget")"""
+    model = Model(
+        inputs=inputs_stm,
+        outputs=cryptocurrencies,
         name="multitarget")
+    #qua potresti plottare
 
-    plot_model(model, to_file="neural_network.png", show_shapes=True,
-               show_layer_names=True, expand_nested=True, dpi=150)
 
-    losses = {
+    """ losses = {
         "trend_btc": "categorical_crossentropy",
         "trend_eth": "categorical_crossentropy",
     }
+    
     loss_weights = {"trend_btc": 1.0, "trend_eth": 1.0}
     # initialize the optimizer and compile the model
     adam = Adam(learning_rate=learning_rate)
@@ -299,5 +323,16 @@ def train_model_new(x_train, y_trains_encoded, num_neurons, learning_rate, dropo
 
     history=model.fit(x_train, {"trend_btc": y_trains_encoded[0], "trend_eth": y_trains_encoded[1]},
                       epochs=epochs,  validation_split = 0.02,batch_size=batch_size,
-                     verbose=0, shuffle=False)
+                     verbose=0, shuffle=False,callbacks=callbacks)"""
+
+
+    # initialize the optimizer and compile the model
+    adam = Adam(learning_rate=learning_rate)
+    model.compile(optimizer=adam, loss=losses, loss_weights=losses_weights,
+                  metrics=["accuracy"])
+
+
+    history = model.fit(x_train, y_train_dict,
+                        epochs=epochs, validation_split=0.02, batch_size=batch_size,
+                        verbose=0, shuffle=False, callbacks=callbacks)
     return model, history
