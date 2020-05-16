@@ -1,18 +1,14 @@
 from datetime import timedelta
-
 import numpy as np
 import pandas as pd
-from pandas import DataFrame
 from scipy.stats import stats
-
 from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
-from tensorflow.keras.optimizers import Adam,SGD
+from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
-from tensorflow.keras.layers import LSTM,Dropout,Dense,Activation
-import tensorflow as tf
-import matplotlib.pyplot as plt
-from tensorflow_core.python.keras.utils.vis_utils import plot_model
+from tensorflow.keras.layers import LSTM,Dropout,Dense,Activation,Input,TimeDistributed
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.models import Model
 from utility.dataset_utils import cut_dataset_by_range
 
 def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
@@ -158,7 +154,7 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
     #return np.array(train), np.array(validation),np.array(test)
     return np.array(train),np.array(test)
 
-"""def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
+"""def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
                 date_to_predict,model_path='', model=None):
     #note: it's an incremental way to get a final model.
     #
@@ -178,7 +174,7 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
         #reduce the overfitting
         model.add(Dropout(dropout))
         #number of neurons of the last layer
-        model.add(Dense(units=dimension_last_layer,kernel_initializer=tf.keras.initializers.glorot_uniform(seed=66)))
+        model.add(Dense(units=num_categories,kernel_initializer=tf.keras.initializers.glorot_uniform(seed=66)))
         #optimizer
         adam=Adam(learning_rate=learning_rate)
         #print(model.summary())
@@ -190,7 +186,7 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
 
     return model, history
 """
-def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
+def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
                 date_to_predict,model_path='', model=None):
     #note: it's an incremental way to get a final model.
     #
@@ -209,12 +205,99 @@ def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, b
         #reduce the overfitting
         model.add(Dropout(dropout))
         model.add(Dense(units=num_neurons, activation='relu'))
-        model.add(Dense(units=dimension_last_layer, activation='softmax'))
+        model.add(Dense(units=num_categories, activation='softmax'))
         # optimizer
         adam = Adam(learning_rate=learning_rate)
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+
     history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.02,
-              verbose=0, shuffle=False)
+              verbose=0, shuffle=False,callbacks=callbacks)
 
     return model, history
 
+"""def train_model_new(x_train, y_trains_encoded, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
+                date_to_predict,model_path='', model=None):
+    #note: it's an incremental way to get a final model.
+    #
+    print(x_train.shape)
+    inputs = Input(shape=(x_train.shape[1], x_train.shape[2]),batch_size=x_train.shape[0])
+    #trend_btc= Sequential()
+    trend_btc= LSTM(units=num_neurons)(inputs)
+    print(LSTM)
+    # reduce the overfitting
+    trend_btc= Dropout(dropout)(trend_btc)
+    trend_btc= Dense(units=num_neurons, activation='relu')(trend_btc)
+    trend_btc=Dense(units=num_categories)(trend_btc)
+    trend_btc= Activation('softmax',name="trend_btc")(trend_btc)
+
+
+    # trend_btc= Sequential()
+    trend_eth = LSTM(units=num_neurons)(inputs)
+    # reduce the overfitting
+    trend_eth = Dropout(dropout)(trend_eth)
+    trend_eth = Dense(units=num_neurons, activation='relu')(trend_eth)
+    trend_eth= Dense(units=num_categories)(trend_eth)
+    trend_eth = Activation('softmax', name="trend_eth")(trend_eth)
+
+    model = Model(
+        inputs=inputs,
+        outputs=[trend_btc,trend_eth],
+        name="multitarget")
+
+    losses = {
+        "trend_btc": "categorical_crossentropy",
+        "trend_eth": "categorical_crossentropy",
+    }
+    loss_weights = {"trend_btc": 1.0, "trend_eth": 1.0}
+    # initialize the optimizer and compile the model
+    adam = Adam(learning_rate=learning_rate)
+    model.compile(optimizer=adam, loss=losses,  loss_weights=loss_weights,
+                  metrics=["accuracy"])
+    plot_model(model, to_file="neural_network.png", show_shapes=True,
+               show_layer_names=True, expand_nested=True, dpi=150)
+
+    history=model.fit(x_train, {"trend_btc": y_trains_encoded[0], "trend_eth": y_trains_encoded[1]},
+                      epochs=epochs,  validation_split = 0.02,
+                     verbose=0, shuffle=False)
+
+    return model, history"""
+
+def train_model_new(x_train, y_trains_encoded, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
+                date_to_predict,model_path='', model=None):
+    #note: it's an incremental way to get a final model.
+    #
+    inputs_stm = Input(shape=(x_train.shape[1], x_train.shape[2]))
+    #trend_btc= Sequential()
+    lstm= LSTM(units=num_neurons)(inputs_stm)
+    # reduce the overfitting
+    lstm=Dropout(dropout)(lstm)
+    lstm = Dense(units=num_neurons, activation='relu')(lstm)
+
+    #trend_btc=Dense(units=num_neurons, activation='relu')(lstm)
+    trend_btc=Dense(units=num_categories, activation='softmax',name='trend_btc')(lstm)
+
+    #trend_eth=Dense(units=num_neurons, activation='relu')(lstm)
+    trend_eth= Dense(units=num_categories, activation='softmax',name='trend_eth')(lstm)
+
+    model = Model(
+        inputs=inputs_stm,
+        outputs=[trend_btc,trend_eth],
+        name="multitarget")
+
+    plot_model(model, to_file="neural_network.png", show_shapes=True,
+               show_layer_names=True, expand_nested=True, dpi=150)
+
+    losses = {
+        "trend_btc": "categorical_crossentropy",
+        "trend_eth": "categorical_crossentropy",
+    }
+    loss_weights = {"trend_btc": 1.0, "trend_eth": 1.0}
+    # initialize the optimizer and compile the model
+    adam = Adam(learning_rate=learning_rate)
+    model.compile(optimizer=adam, loss=losses,  loss_weights=loss_weights,
+                  metrics=["accuracy"])
+
+    history=model.fit(x_train, {"trend_btc": y_trains_encoded[0], "trend_eth": y_trains_encoded[1]},
+                      epochs=epochs,  validation_split = 0.02,batch_size=batch_size,
+                     verbose=0, shuffle=False)
+    return model, history

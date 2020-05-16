@@ -50,11 +50,11 @@ def main():
 
     # General parameters
     temporal_sequences = [10]
-    list_number_neurons = [128]
+    list_number_neurons = [20]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 100
-    PATIENCE= 50
+    EPOCHS = 10
+    PATIENCE= 1
     number_of_days_to_predict=1
     start_date_single="2015-09-01"
     end_date_single="2019-12-31"
@@ -81,14 +81,14 @@ def main():
     list_number_neurons = [50]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 100
-    PATIENCE = 50
+    EPOCHS = 10
+    PATIENCE = 4
     crypto = "BTC"
     cluster_n="cluster"
-    start_date_multi = "2015-10-01"
+    start_date_multi = "2018-10-01"
     end_date_multi= "2019-12-31"
     #0 means 1 day
-    number_of_days_to_predict = 5
+    number_of_days_to_predict = 1
     features_to_use = ['Close','DPO','trend']
     #features_to_use = ['Open', 'High', 'Low', 'Close']
 

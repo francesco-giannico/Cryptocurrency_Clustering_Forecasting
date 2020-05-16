@@ -6,9 +6,9 @@ from itertools import product
 from pandas import DataFrame
 from tensorflow_core.python.keras.utils.vis_utils import plot_model
 from tensorflow_core.python.keras.utils.np_utils import to_categorical
-from modelling.techniques.forecasting.evaluation.error_measures import get_rmse
+from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_classification_stats
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
-    get_training_validation_testing_set, train_model
+    get_training_validation_testing_set, train_model, train_model_new
 from utility.computations import get_factors
 from utility.folder_creator import folder_creator
 from visualization.line_chart import plot_train_and_validation_loss
@@ -65,14 +65,13 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
                                                       horizontal_name)
 
         #DICTIONARY FOR STATISTICS
-        """predictions_file = {'date': []}
+        predictions_file = {'date': []}
         for crypto in cryptos:
             crypto= str(crypto)
-            predictions_file[crypto+ "_observed_norm"] = []
-            predictions_file[crypto + "_predicted_norm"] = []
+            predictions_file[crypto+ "_observed_class"] = []
+            predictions_file[crypto + "_predicted_class"] = []
             #predictions_file[crypto + "_observed_denorm"] = []
             #predictions_file[crypto + "_predicted_denorm"] = []"""
-        #todo this
 
         #New folders for this configuration
         configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
@@ -105,13 +104,16 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             # e.g [[items],[items2],[items3]] becames [[items1],[items2]]
             #print(train[0])
             x_train = train[:, :-1,:]
-            #delete trend_1,trend_2 ecc..
-            x_train=np.delete(x_train,indexes_of_target_features,2)
 
-            #x_train = a[:index] + a[index+1 :]
-            # remove the last day before the day to predict, by doing -1
-            # returns an array with all the values of the feature close
-            y_train = train[:, -1, indexes_of_target_features]
+            #separate the training, by cryptocurrency and remove the last day before the day to predict, by doing -1
+            # returns an array with all the values of the feature trend for each cryptocurrency
+            y_trains=[]
+            for index in indexes_of_target_features:
+                y_trains.append(train[:, -1,  index])
+            # y_train = train[:, -1, indexes_of_target_features]
+
+            #delete the columns trend_1,trend_2 ecc..
+            x_train=np.delete(x_train,indexes_of_target_features,2)
 
             # NOTE: in the testing set we must have the dates to evaluate the experiment without the date to forecast!!!
             # remove the day to predict
@@ -130,26 +132,34 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             x_test = x_test.astype('float')
             #y_test = y_test.astype('float')
 
+            #print(y_train)
 
-            # one hot encode y
-            y_train = to_categorical(y_train)
+            #one hot encode for each y_train and y_test
+            y_trains_encoded=[]
+            for y_train in y_trains:
+                y_trains_encoded.append(to_categorical(y_train))
+            y_trains_encoded=np.asarray(y_trains_encoded)
+            #print(y_train_encoded)
             y_test = to_categorical(y_test)
+            #print(y_trains_encoded[0])
+            #print(y_test)
+            #print(y_test)
+            #print(y_train)
+            #todo per farlo funzionare con la rete neurale.
+            """y_train= [elem.flatten() for elem in y_train]
+            y_train=np.asarray(y_train)"""
 
-            #print(y_test)
-            #print(y_test)
-            y_train= [elem.flatten() for elem in y_train]
-            y_train=np.asarray(y_train)
 
             BATCH_SIZE=x_train.shape[0]
             # if the date to predict is the first date in the testing_set
             #if date_to_predict == testing_set[0]:
-            model, history = train_model(x_train, y_train,
+            model, history = train_model_new(x_train, y_trains_encoded,
                                          num_neurons=num_neurons,
                                          learning_rate=learning_rate,
                                          dropout=DROPOUT,
                                          epochs=EPOCHS,
                                          batch_size=BATCH_SIZE,
-                                         dimension_last_layer=len(y_train[0]),
+                                         num_categories=3,
                                          date_to_predict=date_to_predict,
                                          model_path=model_path,patience=PATIENCE)
             # information about neural network created
@@ -160,7 +170,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             plot_train_and_validation_loss(pd.Series(history.history['loss']), pd.Series(history.history['val_loss']),
                                            model_path, filename)
 
-            # Predict for each date in the validation set
+            """# Predict for each date in the validation set
             test_prediction = model.predict(x_test)
             # this is important!!
             K.clear_session()
@@ -176,40 +186,35 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
                 i -= 1
             days.append(pd.to_datetime(date_to_predict))
 
+
+            #save the accuracies values
             i = 0
             for d in days:
+                predictions_file['date'].append(d)
+
                 observed_decoded = []
                 predicted_decoded = []
                 print("Predicting for: ", d)
-
                 j=0
                 while j < len(y_test[i]):
                     observed_decoded.append(np.argmax(y_test[i][j]))
                     j+=1
 
-                #observed_decoded=np.asarray(observed_decoded)
-                #print(test_prediction)
                 test_prediction_div= np.split(test_prediction[i], len(y_test[i]))
                 j = 0
                 while j < len(test_prediction_div):
                     predicted_decoded.append(np.argmax(test_prediction_div[j]))
                     j += 1
-                #predicted_decoded=np.asanyarray(predicted_decoded)
+                for crypto, observed in zip(cryptos, np.asarray(observed_decoded)):
+                    predictions_file[crypto + "_observed_class"].append(observed)
+                for crypto, predicted in zip(cryptos, np.asarray(predicted_decoded)):
+                    predictions_file[crypto + "_predicted_class"].append(predicted)
+
+                # just some output to show
                 print("Predicted: ", predicted_decoded)
                 print("Actual: ", observed_decoded)
                 i+=1
             print("\n")
-
-            """# Saving the predictions on the dictionarie
-            i = 0
-            for d in days:
-                predictions_file['date'].append(d)
-                for crypto, observed in zip(cryptos, y_test[i]):
-                    predictions_file[crypto + "_observed_norm"].append(float(observed))
-                for crypto,predicted in zip(cryptos, test_prediction[i]):
-                    predictions_file[crypto + "_predicted_norm"].append(float(predicted))
-                i+=1
-            #break
 
         #divides results by crypto.
         for crypto in cryptos:
@@ -218,42 +223,16 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
 
             crypto_prediction_file = {}
             crypto_prediction_file['date'] = predictions_file['date']
-            crypto_prediction_file['observed_norm'] = predictions_file[crypto + '_observed_norm']
-            crypto_prediction_file['predicted_norm'] = predictions_file[crypto + '_predicted_norm']
+            crypto_prediction_file['observed_class'] = predictions_file[crypto + '_observed_class']
+            crypto_prediction_file['predicted_class'] = predictions_file[crypto + '_predicted_class']
 
-            crypto_errors_file = {'symbol': [], 'rmse_norm': []}
-            crypto_errors_file['symbol'].append(crypto)
-            rmse = get_rmse(crypto_prediction_file['observed_norm'], crypto_prediction_file['predicted_norm'])
-            #rmse_denorm = get_rmse(crypto_prediction_file['observed_denorm'], crypto_prediction_file['predicted_denorm'])
-            crypto_errors_file['rmse_norm'].append(rmse)
-            #crypto_errors_file['rmse_denorm'].append(rmse_denorm)
-
-            #i'm just taking 3 dates at time and computing the RMSE over these three dates
-            #eventually, i'll do the average of these rmses
-            rmses=[]
-            crypto_errors_file_1 = {'symbol': [], 'rmse_norm': []}
-            crypto_errors_file_1['symbol'].append(crypto)"""
-
-            """try:
-                min = 0
-                max = number_of_days_to_predict
-                print(crypto_prediction_file['observed_norm'])
-                print(crypto_prediction_file['observed_norm'][0:2])
-                while max <= len(crypto_prediction_file['observed_norm']):
-                    rmses.append(get_rmse(crypto_prediction_file['observed_norm'][min:max],
-                                          crypto_prediction_file['predicted_norm'][min:max]))
-                    min = max
-                    max += number_of_days_to_predict
-                avg_rmse = (1 / len(rmses)) * np.sum(rmses)
-                crypto_errors_file_1['rmse_norm'].append(avg_rmse)
-            except:
-                rmse=get_rmse(crypto_prediction_file['observed_norm'],
-                                          crypto_prediction_file['predicted_norm'])
-                crypto_errors_file_1['rmse_norm'].append(rmse)"""
+            crypto_macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
+            crypto_macro_avg_recall_file['symbol'].append(crypto)
+            performances = get_classification_stats(crypto_prediction_file['observed_class'], crypto_prediction_file['predicted_class'])
+            crypto_macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
 
             #serialization
-            """pd.DataFrame(data=crypto_prediction_file).to_csv(PATH_CRYPTO + 'predictions.csv',index=False)
-            pd.DataFrame(data=crypto_errors_file).to_csv(PATH_CRYPTO + 'errors.csv',index=False)
-            #pd.DataFrame(data=crypto_errors_file_1).to_csv(PATH_CRYPTO + 'errors_1.csv', index=False)"""
+            pd.DataFrame(data=crypto_prediction_file).to_csv(PATH_CRYPTO + 'predictions.csv',index=False)
+            pd.DataFrame(data=crypto_macro_avg_recall_file).to_csv(PATH_CRYPTO + 'macro_avg_accuracy.csv',index=False)"""
 
     return

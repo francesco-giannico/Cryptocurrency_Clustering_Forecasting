@@ -184,12 +184,12 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                                              epochs=EPOCHS,
                                              batch_size=BATCH_SIZE,
                                              patience=PATIENCE,
-                                             dimension_last_layer=len(y_train[0]),
+                                             num_categories=len(y_train[0]),
                                              date_to_predict=date_to_predict,
                                              model_path=model_path)
                 # information about neural network created
-                """plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
-                           show_layer_names=True, expand_nested=True, dpi=150)"""
+                plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
+                           show_layer_names=True, expand_nested=True, dpi=150)
 
                 #filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
                 #plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
@@ -246,7 +246,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             macro_avg_recall_file['symbol'].append(crypto_name)
 
             # accuracy
-            confusion_matrix,performances= get_classification_stats(predictions_file['observed_class'], predictions_file['predicted_class'])
+            performances= get_classification_stats(predictions_file['observed_class'], predictions_file['predicted_class'])
             macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
 
             # serialization
