@@ -107,6 +107,7 @@ def multi_vs_single(path_multitarget,types):
     plt.savefig(os.path.join(path_multitarget, "reports_multi", title+".png"), dpi=100)
 
 
+
 def crypto_oriented(path_multitarget,types):
     #creare un dataframe contenente, per ogni cripto
     #data una cripto, apri ogni file cluster_N.csv e cerca la cripto.
@@ -156,11 +157,12 @@ def compare_multi_baseline_single_target_chart(input_path,output_path):
                 #print(df[df.symbol==crypto])
                 plt.figure()
                 #df_new= pd.DataFrame(columns=['symbol','lowest_rmse_multi','lowest_rmse_single','baseline'])
-                df_new = pd.DataFrame(columns=['symbol', 'lowest_rmse_multi', 'lowest_rmse_single'])
+                df_new = pd.DataFrame(columns=['symbol', 'highest_macro_avg_recall_multi', 'highest_macro_avg_recall_single','baseline'])
+                sns.set(font_scale=0.7)
                 df_new['symbol']=df.symbol
-                df_new['lowest_rmse_multi'] = df.avg_rmse_multi
-                df_new['lowest_rmse_single'] = df.avg_rmse_single
-                #df_new['baseline'] = df.baseline
+                df_new['highest_macro_avg_recall_multi'] = df.avg_accuracy_multi
+                df_new['highest_macro_avg_recall_single'] = df.avg_accuracy_single
+                df_new['baseline'] = df.baseline
                 ax = sns.barplot(data=df_new[df_new.symbol==crypto], ci=None)
                 title = crypto
                 plt.title(title)
@@ -179,7 +181,7 @@ def compare_avg_multi_baseline_single_target_chart(input_path,output_path):
                 title+=symbol +","
             title+="]"
             plt.title(title)
-            ax.set(xlabel='Competitors', ylabel='Average RMSE')
+            ax.set(xlabel='Competitors', ylabel='Average macro_avg_recall')
             plt.savefig(output_path+"/"+cluster.replace(".csv","")+".png",dpi=100)
 
 
@@ -189,36 +191,40 @@ def compare_multi_baseline_single_target(path_baseline,path_single,path_multi,ou
     folder_creator(os.path.join(output_path,"single_crypto"), 1)
     for cluster in os.listdir(path_multi):
         #output_file = {'symbol': [], 'avg_rmse_multi': [], 'avg_rmse_single': [], 'baseline': []}
-        output_file = {'symbol': [], 'avg_rmse_multi': [], 'avg_rmse_single': []}
+        #output_file = {'symbol': [], 'avg_rmse_multi': [], 'avg_rmse_single': []}
+        output_file = {'symbol': [], 'avg_accuracy_multi': [], 'avg_accuracy_single': [],'baseline': []}
         #vai in result del cluster in corso
         for crypto in os.listdir(os.path.join(path_multi,cluster,"result")):
             #leggere da baseline
-            file = open(os.path.join(path_baseline,crypto), "r")
-            rmse_baseline= float(file.read())
+            file = open(os.path.join(path_baseline,crypto+"_accuracy.txt"), "r")
+            #rmse_baseline= float(file.read())
+            accuracy_baseline=float(file.read())
             file.close()
 
             #lowest single target
-            min_single=100
+            max_single=-1
             conf_name_single=""
             for configuration in os.listdir(os.path.join(path_single,crypto)):
-                df=pd.read_csv(os.path.join(path_single,crypto,configuration,"stats/errors.csv"),header=0)
-                if df["rmse_norm"][0]< min_single:
-                    min_single=df["rmse_norm"][0]
+                df=pd.read_csv(os.path.join(path_single,crypto,configuration,"stats/macro_avg_recall.csv"),header=0)
+                if df["macro_avg_recall"][0]> max_single:
+                    max_single=df["macro_avg_recall"][0]
                     conf_name_single=configuration
-            print(conf_name_single)
+            #print(conf_name_single)
+
             # lowest multi target
-            min_multi = 100
+            max_multi = -1
             conf_name_multi= ""
             for configuration in os.listdir(os.path.join(path_multi,cluster,"result",crypto)):
-                df = pd.read_csv(os.path.join(path_multi,cluster,"result",crypto,configuration,"stats/errors.csv"), header=0)
-                if df["rmse_norm"][0] < min_multi:
-                    min_multi= df["rmse_norm"][0]
+                df = pd.read_csv(os.path.join(path_multi,cluster,"result",crypto,configuration,"stats/macro_avg_accuracy.csv"), header=0)
+                if df["macro_avg_recall"][0] > max_multi:
+                    max_multi= df["macro_avg_recall"][0]
                     conf_name_multi = configuration
-            print(conf_name_multi)
+
+            #print(conf_name_multi)
             output_file['symbol'].append(crypto)
-            output_file['avg_rmse_single'].append(min_single)
-            output_file['avg_rmse_multi'].append(min_multi)
-            #output_file['baseline'].append(rmse_baseline)
+            output_file['avg_accuracy_single'].append(max_single)
+            output_file['avg_accuracy_multi'].append(max_multi)
+            output_file['baseline'].append(accuracy_baseline)
 
             pd.DataFrame(data=output_file).to_csv(os.path.join(output_path,cluster+".csv"), index=False)
     compare_avg_multi_baseline_single_target_chart(output_path,os.path.join(output_path,"averages"))

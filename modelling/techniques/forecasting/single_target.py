@@ -15,7 +15,7 @@ from utility.computations import get_factors
 from utility.folder_creator import folder_creator
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-from visualization.line_chart import plot_train_and_validation_loss
+from visualization.line_chart import plot_train_and_validation_loss, plot_train_and_validation_accuracy
 import tensorflow_core as tf_core
 import time
 import random as rn
@@ -63,16 +63,8 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
 
             # DICTIONARY FOR STATISTICS
-            """predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
-                                'observed_denorm': [], 'predicted_denorm': []}
-            errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_denorm': []}"""
             predictions_file = {'symbol': [], 'date': [], 'observed_class': [], 'predicted_class': []}
             macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
-            #predictions_file_1 = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': []}
-            #errors_file_1= {'symbol': [], 'rmse_norm': []}
-            """predictions_file = {'symbol': [], 'date': [], 'observed_norm': [], 'predicted_norm': [],
-                                'observed_detrans': [], 'predicted_detrans': []}
-            errors_file = {'symbol': [], 'rmse_norm': [], 'rmse_detrans': []}"""
 
             # New folders for this configuration
             configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
@@ -163,13 +155,13 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 #y_train = y_train.astype('float')
                 x_test = x_test.astype('float')
                 #y_test = y_test.astype('float')
-
+                #print(y_test)
                 # one hot encode y
                 y_train  = to_categorical(y_train)
                 y_test = to_categorical(y_test)
                 """print(y_train)
                 print(y_test)"""
-                print(y_train)
+                #print(y_test)
                 """print(y_test)"""
                 #print(np.argmax(y_test))
                 #batch size must be a factor of the number of training elements
@@ -197,7 +189,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
                 #plot accuracy
                 filename = "model_train_val_accuracy_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
-                plot_train_and_validation_loss(pd.Series(history.history['accuracy']),
+                plot_train_and_validation_accuracy(pd.Series(history.history['accuracy']),
                                                pd.Series(history.history['val_accuracy']), model_path, filename)
 
                 # Predict for each date in the validation set

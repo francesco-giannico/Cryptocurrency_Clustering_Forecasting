@@ -274,11 +274,10 @@ def train_multi_target_model(x_train, y_trains_encoded, num_neurons, learning_ra
     #note: it's an incremental way to get a final model.
     #
     inputs_stm = Input(shape=(x_train.shape[1], x_train.shape[2]))
-    #trend_btc= Sequential()
-    lstm= LSTM(units=num_neurons)(inputs_stm)
+    """lstm= LSTM(units=num_neurons)(inputs_stm)
     # reduce the overfitting
     lstm=Dropout(dropout)(lstm)
-    lstm = Dense(units=num_neurons, activation='relu')(lstm)
+    lstm = Dense(units=num_neurons, activation='relu')(lstm)"""
 
     cryptocurrencies=[]
     losses = {}
@@ -291,40 +290,19 @@ def train_multi_target_model(x_train, y_trains_encoded, num_neurons, learning_ra
         losses['trend_' + str(i)] = loss
         losses_weights['trend_' + str(i)] = loss_weight
         y_train_dict['trend_' + str(i)] = y_trains_encoded[i]
-        cryptocurrencies.append(Dense(units=num_categories, activation='softmax', name='trend_' + str(i))(lstm))
-        i += 1
-    #todo da generalizzare.
-    """#trend_btc=Dense(units=num_neurons, activation='relu')(lstm)
-    trend_btc=Dense(units=num_categories, activation='softmax',name='trend_btc')(lstm)
-    #trend_eth=Dense(units=num_neurons, activation='relu')(lstm)
-    trend_eth= Dense(units=num_categories, activation='softmax',name='trend_eth')(lstm)"""
 
-    """model = Model(
-        inputs=inputs_stm,
-        outputs=[trend_btc,trend_eth],
-        name="multitarget")"""
+        crypto_model = LSTM(units=num_neurons)(inputs_stm)
+        # reduce the overfitting
+        crypto_model= Dropout(dropout)(crypto_model)
+        crypto_model= Dense(units=num_neurons, activation='relu')(crypto_model)
+        crypto_model=Dense(units=num_categories, activation='softmax', name='trend_' + str(i))(crypto_model)
+        cryptocurrencies.append(crypto_model)
+        i += 1
+
     model = Model(
         inputs=inputs_stm,
         outputs=cryptocurrencies,
         name="multitarget")
-    #qua potresti plottare
-
-
-    """ losses = {
-        "trend_btc": "categorical_crossentropy",
-        "trend_eth": "categorical_crossentropy",
-    }
-    
-    loss_weights = {"trend_btc": 1.0, "trend_eth": 1.0}
-    # initialize the optimizer and compile the model
-    adam = Adam(learning_rate=learning_rate)
-    model.compile(optimizer=adam, loss=losses,  loss_weights=loss_weights,
-                  metrics=["accuracy"])
-
-    history=model.fit(x_train, {"trend_btc": y_trains_encoded[0], "trend_eth": y_trains_encoded[1]},
-                      epochs=epochs,  validation_split = 0.02,batch_size=batch_size,
-                     verbose=0, shuffle=False,callbacks=callbacks)"""
-
 
     # initialize the optimizer and compile the model
     adam = Adam(learning_rate=learning_rate)

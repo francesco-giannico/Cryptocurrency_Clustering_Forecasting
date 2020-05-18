@@ -91,7 +91,7 @@ def simple_prediction(data_path,test_set,result_folder):
     for crypto in os.listdir(result_folder+partial_folder+"/"):
         df = pd.read_csv(result_folder+partial_folder+"/"+crypto)
         #get rmse for each crypto
-        confusion_matrix,performances= get_classification_stats(df['observed_class'], df['predicted_class'])
+        performances= get_classification_stats(df['observed_class'], df['predicted_class'])
         #rmses.append(rmse)
         accuracies.append(performances.get('macro avg').get('recall'))
         with open(os.path.join(result_folder,folder_accuracy, crypto.replace(".csv","_accuracy.txt")), 'w+') as out:

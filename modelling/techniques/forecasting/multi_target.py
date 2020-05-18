@@ -3,15 +3,13 @@ from datetime import timedelta
 import numpy as np
 import pandas as pd
 from itertools import product
-from pandas import DataFrame
-from tensorflow_core.python.keras.utils.vis_utils import plot_model
-from tensorflow_core.python.keras.utils.np_utils import to_categorical
-from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_classification_stats
+from tensorflow.keras.utils import plot_model
+from tensorflow.keras.utils import to_categorical
+from modelling.techniques.forecasting.evaluation.error_measures import get_classification_stats
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
     get_training_validation_testing_set, train_multi_target_model
-from utility.computations import get_factors
 from utility.folder_creator import folder_creator
-from visualization.line_chart import plot_train_and_validation_loss
+from visualization.line_chart import plot_train_and_validation_loss, plot_train_and_validation_accuracy
 import tensorflow_core as tf_core
 import random as rn
 from tensorflow.keras import backend as K
@@ -70,8 +68,6 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             crypto= str(crypto)
             predictions_file[crypto+ "_observed_class"] = []
             predictions_file[crypto + "_predicted_class"] = []
-            #predictions_file[crypto + "_observed_denorm"] = []
-            #predictions_file[crypto + "_predicted_denorm"] = []"""
 
         #New folders for this configuration
         configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
@@ -110,7 +106,6 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             y_trains=[]
             for index in indexes_of_target_features:
                 y_trains.append(train[:, -1,  index])
-            # y_train = train[:, -1, indexes_of_target_features]
 
             #delete the columns trend_1,trend_2 ecc..
             x_train=np.delete(x_train,indexes_of_target_features,2)
@@ -127,7 +122,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
             y_tests = []
             for index in indexes_of_target_features:
                 y_tests.append(test[:, -1, index])
-            #print(np.asarray(y_tests))
+
             # change the data type, from object to float
             x_train = x_train.astype('float')
             #y_train = y_train.astype('float')
@@ -178,7 +173,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
                                                model_path, filename)
                 # plot accuracy
                 filename = curr_crypto+"_train_val_accuracy_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
-                plot_train_and_validation_loss(pd.Series(history.history[curr_crypto+'_accuracy']),
+                plot_train_and_validation_accuracy(pd.Series(history.history[curr_crypto+'_accuracy']),
                                                pd.Series(history.history['val_'+curr_crypto+'_accuracy']), model_path,
                                                filename)
                 m+=1
@@ -243,6 +238,6 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,
 
             #serialization
             pd.DataFrame(data=crypto_prediction_file).to_csv(PATH_CRYPTO + 'predictions.csv',index=False)
-            pd.DataFrame(data=crypto_macro_avg_recall_file).to_csv(PATH_CRYPTO + 'macro_avg_accuracy.csv',index=False)
+            pd.DataFrame(data=crypto_macro_avg_recall_file).to_csv(PATH_CRYPTO + 'macro_avg_recall.csv',index=False)
 
     return

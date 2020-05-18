@@ -55,7 +55,7 @@ def main():
     DROPOUT = 0.45
     EPOCHS = 10
     PATIENCE= 1
-    number_of_days_to_predict=1
+    number_of_days_to_predict=5
     start_date_single="2015-09-01"
     end_date_single="2019-12-31"
 
@@ -70,19 +70,19 @@ def main():
     type_clustering="min_max_normalized"
 
     # clustering
-    """clustering(distance_measure, start_date=start_date_cluster,
+    clustering(distance_measure, start_date=start_date_cluster,
                end_date=end_date_cluster, type_for_clustering=type_clustering, type_for_prediction=type,
-               features_to_use=features_to_use)"""
+               features_to_use=features_to_use)
 
     #MULTITARGET
     #temporal_sequences =[15,30,45]
     #mancano i 45 giorni
     temporal_sequences = [15]
-    list_number_neurons = [256]
+    list_number_neurons = [128]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 100
-    PATIENCE = 10
+    EPOCHS = 350
+    PATIENCE = 100
     crypto = "BTC"
     cluster_n="cluster"
     start_date_multi = "2018-10-01"
@@ -92,10 +92,10 @@ def main():
     features_to_use = ['Close','DPO','trend']
     #features_to_use = ['Open', 'High', 'Low', 'Close']
 
-    multi_target_main(TEST_SET,type,features_to_use,
+    """multi_target_main(TEST_SET,type,features_to_use,
                           temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                            EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi,number_of_days_to_predict)
-    """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
+    """"""describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
              name_folder_res=type)
     """
@@ -105,21 +105,21 @@ def main():
     """df = pd.read_csv("ETH.csv", header=0)
 
     print(df.isnull().sum())"""
-    types=["k_1","k_sqrtN","k_sqrtNdiv2","k_sqrtNdiv4","k_sqrtNby2","k_sqrtNby4"]
-    """single_target="output_single"
+    # types=["k_1","k_sqrtN","k_sqrtNdiv2","k_sqrtNdiv4","k_sqrtNby2","k_sqrtNby4"]
+    """types=['outputs_multi']
+    single_target="outputs_single"
     for current in types:
-        path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_rmse/"
-        path_single_target = "../modelling/techniques/forecasting/"+single_target+"/result/"
+        #path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_rmse/"
+        path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_accuracy/"
+        path_single_target = "../modelling/techniques/forecasting/"+single_target+"/single_target/result/"
         path_multi_target = "../modelling/techniques/forecasting/"+current+"/multi_target/clusters/"
         output_path="../modelling/techniques/forecasting/"+current+"/reports/"
-        compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)
-"""
+        compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)"""
+
     """path_multi_target = "../modelling/techniques/forecasting/"
     crypto_oriented(path_multi_target,types)"""
 
-
-
-    #NEW
+    #NEW: cluster oriented
     """path_multitarget="../modelling/techniques/forecasting/clusters/"
     path_singletarget = "../modelling/techniques/forecasting/output_single/result/"
     path_output="../modelling/techniques/forecasting/reports/"
