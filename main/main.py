@@ -30,9 +30,11 @@ def main():
     #DATA UNDERSTANDING
     #cryptocurrencies=['BTC','ETH']
     #data_understanding()
-
+    # TESTING SET
+    TEST_SET = testing_set()
+    start_date="2015-09-01"
     #DATA PREPARATION
-    #preprocessing()
+    #preprocessing(TEST_SET,start_date)
     #Description after
     #type="min_max_normalized"
     type = "max_abs_normalized"
@@ -41,26 +43,22 @@ def main():
              output_path="../preparation/preprocessed_dataset/",
              name_folder_res=type)"""
 
-    #TESTING SET
-    TEST_SET=testing_set()
-
     #MODELLING
     features_to_use=['Date','DPO','trend']
 
     # General parameters
-    temporal_sequences = [3,5]
-    list_number_neurons = [10]
-    learning_rate = 0.001
+    temporal_sequences = [15,30]
+    list_number_neurons = [1]
+    learning_rate = 0.1
     DROPOUT = 0.45
-    EPOCHS = 10
+    EPOCHS = 1
     PATIENCE= 1
-    number_of_days_to_predict=3
     start_date_single="2015-09-01"
     end_date_single="2019-12-31"
 
     single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)
+                        EPOCHS,PATIENCE,start_date_single,end_date_single)
     #CLUSTERING
     start_date_cluster = "2015-10-01"
     end_date_cluster = "2018-12-31"
@@ -183,7 +181,7 @@ def multi_target_main(TEST_SET, type, features_to_use,
 
 
 def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, number_neurons,
-                       learning_rate, DROPOUT, EPOCHS, PATIENCE,number_of_days_to_predict,
+                       learning_rate, DROPOUT, EPOCHS, PATIENCE,
                        start_date,end_date):
     DATA_PATH = "../preparation/preprocessed_dataset/constructed/" + type + "/"
 
@@ -199,8 +197,7 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
     # SIMPLE PREDICTION
     DATA_PATH_SIMPLE = DATA_PATH
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
-    TEST_SET_BASELINE= testing_set_baseline(number_of_days_to_predict)
-    simple_prediction(DATA_PATH_SIMPLE, TEST_SET_BASELINE, OUTPUT_SIMPLE_PREDICTION,number_of_days_to_predict)
+    simple_prediction(DATA_PATH_SIMPLE, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
 
     # SINGLE TARGET LSTM
     # EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/" + output_name+ "/single_target/"
@@ -213,7 +210,7 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
                   window_sequences=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET, features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,number_of_days_to_predict=number_of_days_to_predict,
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,
                   start_date=start_date,end_date=end_date)"""
 
     # visualization single_target

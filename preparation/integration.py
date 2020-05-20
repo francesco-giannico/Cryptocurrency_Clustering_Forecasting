@@ -1,7 +1,10 @@
 import os
+from datetime import timedelta
+
 import pandas as pd
 import pandas_ta as panda
 
+from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 
 PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
@@ -13,61 +16,58 @@ LOOKBACK_EMA=[5,12,26,50,100,200]
 LOOKBACK_SMA=[5,13,20,30,50,100,200]
 LOOKBACK_TEST=[14,21,5,12,26,13,30,20,50,100,200]
 
-def integrate_with_indicators(input_path):
+def integrate_with_indicators(input_path,start_date,test_set):
     folder_creator(PATH_INTEGRATED_FOLDER,1)
     for crypto in os.listdir(input_path):
-        df = pd.read_csv(input_path+crypto, sep=',',header=0)
-        df["Date"] = pd.to_datetime(df["Date"])
+        for date_to_predict in test_set:
+            #end_date=pd.to_datetime(date_to_predict) - timedelta(days=1)
+            end_date=date_to_predict
+            df=cut_dataset_by_range(input_path, crypto.replace(".csv",""), start_date,end_date, features_to_use=None)
+            df["Date"] = pd.to_datetime(df["Date"])
+            day_to_predict=df.loc[len(df.Date)-1]
+            df=df[:-1]#remove the day to predict
+            #df = df.sort_values('Date', ascending=True)
+            data_series_of_target_feature = df[TARGET_FEATURE]
+            for lookback_value in LOOKBACK_TEST:
+                df['VWAP']=panda.vwap(df['High'], df['Low'], df['Close'], df['Volume'], lookback_value=lookback_value)
+            for lookback_value in  LOOKBACK_TEST:
+                df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_target_feature, lookback_value)
+            for lookback_value in  LOOKBACK_TEST:
+                df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_target_feature, lookback_value)
+            for lookback_value in LOOKBACK_TEST:
+                df[str('RSI_' + str(lookback_value))] = get_RSI(data_series_of_target_feature,lookback_value)
 
-        #df = df.sort_values('Date', ascending=True)
-        data_series_of_target_feature = df[TARGET_FEATURE]
-        """for lookback_value in LOOKBACK_RSI:
-            df[str('RSI_' + str(lookback_value))] = get_RSI(data_series_of_target_feature,lookback_value)
-       
-        for lookback_value in LOOKBACK_SMA:
-            df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_target_feature,lookback_value)
-        for lookback_value in LOOKBACK_EMA:
-            df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_target_feature,lookback_value)
-        """
+            df_macd= get_MACD(data_series_of_target_feature)
+            df['MACD_12_26_9'] = df_macd['MACD_12_26_9']
+            df['MACDH_12_26_9']=  df_macd['MACDH_12_26_9']
+            df['MACDS_12_26_9'] = df_macd['MACDS_12_26_9']
 
-        for lookback_value in LOOKBACK_TEST:
-            df['VWAP']=panda.vwap(df['High'], df['Low'], df['Close'], df['Volume'], lookback_value=lookback_value)
-        for lookback_value in  LOOKBACK_TEST:
-            df[str('SMA_' + str(lookback_value))] = get_SMA(data_series_of_target_feature, lookback_value)
-        for lookback_value in  LOOKBACK_TEST:
-            df[str('EMA_' + str(lookback_value))] = get_EMA(data_series_of_target_feature, lookback_value)
-        for lookback_value in LOOKBACK_RSI:
-            df[str('RSI_' + str(lookback_value))] = get_RSI(data_series_of_target_feature,lookback_value)
+            df_bbs=panda.bbands(data_series_of_target_feature)
+            df['BBL_20']=df_bbs['BBL_20']
+            df['BBM_20'] = df_bbs['BBM_20']
+            df['BBU_20'] = df_bbs['BBU_20']
 
-        df_macd= get_MACD(data_series_of_target_feature)
-        df['MACD_12_26_9'] = df_macd['MACD_12_26_9']
-        df['MACDH_12_26_9']=  df_macd['MACDH_12_26_9']
-        df['MACDS_12_26_9'] = df_macd['MACDS_12_26_9']
+            df['MOM']=panda.mom(data_series_of_target_feature)
 
-        df_bbs=panda.bbands(data_series_of_target_feature)
-        df['BBL_20']=df_bbs['BBL_20']
-        df['BBM_20'] = df_bbs['BBM_20']
-        df['BBU_20'] = df_bbs['BBU_20']
-
-        df['MOM']=panda.mom(data_series_of_target_feature)
-
-        df_stoch=panda.stoch(df['High'], df['Low'], df['Close'])
-        df['STOCHF_14']=df_stoch['STOCHF_14']
-        df['STOCHF_3'] = df_stoch['STOCHF_3']
-        df['STOCH_5'] = df_stoch['STOCH_5']
-        df['STOCH_3'] = df_stoch['STOCH_3']
-        df['CMO']=panda.cmo(data_series_of_target_feature)
-        df['DPO']=panda.dpo(data_series_of_target_feature)
-        df['UO']=panda.uo(df['High'], df['Low'], df['Close'])
+            df_stoch=panda.stoch(df['High'], df['Low'], df['Close'])
+            df['STOCHF_14']=df_stoch['STOCHF_14']
+            df['STOCHF_3'] = df_stoch['STOCHF_3']
+            df['STOCH_5'] = df_stoch['STOCH_5']
+            df['STOCH_3'] = df_stoch['STOCH_3']
+            df['CMO']=panda.cmo(data_series_of_target_feature)
+            df['DPO']=panda.dpo(data_series_of_target_feature)
+            df['UO']=panda.uo(df['High'], df['Low'], df['Close'])
 
 
-        df['lag_1'] = df['Close'].shift(1)
-        """df['lag_7'] = df['Close'].shift(7)
-        df = df.iloc[7:]"""
+            df['lag_1'] = df['Close'].shift(1)
+            """df['lag_7'] = df['Close'].shift(7)
+            df = df.iloc[7:]"""
 
-        df.fillna(value=0, inplace=True)
-        df.to_csv(PATH_INTEGRATED_FOLDER+"/"+crypto,sep=",", index=False)
 
+            df=df.append(day_to_predict,ignore_index=True)
+            df.fillna(value=0, inplace=True)
+            df.to_csv(os.path.join(PATH_INTEGRATED_FOLDER,crypto.replace(".csv","")+
+                                   str("_"+date_to_predict)+".csv"),sep=",", index=False)
 
 
 def get_MACD(data_series_of_target_feature):

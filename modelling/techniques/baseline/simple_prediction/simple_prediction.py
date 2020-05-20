@@ -97,30 +97,37 @@ folder_accuracy="average_accuracy"
         final = np.mean(accuracies)
         out.write(str(final))"""
 
-def simple_prediction(data_path,test_set,result_folder,lookback_days):
+def simple_prediction(data_path,test_set,result_folder):
     folder_creator(result_folder+partial_folder+"/",1)
     folder_creator(result_folder+folder_rmse,1)
     folder_creator(result_folder + folder_accuracy, 1)
-    for crypto in os.listdir(data_path):
-        df= pd.read_csv(data_path+crypto,usecols=['Date','trend'])
+    crypto_name=""
+    df1=""
+    for dataset_name in os.listdir(data_path):
+        splitted=dataset_name.split("_")
+        if (crypto_name != splitted[0]):  # new crypto
+            try:
+                df1.to_csv(result_folder + partial_folder + "/" + crypto_name+".csv", sep=",", index=False)
+            except:
+                pass
+            df1 = pd.DataFrame(columns=["date", "observed_class", "predicted_class"])
+            crypto_name=splitted[0]
+        date_to_predict = str(splitted[1]).replace(".csv", "")
+        df = pd.read_csv(data_path + dataset_name, usecols=['Date', 'trend'])
         #new dataframe for output
-        df1=pd.DataFrame(columns=["date","observed_class","predicted_class"])
-        for date_to_predict in test_set:
-            n_day_before = (pd.to_datetime(date_to_predict,format="%Y-%m-%d") - timedelta(days=lookback_days)).strftime('%Y-%m-%d')
+        n_day_before = (pd.to_datetime(date_to_predict,format="%Y-%m-%d") - timedelta(days=1)).strftime('%Y-%m-%d')
 
-            row_day_before=df[df['Date']==n_day_before]
-            row_day_before = row_day_before.set_index('Date')
+        row_day_before=df[df['Date']==n_day_before]
+        row_day_before = row_day_before.set_index('Date')
 
-            row_day_to_predict = df[df['Date'] == date_to_predict]
-            row_day_to_predict = row_day_to_predict.set_index('Date')
+        row_day_to_predict = df[df['Date'] == date_to_predict]
+        row_day_to_predict = row_day_to_predict.set_index('Date')
 
-            df1 = df1.append(
-                {'date': date_to_predict, 'observed_class': row_day_to_predict.loc[date_to_predict, 'trend'],
-                 'predicted_class': row_day_before.loc[n_day_before, 'trend'],
-                 }, ignore_index=True)
-        df1.to_csv(result_folder+partial_folder+"/"+crypto,sep=",",index=False)
-    #accuracy and rmse
-    #rmses=[]
+        df1 = df1.append(
+            {'date': date_to_predict, 'observed_class': row_day_to_predict.loc[date_to_predict, 'trend'],
+             'predicted_class': row_day_before.loc[n_day_before, 'trend'],
+             }, ignore_index=True)
+
     accuracies=[]
     for crypto in os.listdir(result_folder+partial_folder+"/"):
         df = pd.read_csv(result_folder+partial_folder+"/"+crypto)

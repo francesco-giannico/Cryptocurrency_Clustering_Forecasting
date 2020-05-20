@@ -19,7 +19,7 @@ PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated/"
 PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
 PATH_NORMALIZED_FOLDER = "../preparation/preprocessed_dataset/constructed/"
 
-def preprocessing():
+def preprocessing(TEST_SET,start_date):
     folders_setup()
     feature_selection()
     separation()
@@ -32,7 +32,7 @@ def preprocessing():
 
     #transformation(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_TRANSFORMED_INT_FOLDER)
     # transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    integration(input_path=PATH_CLEANED_FOLDER)
+    integration(input_path=PATH_CLEANED_FOLDER,test_set=TEST_SET,start_date=start_date)
     construction(input_path=PATH_INTEGRATED_FOLDER)
     #construction(input_path=PATH_CLEANED_FOLDER)
 
@@ -65,8 +65,11 @@ def cleaning():
     #todo LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
     #input_missing_values()
 
-def integration(input_path):
-    integrate_with_indicators(input_path)
+def integration(input_path,start_date,test_set):
+    integrate_with_indicators(input_path,start_date,test_set)
+    # add qualitative feature Trend
+    add_trend_feature(input_path=PATH_INTEGRATED_FOLDER, output_path=PATH_INTEGRATED_FOLDER,percent=1)
+
     #integrate_with_lag(input_path)
 
 def construction(input_path):
@@ -76,8 +79,4 @@ def construction(input_path):
     """standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)"""
     #robust_scaling(input_path,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
     max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
-    #add qualitative feature Trend
-    add_trend_feature(input_path=PATH_MAXABSNORMALIZED_FOLDER,output_path=PATH_MAXABSNORMALIZED_FOLDER,percent=1)
-    #todo add trend also for other constructed if needed
-
 

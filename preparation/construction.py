@@ -62,14 +62,17 @@ def robust_scaling(input_path,output_path):
 
 def max_abs_scaling(input_path,output_path):
     folder_creator(output_path,1)
-    excluded_features = ['Date']
+    excluded_features = ['Date','trend']
     for crypto in os.listdir(input_path):
         df = pd.read_csv(input_path+crypto,delimiter=',', header=0)
+        day_to_predict = df.loc[len(df.Date) - 1]
+        df=df[:-1]#remove the date to predict
         scaler = MaxAbsScaler()
         for col in df.columns:
             if col not in excluded_features:
                 normalized = scaler.fit_transform(df[col].values.reshape(-1, 1))
                 df[col] = pd.Series(normalized.reshape(-1))
+        df=df.append(day_to_predict,ignore_index=True)
         df.to_csv(output_path+crypto,sep=",", index=False)
 
 def standardization(input_path,output_path):

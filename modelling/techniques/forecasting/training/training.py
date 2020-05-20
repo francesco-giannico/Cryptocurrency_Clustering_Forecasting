@@ -72,7 +72,7 @@ def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,st
 
 
 def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
-    try:
+    """try:
         #pickling is also known as Serialization
         #The pickle module is not secure. Only unpickle data you trust.
         #load is for de-serialize
@@ -81,39 +81,37 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
         lstm_tensor = np.load(file_path,allow_pickle=True)
         print('(LSTM Version found!)')
         return lstm_tensor
-    except FileNotFoundError as e:
-        print('LSTM version not found. Creating..')
-        # an array in this format: [ [[items],[items]], [[items],[items]],.....]
-        # -num of rows: window_considered
-        # -num of columns: "dataset.shape[1]"
-        # 1 is the number of elements in
-        lstm_tensor = np.zeros((1, window_considered, dataset.shape[1]))
-        # for i between 0 to (num of elements in original array - window + 1)
-        """easy explanation through example:
-             i:0-701 (730-30+1)
-             i=0; => from day 0 + 30 days 
-             i=1 => from day 1 + 30 days 
-          """
-        for i in range(dataset.shape[0] - window_considered + 1):
-            #note (i:i + window_considered) is the rows selection.
-            element=dataset[i:i + window_considered, :].reshape(1, window_considered, dataset.shape[1])
-            lstm_tensor = np.append(lstm_tensor, element,axis=0)#axis 0 in order to appen on rows
+    except FileNotFoundError as e:"""
+    print('LSTM version not found. Creating..')
+    # an array in this format: [ [[items],[items]], [[items],[items]],.....]
+    # -num of rows: window_considered
+    # -num of columns: "dataset.shape[1]"
+    # 1 is the number of elements in
+    lstm_tensor = np.zeros((1, window_considered, dataset.shape[1]))
+    # for i between 0 to (num of elements in original array - window + 1)
+    """easy explanation through example:
+         i:0-701 (730-30+1)
+         i=0; => from day 0 + 30 days 
+         i=1 => from day 1 + 30 days 
+      """
+    for i in range(dataset.shape[0] - window_considered + 1):
+        #note (i:i + window_considered) is the rows selection.
+        element=dataset[i:i + window_considered, :].reshape(1, window_considered, dataset.shape[1])
+        lstm_tensor = np.append(lstm_tensor, element,axis=0)#axis 0 in order to appen on rows
 
-        #serialization
-        output_path += "/crypto_"
-        name_tensor = 'TensorFormat_' + output_name + '_' + str(window_considered)
-        #since the first element is zero I'll skip it:
-        lstm_tensor=lstm_tensor[1:,:]
-        np.save(str(output_path + name_tensor),lstm_tensor)
-        return lstm_tensor
+    #serialization
+    output_path += "/crypto_"
+    name_tensor = 'TensorFormat_' + output_name + '_' + str(window_considered)
+    #since the first element is zero I'll skip it:
+    lstm_tensor=lstm_tensor[1:,:]
+    np.save(str(output_path + name_tensor),lstm_tensor)
+    return lstm_tensor
 
 
-def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,number_of_days_to_predict):
+"""def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,number_of_days_to_predict):
     train = []
     validation=[]
     test = []
-
-
     index_feature_date = 0
     for sample in dataset_tensor_format:
         # Candidate is a date: 2018-01-30, for example.
@@ -128,9 +126,7 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
         #it happens just one time for each date to predict.
         #Test will be: [[items]] in which the items goes N(30,100,200) days before the date to predict.
         #d_validation = pd.to_datetime(date_to_predict) - timedelta(days=3)
-        """d1 = pd.to_datetime(date_to_predict) - timedelta(days=2)
-        d2 = pd.to_datetime(date_to_predict) - timedelta(days=1)
-        d3 = pd.to_datetime(date_to_predict)"""
+
         days=[]
         i=number_of_days_to_predict-1
         while i>0:
@@ -152,9 +148,41 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
             if not added:
                 train.append(sample)
     #return np.array(train), np.array(validation),np.array(test)
+    return np.array(train),np.array(test)"""
+
+def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
+    train = []
+    validation=[]
+    test = []
+    index_feature_date = 0
+    for sample in dataset_tensor_format:
+        # Candidate is a date: 2018-01-30, for example.
+        # -1 is used in order to reverse the list.
+        #takes the last date in the sample: 2017-01-09, 2017-01..., ... ,  2017-02-2019
+        #since the last date is 2017-02-2019, then it is before the date to predict for example 2019-03-05, so this sample
+        #will belong to the training set.
+        candidate = sample[-1,index_feature_date]
+        candidate = pd.to_datetime(candidate)
+
+        #if the candidate date is equal to the date to predict then it will be in test set.
+        #it happens just one time for each date to predict.
+        #Test will be: [[items]] in which the items goes N(30,100,200) days before the date to predict.
+        #d_validation = pd.to_datetime(date_to_predict) - timedelta(days=3)
+        """days=[]
+        i=number_of_days_to_predict-1
+        while i>0:
+            d = pd.to_datetime(date_to_predict) - timedelta(days=i)
+            days.append(d)
+            i-=1
+        days.append(pd.to_datetime(date_to_predict))"""
+        if candidate == pd.to_datetime(date_to_predict):
+            test.append(sample)
+        elif candidate < pd.to_datetime(date_to_predict):
+            train.append(sample)
+    #return np.array(train), np.array(validation),np.array(test)
     return np.array(train),np.array(test)
 
-"""def train_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
+"""def train_single_target_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
                 date_to_predict,model_path='', model=None):
     #note: it's an incremental way to get a final model.
     #
@@ -168,15 +196,15 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,n
 
     if model is None:
         model = Sequential()
-        # Add a LSTM layer with 128/256 internal units.
+
         #model.add(LSTM(units=num_neurons,return_sequences=True,input_shape=(x_train.shape[1], x_train.shape[2])))
         model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
         #reduce the overfitting
         model.add(Dropout(dropout))
         #number of neurons of the last layer
-        model.add(Dense(units=num_categories,kernel_initializer=tf.keras.initializers.glorot_uniform(seed=66)))
         #optimizer
         adam=Adam(learning_rate=learning_rate)
+        model.add(Dense(units=dimension_last_layer))
         #print(model.summary())
         #sgd=SGD(learning_rate=learning_rate)
         model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
