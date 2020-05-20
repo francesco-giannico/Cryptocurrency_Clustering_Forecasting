@@ -7,8 +7,8 @@ from datetime import datetime
 
 random.seed(0)
 from datetime import timedelta, date
-def generate_testset2(start_date, end_date,output_path):
-    file_to_write = open(output_path + start_date + "_" + end_date + "_baseline.txt", 'w')
+def generate_testset_baseline(start_date, end_date,interval,output_path):
+    file_to_write = open(output_path + start_date + "_" + end_date +"_"+str(interval)+"_baseline.txt", 'w')
     start = datetime.strptime(start_date, '%Y-%m-%d')
     end = datetime.strptime(end_date, '%Y-%m-%d')
     for dt in daterange(start, end):

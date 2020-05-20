@@ -10,7 +10,8 @@ from modelling.techniques.clustering.clustering import clustering
 from modelling.techniques.clustering.visualization import describe_new
 from modelling.techniques.forecasting.multi_target import multi_target
 from modelling.techniques.forecasting.single_target import single_target
-from modelling.techniques.forecasting.testing.test_set import generate_testset, get_testset, generate_testset2
+from modelling.techniques.forecasting.testing.test_set import generate_testset, get_testset, \
+    generate_testset_baseline
 from preparation.construction import create_horizontal_dataset
 from preparation.preprocessing import preprocessing
 from acquisition.yahoo_finance_history import get_most_important_cryptos
@@ -44,24 +45,22 @@ def main():
     TEST_SET=testing_set()
 
     #MODELLING
-    #features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume']
-
-    features_to_use=['Date','Close','DPO','trend']
+    features_to_use=['Date','DPO','trend']
 
     # General parameters
-    temporal_sequences = [10]
-    list_number_neurons = [20]
+    temporal_sequences = [3,5]
+    list_number_neurons = [10]
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 10
     PATIENCE= 1
-    number_of_days_to_predict=5
+    number_of_days_to_predict=3
     start_date_single="2015-09-01"
     end_date_single="2019-12-31"
 
-    """single_target_main(TEST_SET,type,features_to_use,
+    single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)"""
+                        EPOCHS,PATIENCE,number_of_days_to_predict,start_date_single,end_date_single)
     #CLUSTERING
     start_date_cluster = "2015-10-01"
     end_date_cluster = "2018-12-31"
@@ -70,9 +69,9 @@ def main():
     type_clustering="min_max_normalized"
 
     # clustering
-    clustering(distance_measure, start_date=start_date_cluster,
+    """clustering(distance_measure, start_date=start_date_cluster,
                end_date=end_date_cluster, type_for_clustering=type_clustering, type_for_prediction=type,
-               features_to_use=features_to_use)
+               features_to_use=features_to_use)"""
 
     #MULTITARGET
     #temporal_sequences =[15,30,45]
@@ -94,8 +93,8 @@ def main():
 
     """multi_target_main(TEST_SET,type,features_to_use,
                           temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                           EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi,number_of_days_to_predict)
-    """"""describe_new(PATH_DATASET="../modelling/techniques/clustering/",
+                           EPOCHS,PATIENCE,crypto,cluster_n,start_date_multi,end_date_multi,number_of_days_to_predict)"""
+    """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
              name_folder_res=type)
     """
@@ -200,29 +199,29 @@ def single_target_main(TEST_SET, type, features_to_use, temporal_sequences, numb
     # SIMPLE PREDICTION
     DATA_PATH_SIMPLE = DATA_PATH
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
-    TEST_SET_BASELINE= testing_set_baseline()
-    #simple_prediction(DATA_PATH_SIMPLE, TEST_SET_BASELINE, OUTPUT_SIMPLE_PREDICTION)
+    TEST_SET_BASELINE= testing_set_baseline(number_of_days_to_predict)
+    simple_prediction(DATA_PATH_SIMPLE, TEST_SET_BASELINE, OUTPUT_SIMPLE_PREDICTION,number_of_days_to_predict)
 
     # SINGLE TARGET LSTM
     # EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/" + output_name+ "/single_target/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequences=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   testing_set=TEST_SET, features_to_use=features_to_use,
                   DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,number_of_days_to_predict=number_of_days_to_predict,
-                  start_date=start_date,end_date=end_date)
+                  start_date=start_date,end_date=end_date)"""
 
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH, results_folder="result",
-                          report_folder="report", output_filename="overall_report")
+                          report_folder="report", output_filename="overall_report")"""
 
-    report_crypto(experiment_folder=EXPERIMENT_PATH, result_folder="result", report_folder="report",
+    """report_crypto(experiment_folder=EXPERIMENT_PATH, result_folder="result", report_folder="report",
                  output_filename="report")"""
     #generate_line_chart(EXPERIMENT_PATH, temporal_sequences, number_neurons)
 
@@ -241,17 +240,16 @@ def data_understanding(crypto_names=None):
     OUTPUT_PATH = "../understanding/output/"
     describe(PATH_DATASET, OUTPUT_PATH, None, None)
 
-def testing_set_baseline():
+def testing_set_baseline(interval):
     test_start_date = "2019-01-01"
     test_end_date = "2019-12-31"
     try:
         TEST_SET = get_testset(
-            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + "_baseline.txt")
+            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date +"_" + str(interval)+"_baseline.txt")
     except:
-        # Test set HAS TO BE EQUAL AMONG ALL THE EXPERIMENTS!!!
-        generate_testset2(test_start_date, test_end_date, "../modelling/techniques/forecasting/testing/")
+        generate_testset_baseline(test_start_date, test_end_date,interval, "../modelling/techniques/forecasting/testing/")
         TEST_SET = get_testset(
-            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date + "_baseline.txt")
+            "../modelling/techniques/forecasting/testing/" + test_start_date + "_" + test_end_date+"_"+ interval+"_baseline.txt")
     return TEST_SET
 
 def testing_set():

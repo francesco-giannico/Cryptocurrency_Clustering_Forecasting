@@ -22,37 +22,37 @@ def report_configurations(temporal_sequence, num_neurons, experiment_folder,
 
     #create dictionary for overall output
     #overall_report = {'model': [], 'mean_rmse_norm': [], 'mean_rmse_denorm': []}
-    overall_report = {'model': [], 'mean_rmse_norm': []}
+    overall_report = {'model': [], 'mean_accuracy': []}
     overall_report['model'].append("simple prediction model")
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
-    file = open(OUTPUT_SIMPLE_PREDICTION + "average_rmse/average_rmse.txt", "r")
+    file = open(OUTPUT_SIMPLE_PREDICTION + "average_accuracy/average_accuracy.txt", "r")
     value1 = file.read()
     file.close()
-    overall_report['mean_rmse_norm'].append(value1)
+    overall_report['mean_accuracy'].append(value1)
     for window, num_neurons in product(temporal_sequence,num_neurons):
         configuration = "LSTM_{}_neurons_{}_days".format(num_neurons,window)
 
         #model_report = {'crypto_symbol': [], 'rmse_list_norm': [], 'rmse_list_denorm': []}
-        model_report = {'crypto_symbol': [], 'rmse_list_norm': []}
+        model_report = {'crypto_symbol': [], 'accuracy_list': []}
         for crypto in cryptocurrencies:
             #read the error files of a specific crypto
-            errors_file = pd.read_csv(experiment_and_result_folder + crypto + "/" + configuration + "/stats/errors.csv",
+            accuracy_file = pd.read_csv(experiment_and_result_folder + crypto + "/" + configuration + "/stats/macro_avg_recall.csv",
                 index_col=0, sep=',')
 
             #populate the dictionary
             model_report['crypto_symbol'].append(crypto)
-            model_report['rmse_list_norm'].append(errors_file["rmse_norm"])
+            model_report['accuracy_list'].append(accuracy_file["macro_avg_recall"])
             #model_report['rmse_list_denorm'].append(errors_file["rmse_denorm"])
 
         #Folder creator
         folder_creator(experiment_and_report_folder + kind_of_report + "/" + configuration + "/",0)
 
-        average_rmse_normalized = np.mean(model_report['rmse_list_norm'])
+        average_macro_avg_recall = np.mean(model_report['accuracy_list'])
         #average_rmse_denormalized = np.mean(model_report['rmse_list_denorm'])
 
         #configuration_report = {"Average_RMSE_norm": [], "Average_RMSE_denorm": []}
-        configuration_report = {"Average_RMSE_norm": []}
-        configuration_report["Average_RMSE_norm"].append(average_rmse_normalized)
+        configuration_report = {"Average_macro_avg_recall": []}
+        configuration_report["Average_macro_avg_recall"].append(average_macro_avg_recall)
         #configuration_report["Average_RMSE_denorm"].append(average_rmse_denormalized)
 
         pd.DataFrame(configuration_report).to_csv(
@@ -60,7 +60,7 @@ def report_configurations(temporal_sequence, num_neurons, experiment_folder,
 
         #populate overall report
         overall_report['model'].append(configuration)
-        overall_report['mean_rmse_norm'].append(average_rmse_normalized)
+        overall_report['mean_accuracy'].append(average_macro_avg_recall)
         #overall_report['mean_rmse_denorm'].append(average_rmse_denormalized)
 
     #overall report to dataframe
@@ -70,10 +70,10 @@ def report_configurations(temporal_sequence, num_neurons, experiment_folder,
     #plot overall report
     plot_report(
         path_file= experiment_and_report_folder+ kind_of_report + "/" + output_filename + ".csv",
-        x_data="model", column_of_data="mean_rmse_norm", label_for_values_column="RMSE (Average)",
-        label_x="Configurations", title_img="Average RMSE - Configurations Oriented",
+        x_data="model", column_of_data="mean_accuracy", label_for_values_column="Macro avg recall",
+        label_x="Configurations", title_img="Macro avg recall - Configurations Oriented",
         destination= experiment_and_report_folder + kind_of_report + "/",
-        name_file_output="bargraph_RMSE_configurations_oriented")
+        name_file_output="bargraph_accuracy_configurations_oriented")
 
     return
 
@@ -98,7 +98,7 @@ def report_crypto(experiment_folder, result_folder, report_folder,output_filenam
 
         #dictionary for report
         #report_dic = {'configuration': [], 'RMSE_normalized': [], 'RMSE_denormalized': []}
-        report_dic = {'configuration': [], 'RMSE_normalized': []}
+        report_dic = {'configuration': [], 'Accuracy': []}
         #get the configurations used by the name of their folder
         configurations = os.listdir(experiment_and_result_folder + crypto + "/")
         configurations.sort(reverse=True)
@@ -110,13 +110,13 @@ def report_crypto(experiment_folder, result_folder, report_folder,output_filenam
             report_dic['configuration'].append(configuration)
 
             #read 'predictions.csv' file
-            errors_file = pd.read_csv(
-               experiment_and_result_folder + crypto + "/" + configuration + "/stats/errors.csv")
+            macro_avg_recall_file = pd.read_csv(
+               experiment_and_result_folder + crypto + "/" + configuration + "/stats/macro_avg_recall.csv")
 
             #get the mean of the rmse (normalized)
-            avg_rmse_norm = errors_file["rmse_norm"].mean()
+            avg_accuracy = macro_avg_recall_file["macro_avg_recall"].mean()
             #save in the dictionary
-            report_dic['RMSE_normalized'].append(float(avg_rmse_norm))
+            report_dic['Accuracy'].append(float(avg_accuracy))
 
             # get the mean of the rmse (denormalized)
             #avg_rmse_denorm = errors_file["rmse_denorm"].mean()
@@ -129,10 +129,10 @@ def report_crypto(experiment_folder, result_folder, report_folder,output_filenam
 
         plot_report(
             path_file=experiment_and_report_folder + kind_of_report + "/" + crypto + "/" + output_filename + ".csv",
-            x_data="configuration", column_of_data="RMSE_normalized", label_for_values_column="RMSE (Average)",
-            label_x="Configurations", title_img="Average RMSE - " + str(crypto),
+            x_data="configuration", column_of_data="Accuracy", label_for_values_column="Macro avg recall (average)",
+            label_x="Configurations", title_img="Average Macro avg recall - " + str(crypto),
             destination=experiment_and_report_folder + kind_of_report + "/" + crypto + "/",
-            name_file_output="bargraph_RMSE_" + str(crypto))
+            name_file_output="bargraph_macro_avg_recall_" + str(crypto))
     return
 
 """def report_single_vs_simple(input_path,cryptocurrencies):

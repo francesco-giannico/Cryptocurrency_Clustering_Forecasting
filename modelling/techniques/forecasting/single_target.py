@@ -109,16 +109,16 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # x_train= train[:, :-1, index_of_target_feature:]
                 #todo qua ho messo index of target feature
                 x_train = train[:, :-1, :index_of_target_feature]
-                """print("X_TRAIN")
+                print("X_TRAIN")
                 print(x_train)
-                print(x_train.shape)"""
+                print(x_train.shape)
                 # remove the last day before the day to predict, by doing -1
                 # returns an array with all the values of the feature close
                 # this contains values about the target feature!
                 y_train = train[:, -1, index_of_target_feature]
-                """print("Y_TRAIN")
+                print("Y_TRAIN")
                 print(y_train)
-                print(y_train.shape)"""
+                print(y_train.shape)
 
                 #x_val = validation[:, :-1, :]
                 """print("X_VAL")
@@ -137,16 +137,16 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # x_test = test[:, :-1, index_of_target_feature:]
                 # todo qua ho messo index of target feature
                 x_test = test[:, :-1, :index_of_target_feature]
-                """print("X_TEST")
+                print("X_TEST")
                 print(x_test)
-                print(x_test.shape)"""
+                print(x_test.shape)
                 # remove the last day before the day to predict, by doing -1
                 # returns an array with all the values of the feature close to predict!
                 y_test = test[:, -1, index_of_target_feature]
 
-                """print("Y_TEST")
+                print("Y_TEST")
                 print(y_test)
-                print(y_test.shape)"""
+                print(y_test.shape)
 
                 # change the data type, from object to float
                 # print(x_train[0][0])

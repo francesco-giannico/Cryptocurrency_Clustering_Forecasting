@@ -20,10 +20,10 @@ PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
 PATH_NORMALIZED_FOLDER = "../preparation/preprocessed_dataset/constructed/"
 
 def preprocessing():
-    #folders_setup()
-    #feature_selection()
-    #separation()
-    #cleaning()
+    folders_setup()
+    feature_selection()
+    separation()
+    cleaning()
 
     """quantile_transform(input_path=PATH_CLEANED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
     integration(input_path=PATH_TRANSFORMED_FOLDER)
@@ -32,7 +32,7 @@ def preprocessing():
 
     #transformation(input_path=PATH_TRANSFORMED_FOLDER,output_path=PATH_TRANSFORMED_INT_FOLDER)
     # transformation2(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_TRANSFORMED_FOLDER)
-    #integration(input_path=PATH_CLEANED_FOLDER)
+    integration(input_path=PATH_CLEANED_FOLDER)
     construction(input_path=PATH_INTEGRATED_FOLDER)
     #construction(input_path=PATH_CLEANED_FOLDER)
 
@@ -72,7 +72,7 @@ def integration(input_path):
 def construction(input_path):
     #feature scaling
     #min_max_one_minusone_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
-    #min_max_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
+    min_max_scaling(input_path,output_path=PATH_MINMAXNORMALIZED_FOLDER)
     """standardization(input_path, output_path=PATH_STANDARDIZED_FOLDER)"""
     #robust_scaling(input_path,output_path=PATH_ROBUSTNORMALIZED_FOLDER)
     max_abs_scaling(input_path,output_path=PATH_MAXABSNORMALIZED_FOLDER)
