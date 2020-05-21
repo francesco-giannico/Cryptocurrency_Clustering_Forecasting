@@ -1,88 +1,20 @@
-from datetime import timedelta
 import numpy as np
 import pandas as pd
-from scipy.stats import stats
-from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras import Sequential
 from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
-from tensorflow.keras.layers import LSTM,Dropout,Dense,Activation,Input,TimeDistributed
-from tensorflow.keras.utils import plot_model
+from tensorflow.keras.layers import LSTM,Dropout,Dense,Activation,Input
 from tensorflow.keras.models import Model
 from utility.dataset_utils import cut_dataset_by_range
 
-def get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date):
-    df1 = cut_dataset_by_range(PREPROCESSED_PATH, crypto.replace(".csv", ""), start_date, end_date)
-    #todo non è detto che sia il minmax... va be.. tanto è per denormalizzare.
-    scaler_target_features = MinMaxScaler()
-    # save the parameters for the trasformation or the inverse_transformation for the feature "close"
-    scaler_target_features.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
-    return scaler_target_features
-
-def get_scaler2(PREPROCESSED_PATH,crypto,start_date,end_date):
-    df1 = cut_dataset_by_range(PREPROCESSED_PATH, crypto.replace(".csv", ""), start_date, end_date)
-    p = -1
-    n_t = 1
-    while p <= 0.05:
-        qt = QuantileTransformer(n_quantiles=n_t, random_state=0, output_distribution="normal")
-        quanrtil = qt.fit_transform(df1.Close.values.reshape(-1, 1))
-        new_values = pd.Series(quanrtil.reshape(-1))
-        stat, p = stats.normaltest(new_values)
-        if p > 0.05:
-            df1.Close = pd.Series(new_values)
-            # save the parameters for the trasformation or the inverse_transformation for the feature "close"
-            qt.fit(df1.loc[:, [col for col in df1.columns if col.startswith('Close')]])
-            print('num_quantiles:' + str(n_t))
-        else:
-            n_t += 1
-    return qt
-
-def prepare_input_forecasting(PREPROCESSED_PATH,CLUSTERING_CRYPTO_PATH,crypto,start_date,end_date,cryptos=None,features_to_use=None):
-    if features_to_use!=None:
-        #df = pd.read_csv(CLUSTERING_CRYPTO_PATH+crypto+".csv", sep=',',header=0,usecols=features_to_use)
-        df=cut_dataset_by_range(CLUSTERING_CRYPTO_PATH, crypto.replace(".csv", ""), start_date, end_date,features_to_use)
-    else:
-        df = cut_dataset_by_range(CLUSTERING_CRYPTO_PATH, crypto.replace(".csv", ""), start_date, end_date)
-
-    df=df.set_index("Date")
-    start_date=df.index[0]
-    end_date=df.index[len(df.index)-1]
-
-    """if cryptos!=None:
-        #multitarget_case
-        for crypto in cryptos:
-            #todo review...
-            # read not normalized
-            scaler_target_features=get_scaler(PREPROCESSED_PATH,crypto,start_date,end_date)
-            scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
-    else:
-        #single target case
-        #read not normalized
-        #TRANSFORMED_PATH="../preparation/preprocessed_dataset/transformed/"
-        #scaler_target_features = get_scaler(TRANSFORMED_PATH, crypto, start_date, end_date)
-        #scaler_target_features = get_scaler(PREPROCESSED_PATH, crypto, start_date, end_date)
-        #todo remove 7 :D
-        #qt = get_scaler2(PREPROCESSED_PATH, crypto, start_date, end_date)"""
-
-    df = df.reset_index()
-    #exlude the feature "date"
-    features_without_date = [feature for feature in df.columns if feature != "Date"]
-
-    return df,df.columns,features_without_date
-
+def prepare_input_forecasting(DATA_PATH,crypto,features_to_use):
+    df=pd.read_csv(DATA_PATH+crypto,usecols=features_to_use)
+    features_without_symbols = [feature for feature in df.columns if not feature.startswith("symbol")]
+    features_without_date_and_symbols = [feature for feature in df.columns if feature != "Date" and not feature.startswith("symbol")]
+    return df[features_without_symbols],features_without_date_and_symbols
 
 def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
-    """try:
-        #pickling is also known as Serialization
-        #The pickle module is not secure. Only unpickle data you trust.
-        #load is for de-serialize
-        #allow_pickle=True else: Object arrays cannot be loaded when allow_pickle=False
-        file_path=output_path + "/crypto_TensorFormat_" + output_name + "_" + str(window_considered) + '.npy'
-        lstm_tensor = np.load(file_path,allow_pickle=True)
-        print('(LSTM Version found!)')
-        return lstm_tensor
-    except FileNotFoundError as e:"""
-    print('LSTM version not found. Creating..')
+    print('Creating LSTM version..')
     # an array in this format: [ [[items],[items]], [[items],[items]],.....]
     # -num of rows: window_considered
     # -num of columns: "dataset.shape[1]"
@@ -105,50 +37,8 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
     #since the first element is zero I'll skip it:
     lstm_tensor=lstm_tensor[1:,:]
     np.save(str(output_path + name_tensor),lstm_tensor)
+    print('LSTM version created!')
     return lstm_tensor
-
-
-"""def get_training_validation_testing_set(dataset_tensor_format, date_to_predict,number_of_days_to_predict):
-    train = []
-    validation=[]
-    test = []
-    index_feature_date = 0
-    for sample in dataset_tensor_format:
-        # Candidate is a date: 2018-01-30, for example.
-        # -1 is used in order to reverse the list.
-        #takes the last date in the sample: 2017-01-09, 2017-01..., ... ,  2017-02-2019
-        #since the last date is 2017-02-2019, then it is before the date to predict for example 2019-03-05, so this sample
-        #will belong to the training set.
-        candidate = sample[-1,index_feature_date]
-        candidate = pd.to_datetime(candidate)
-
-        #if the candidate date is equal to the date to predict then it will be in test set.
-        #it happens just one time for each date to predict.
-        #Test will be: [[items]] in which the items goes N(30,100,200) days before the date to predict.
-        #d_validation = pd.to_datetime(date_to_predict) - timedelta(days=3)
-
-        days=[]
-        i=number_of_days_to_predict-1
-        while i>0:
-            d = pd.to_datetime(date_to_predict) - timedelta(days=i)
-            days.append(d)
-            i-=1
-        days.append(pd.to_datetime(date_to_predict))
-
-        # if the candidate date is after oldest date:
-        if candidate > days[number_of_days_to_predict-1]:
-            pass
-        else:
-            added=False
-            for d in days:
-                if candidate == d:
-                    test.append(sample)
-                    added=True
-            #otherwise,it will be in the training set
-            if not added:
-                train.append(sample)
-    #return np.array(train), np.array(validation),np.array(test)
-    return np.array(train),np.array(test)"""
 
 def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
     train = []
@@ -182,38 +72,6 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
     #return np.array(train), np.array(validation),np.array(test)
     return np.array(train),np.array(test)
 
-"""def train_single_target_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, dimension_last_layer,
-                date_to_predict,model_path='', model=None):
-    #note: it's an incremental way to get a final model.
-    #
-    callbacks = [
-        EarlyStopping(monitor='val_loss', patience=patience,mode='min'),
-        ModelCheckpoint(
-            monitor='val_loss', save_best_only=True, mode='min',
-            filepath=model_path+'lstm_neur{}-do{}-ep{}-bs{}-target{}.h5'.format(
-                num_neurons, dropout, epochs, batch_size,date_to_predict))
-    ]
-
-    if model is None:
-        model = Sequential()
-
-        #model.add(LSTM(units=num_neurons,return_sequences=True,input_shape=(x_train.shape[1], x_train.shape[2])))
-        model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
-        #reduce the overfitting
-        model.add(Dropout(dropout))
-        #number of neurons of the last layer
-        #optimizer
-        adam=Adam(learning_rate=learning_rate)
-        model.add(Dense(units=dimension_last_layer))
-        #print(model.summary())
-        #sgd=SGD(learning_rate=learning_rate)
-        model.compile(loss='mean_squared_error', optimizer=adam, metrics=['mse'])
-
-    history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.02,
-              verbose=0, shuffle=False,callbacks=callbacks)
-
-    return model, history
-"""
 def train_single_target_model(x_train, y_train, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
                 date_to_predict,model_path='', model=None):
     #note: it's an incremental way to get a final model.
@@ -238,57 +96,10 @@ def train_single_target_model(x_train, y_train, num_neurons, learning_rate, drop
         adam = Adam(learning_rate=learning_rate)
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
 
-    history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.02,
+    history=model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size,  validation_split = 0.001,
               verbose=0, shuffle=False,callbacks=callbacks)
 
     return model, history
-
-"""def train_model_new(x_train, y_trains_encoded, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
-                date_to_predict,model_path='', model=None):
-    #note: it's an incremental way to get a final model.
-    #
-    print(x_train.shape)
-    inputs = Input(shape=(x_train.shape[1], x_train.shape[2]),batch_size=x_train.shape[0])
-    #trend_btc= Sequential()
-    trend_btc= LSTM(units=num_neurons)(inputs)
-    print(LSTM)
-    # reduce the overfitting
-    trend_btc= Dropout(dropout)(trend_btc)
-    trend_btc= Dense(units=num_neurons, activation='relu')(trend_btc)
-    trend_btc=Dense(units=num_categories)(trend_btc)
-    trend_btc= Activation('softmax',name="trend_btc")(trend_btc)
-
-
-    # trend_btc= Sequential()
-    trend_eth = LSTM(units=num_neurons)(inputs)
-    # reduce the overfitting
-    trend_eth = Dropout(dropout)(trend_eth)
-    trend_eth = Dense(units=num_neurons, activation='relu')(trend_eth)
-    trend_eth= Dense(units=num_categories)(trend_eth)
-    trend_eth = Activation('softmax', name="trend_eth")(trend_eth)
-
-    model = Model(
-        inputs=inputs,
-        outputs=[trend_btc,trend_eth],
-        name="multitarget")
-
-    losses = {
-        "trend_btc": "categorical_crossentropy",
-        "trend_eth": "categorical_crossentropy",
-    }
-    loss_weights = {"trend_btc": 1.0, "trend_eth": 1.0}
-    # initialize the optimizer and compile the model
-    adam = Adam(learning_rate=learning_rate)
-    model.compile(optimizer=adam, loss=losses,  loss_weights=loss_weights,
-                  metrics=["accuracy"])
-    plot_model(model, to_file="neural_network.png", show_shapes=True,
-               show_layer_names=True, expand_nested=True, dpi=150)
-
-    history=model.fit(x_train, {"trend_btc": y_trains_encoded[0], "trend_eth": y_trains_encoded[1]},
-                      epochs=epochs,  validation_split = 0.02,
-                     verbose=0, shuffle=False)
-
-    return model, history"""
 
 def train_multi_target_model(x_train, y_trains_encoded, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
                 date_to_predict,model_path='', model=None):
@@ -342,3 +153,50 @@ def train_multi_target_model(x_train, y_trains_encoded, num_neurons, learning_ra
                         epochs=epochs, validation_split=0.02, batch_size=batch_size,
                         verbose=0, shuffle=False, callbacks=callbacks)
     return model, history
+
+"""def train_model_new(x_train, y_trains_encoded, num_neurons, learning_rate, dropout, epochs, batch_size,patience, num_categories,
+                date_to_predict,model_path='', model=None):
+    #note: it's an incremental way to get a final model.
+    #
+    print(x_train.shape)
+    inputs = Input(shape=(x_train.shape[1], x_train.shape[2]),batch_size=x_train.shape[0])
+    #trend_btc= Sequential()
+    trend_btc= LSTM(units=num_neurons)(inputs)
+    print(LSTM)
+    # reduce the overfitting
+    trend_btc= Dropout(dropout)(trend_btc)
+    trend_btc= Dense(units=num_neurons, activation='relu')(trend_btc)
+    trend_btc=Dense(units=num_categories)(trend_btc)
+    trend_btc= Activation('softmax',name="trend_btc")(trend_btc)
+
+
+    # trend_btc= Sequential()
+    trend_eth = LSTM(units=num_neurons)(inputs)
+    # reduce the overfitting
+    trend_eth = Dropout(dropout)(trend_eth)
+    trend_eth = Dense(units=num_neurons, activation='relu')(trend_eth)
+    trend_eth= Dense(units=num_categories)(trend_eth)
+    trend_eth = Activation('softmax', name="trend_eth")(trend_eth)
+
+    model = Model(
+        inputs=inputs,
+        outputs=[trend_btc,trend_eth],
+        name="multitarget")
+
+    losses = {
+        "trend_btc": "categorical_crossentropy",
+        "trend_eth": "categorical_crossentropy",
+    }
+    loss_weights = {"trend_btc": 1.0, "trend_eth": 1.0}
+    # initialize the optimizer and compile the model
+    adam = Adam(learning_rate=learning_rate)
+    model.compile(optimizer=adam, loss=losses,  loss_weights=loss_weights,
+                  metrics=["accuracy"])
+    plot_model(model, to_file="neural_network.png", show_shapes=True,
+               show_layer_names=True, expand_nested=True, dpi=150)
+
+    history=model.fit(x_train, {"trend_btc": y_trains_encoded[0], "trend_eth": y_trains_encoded[1]},
+                      epochs=epochs,  validation_split = 0.02,
+                     verbose=0, shuffle=False)
+
+    return model, history"""

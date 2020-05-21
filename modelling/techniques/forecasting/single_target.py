@@ -25,16 +25,29 @@ rn.seed(42)
 # stable results
 tf_core.random.set_seed(42)
 
-
 PREPROCESSED_PATH = "../preparation/preprocessed_dataset/cleaned/final/"
-def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences, list_num_neurons, learning_rate,
-                  testing_set, features_to_use, DROPOUT, EPOCHS, PATIENCE,start_date,end_date):
 
+
+def save_results(macro_avg_recall_file,crypto_name,predictions_file,results_path):
+    try:
+        macro_avg_recall_file['symbol'].append(crypto_name)
+        # accuracy
+        performances = get_classification_stats(predictions_file['observed_class'],
+                                                predictions_file['predicted_class'])
+        macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
+
+        # serialization
+        pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv', index=False)
+        pd.DataFrame(data=macro_avg_recall_file).to_csv(results_path + 'macro_avg_recall.csv', index=False)
+    except:
+        pass
+
+def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences, list_num_neurons, learning_rate,
+                  features_to_use, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE):
 
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
-    TIME_PATH="time"
     # starting from the testing set
     for window, num_neurons in product(window_sequences, list_num_neurons):
         print('Current configuration: ')
@@ -43,27 +56,17 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
         predictions_file = {'symbol': [], 'date': [], 'observed_class': [], 'predicted_class': []}
         macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
         results_path=""
+
         for dataset_name in os.listdir(DATA_PATH):
             #format of dataset name: Crypto_DATE_TO_PREDICT.csv
             splitted=dataset_name.split("_")
-            if(crypto_name!=splitted[0]):#new crypto
+            if(crypto_name!=str(splitted[0])):#new crypto
 
                 # DICTIONARY FOR STATISTICS
                 # Saving the accuracy into the dictionaries
-                try:
-                    macro_avg_recall_file['symbol'].append(crypto_name)
-                    # accuracy
-                    performances = get_classification_stats(predictions_file['observed_class'],
-                                                            predictions_file['predicted_class'])
-                    macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
-
-                    # serialization
-                    pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv', index=False)
-                    pd.DataFrame(data=macro_avg_recall_file).to_csv(results_path + 'macro_avg_recall.csv', index=False)
-                except:
-                    pass
+                save_results(macro_avg_recall_file,crypto_name,predictions_file,results_path)
                 #update the name
-                crypto_name = splitted[0]
+                crypto_name = str(splitted[0])
                 # clean the dictionary
                 predictions_file = {'symbol': [], 'date': [], 'observed_class': [], 'predicted_class': []}
                 macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
@@ -76,16 +79,13 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             # create a folder for results
             folder_creator(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name, 0)
             folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 0)
-            # create folder for time spent
-            folder_creator(EXPERIMENT_PATH + "/" + TIME_PATH + "/" + crypto_name, 0)
 
-            dataset, features, features_without_date = \
-                prepare_input_forecasting(PREPROCESSED_PATH, DATA_PATH, dataset_name,start_date,end_date,None, features_to_use)
+            dataset, features_without_date = \
+                prepare_input_forecasting(DATA_PATH,dataset_name,features_to_use)
 
-            # print(np.array(dataset)[0]), takes the first row of the dataset (2018-01 2020...etc.)
             dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                           TENSOR_DATA_PATH + "/" + crypto_name + "/",
-                                                          crypto_name)
+                                                          crypto_name+"_"+date_to_predict)
             # New folders for this configuration
             configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
             # Create a folder to save
@@ -99,7 +99,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
             #train, validation,test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
             train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
-            # ['2018-01-01' other numbers separated by comma],it removes the date.
 
             train = train[:, :, 1:]
             test = test[:, :, 1:]
@@ -128,20 +127,18 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
             # change the data type, from object to float
             x_train = x_train.astype('float')
-            # print(x_train[0][0])
-            #y_train = y_train.astype('float')
             x_test = x_test.astype('float')
-            #y_test = y_test.astype('float')
-            #print(y_test)
+
             # one hot encode y
             y_train  = to_categorical(y_train)
             y_test = to_categorical(y_test)
             """print(y_train)
             print(y_test)"""
+
             #batch size must be a factor of the number of training elements
-            BATCH_SIZE=x_train.shape[0]
-            # if the date to predict is the first date in the testing_set
-            #if date_to_predict == testing_set[0]:
+            if BATCH_SIZE == None:
+                BATCH_SIZE = x_train.shape[0]
+
             model, history = train_single_target_model(x_train, y_train,
                                          num_neurons=num_neurons,
                                          learning_rate=learning_rate,
@@ -171,24 +168,18 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             K.clear_session()
             tf_core.random.set_seed(42)
 
-            # changing data types
-            #test_prediction = float(test_prediction)
-            #test_prediction=test_prediction.astype("float")
-
             print("Num of entries for training: ", x_train.shape[0])
-            # print("Num of element for validation: ", x_test.shape[0])
-            #print("Training until: ", pd.to_datetime(date_to_predict) - timedelta(days=3))
-
             # invert encoding: argmax of numpy takes the higher value in the array
             print("Predicting for: ", date_to_predict)
-            print("Predicted: ", np.argmax(test_prediction[0]))
-            print("Actual: ", np.argmax(y_test[0]))
+            print("Predicted: ", np.argmax(test_prediction))
+            print("Actual: ", np.argmax(y_test))
             print("\n")
 
             # Saving the predictions on the dictionarie
             predictions_file['symbol'].append(crypto_name)
             predictions_file['date'].append(date_to_predict)
-            predictions_file['observed_class'].append(np.argmax(y_test[0]))
-            predictions_file['predicted_class'].append(np.argmax(test_prediction[0]))
-
+            predictions_file['observed_class'].append(np.argmax(y_test))
+            predictions_file['predicted_class'].append(np.argmax(test_prediction))
+        save_results(macro_avg_recall_file, crypto_name, predictions_file, results_path)
     return
+

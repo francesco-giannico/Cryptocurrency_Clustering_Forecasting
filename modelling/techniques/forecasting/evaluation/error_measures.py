@@ -47,9 +47,11 @@ def get_classification_stats(actual,prediction):
         partial_averages.append(np.divide(true_positives[i],np.sum(confusion_matrix[i])))
         i+=1
     print(np.average(partial_averages))"""
-    confusion_matrix=metrics.confusion_matrix(actual, prediction)
+    #confusion_matrix=metrics.confusion_matrix(actual, prediction)
     #confusion_matrix = pd.DataFrame({'Stable': confusion_matrix[:, 0], 'Down':  confusion_matrix[:, 1],'Up':  confusion_matrix[:, 2]})
-    performances = metrics.classification_report(actual, prediction, digits=3, output_dict=True)
+    performances = metrics.classification_report(actual, prediction, digits=3, output_dict=True,zero_division=False)
     #print(metrics.classification_report(actual, prediction, digits=3))
     return performances
 
+
+#print(metrics.classification_report([1,0,1,2],[1,2,2,2], digits=3,zero_division=False))

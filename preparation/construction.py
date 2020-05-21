@@ -89,35 +89,44 @@ def standardization(input_path,output_path):
 
 
 #creates the horizontal dataset
-def create_horizontal_dataset(data_path,output_path,start_date,end_date):
-    folder_creator(output_path+"horizontal_dataset/",1)
-    dataframes=[]
-    cryptocurrencies=os.listdir(data_path)
+def create_horizontal_dataset(data_path,output_path,test_set):
+    cryptocurrencies_with_date_to_pred=os.listdir(data_path)
     cryptos_in_the_cluster=[]
+    already_added=[]
+    folder_creator(output_path + "horizontal_datasets" + "/", 1)
+    for date_to_predict in test_set:
+        dataframes = []
+        #take just the date column one time
+        for dataset_name in cryptocurrencies_with_date_to_pred:
+            splitted = dataset_name.split("_")
+            date_to_predict_crypto = str(splitted[1]).replace(".csv","")
+            if date_to_predict==date_to_predict_crypto:
+             df_date=pd.read_csv(os.path.join(data_path,dataset_name))
+             dataframes.append(df_date['Date'])
+             break
 
-    #take just the date column one time
-    for crypto in cryptocurrencies:
-        df_date=cut_dataset_by_range(data_path, crypto.replace(".csv",""), start_date, end_date)
-        dataframes.append(df_date['Date'])
-        break
+        # creates Close_1,Open_1 ecc for each dataframe
+        i=1
+        for dataset_name in cryptocurrencies_with_date_to_pred:
+            splitted=dataset_name.split("_")
+            crypto_name=splitted[0]
+            date_to_predict_crypto=str(splitted[1]).replace(".csv","")
+            if date_to_predict == date_to_predict_crypto:
+                df=pd.read_csv(os.path.join(data_path,dataset_name),header=0)
+                cryptos_in_the_cluster.append(crypto_name)
+                df=df.drop('Date',axis=1)
+                df['symbol']=crypto_name
+                df=df.add_suffix('_'+str(i))
+                i+=1
+                dataframes.append(df)
 
-    # creates Close_1,Open_1 ecc for each dataframe
-    i=1
-    for crypto in os.listdir(data_path):
-        df=cut_dataset_by_range(data_path, crypto.replace(".csv",""), start_date, end_date)
-        cryptos_in_the_cluster.append(crypto.replace(".csv",""))
-        df=df.drop('Date',axis=1)
-        df=df.add_suffix('_'+str(i))
-        i+=1
-        dataframes.append(df)
+        #concat horizontally all the dataframes
+        horizontal = pd.concat(dataframes, axis=1)
 
-    #concat horizontally all the dataframes
-    horizontal = pd.concat(dataframes, axis=1)
+        #serialization
+        horizontal.to_csv(output_path+"horizontal_datasets/horizontal_"+date_to_predict+".csv",sep=",",index=False)
 
-    #serialization
-    horizontal.to_csv(output_path+"horizontal_dataset/horizontal.csv",sep=",",index=False)
-
-    return cryptos_in_the_cluster
+    return  list(dict.fromkeys(cryptos_in_the_cluster))
 
 #[close(i+1)-close(i)/close(i)*100]
 def add_trend_feature(input_path,output_path,percent):

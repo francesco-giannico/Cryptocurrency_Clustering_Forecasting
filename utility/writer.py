@@ -1,12 +1,14 @@
 import csv
 import json
+import os
+
 import numpy as np
 import pandas as pd
 from utility.folder_creator import folder_creator
 from utility.reader import get_dict_symbol_id
 from shutil import copyfile
 
-def save_clusters(clusters,k_used,CLUSTERING_PATH):
+def save_clusters(input_path,clusters,k_used,CLUSTERING_PATH):
     dict_symbol_id= get_dict_symbol_id(CLUSTERING_PATH)
     folder_creator(CLUSTERING_PATH+"clusters/", 0)
     folder_creator(CLUSTERING_PATH + "clusters/"+k_used+"/", 1)
@@ -20,8 +22,10 @@ def save_clusters(clusters,k_used,CLUSTERING_PATH):
         folder_creator(CLUSTERING_PATH + "clusters/"+k_used+"/cluster_"+str(i)+"/", 1,)
         for crypto in cryptocurrencies:
             #todo questo va cambiato
-            copyfile(CLUSTERING_PATH + "original_datasets/" + crypto + ".csv",
-                 CLUSTERING_PATH + "clusters/" + k_used + "/cluster_"+str(i)+"/" + crypto + ".csv")
+            for crypto_with_date in os.listdir(input_path):
+                if crypto_with_date.startswith(crypto):
+                    copyfile(input_path + crypto_with_date,
+                         CLUSTERING_PATH + "clusters/" + k_used + "/cluster_"+str(i)+"/" + crypto_with_date)
 
         df = df.append({'cluster_id': str(i), 'cryptos': cryptocurrencies}, ignore_index=True)
         i += 1

@@ -15,7 +15,7 @@ from pyclustering.samples.definitions import FCPS_SAMPLES
 from pyclustering.utils import read_sample
 import matplotlib.pyplot as plt
 
-def consensus_clustering(CLUSTERING_PATH):
+def consensus_clustering(input_path,CLUSTERING_PATH):
     df = pd.read_csv(CLUSTERING_PATH+"distance_matrix.csv", delimiter=',', header=None)
 
     #read all the values
@@ -72,4 +72,4 @@ def consensus_clustering(CLUSTERING_PATH):
         agglomerative_instance.process()
         # Obtain results of clustering
         clusters = agglomerative_instance.get_clusters()
-        save_clusters(clusters,k,CLUSTERING_PATH)
+        save_clusters(input_path,clusters,k,CLUSTERING_PATH)

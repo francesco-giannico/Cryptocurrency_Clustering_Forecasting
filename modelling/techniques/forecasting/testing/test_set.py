@@ -34,7 +34,7 @@ def generate_testset(start_date, end_date,output_path):
     test_set= set()
     for i in range(0,num_months):
         test_set_specific=set()
-        while len(test_set_specific)<5:
+        while len(test_set_specific)<3:
             random_day = randomdate(start.year, start.month)
             #if the last random day generated is upper than the last available day, by default it will be set up to the last available day
             #Example:
