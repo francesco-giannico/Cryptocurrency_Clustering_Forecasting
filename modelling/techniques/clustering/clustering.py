@@ -14,9 +14,6 @@ def clustering(distance_measure,type_for_clustering,type_for_prediction,features
 
     folder_setup(CLUSTERING_PATH)
 
-    """prepare_dataset_for_clustering(input_path_type_for_clustering=PATH_SOURCE_CLUST,
-                                   input_path_type_for_prediction=PATH_SOURCE_PRED,output_path=CLUSTERING_PATH)"""
-    
     generate_cryptocurrencies_dictionary(PATH_SOURCE_CLUST,CLUSTERING_PATH)
     
     dict_symbol_id = get_dict_symbol_id(CLUSTERING_PATH)
@@ -28,6 +25,4 @@ def clustering(distance_measure,type_for_clustering,type_for_prediction,features
 
 def folder_setup(CLUSTERING_PATH):
     folder_creator(CLUSTERING_PATH, 1)
-    folder_creator(CLUSTERING_PATH + "datasets/", 1)
-    folder_creator(CLUSTERING_PATH + "original_datasets/", 1)
     return

@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 from tensorflow.keras.optimizers import Adam
@@ -8,7 +10,7 @@ from tensorflow.keras.models import Model
 from utility.dataset_utils import cut_dataset_by_range
 
 def prepare_input_forecasting(DATA_PATH,crypto,features_to_use):
-    df=pd.read_csv(DATA_PATH+crypto,usecols=features_to_use)
+    df=pd.read_csv(os.path.join(DATA_PATH,crypto),usecols=features_to_use)
     features_without_symbols = [feature for feature in df.columns if not feature.startswith("symbol")]
     features_without_date_and_symbols = [feature for feature in df.columns if feature != "Date" and not feature.startswith("symbol")]
     return df[features_without_symbols],features_without_date_and_symbols

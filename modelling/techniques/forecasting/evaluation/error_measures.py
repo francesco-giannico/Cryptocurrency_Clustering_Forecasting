@@ -54,4 +54,3 @@ def get_classification_stats(actual,prediction):
     return performances
 
 
-#print(metrics.classification_report([1,0,1,2],[1,2,2,2], digits=3,zero_division=False))

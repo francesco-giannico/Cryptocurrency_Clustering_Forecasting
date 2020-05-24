@@ -19,12 +19,11 @@ tf_core.random.set_seed(42)
 
 PREPROCESSED_PATH="../preparation/preprocessed_dataset/cleaned/final/"
 def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, list_num_neurons,
-                    learning_rate,cryptos, features_to_use, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE):
+                    learning_rate,cryptos, features_to_use, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE,test_set):
 
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
-
     # starting from the testing set
     for window, num_neurons in product(window_sequences, list_num_neurons):
         print('Current configuration: ')
@@ -37,18 +36,24 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             predictions_file[crypto + "_observed_class"] = []
             predictions_file[crypto + "_predicted_class"] = []
 
-        for dataset_name in os.listdir(DATA_PATH):
-            # format of dataset name: Crypto_DATE_TO_PREDICT.csv
-            splitted = dataset_name.split("_")
-            horizontal_name=str(splitted[0])
-            print("Current crypto: ", horizontal_name, "\t")
-            date_to_predict = str(splitted[1]).replace(".csv", "")
-            # create a folder for data in tensor format
-            folder_creator(TENSOR_DATA_PATH + "/" + horizontal_name, 0)
-            # create a folder for models
-            folder_creator(EXPERIMENT_PATH  + MODELS_PATH + "/", 0)
-            folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/", 0)
-
+        horizontal_name = "horizontal.csv"
+        print("Current crypto: ", horizontal_name, "\t")
+        # date_to_predict = str(splitted[1]).replace(".csv", "")
+        # create a folder for data in tensor format
+        folder_creator(TENSOR_DATA_PATH + "/" + horizontal_name, 0)
+        # create a folder for models
+        folder_creator(EXPERIMENT_PATH + MODELS_PATH + "/", 0)
+        folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/", 0)
+        # New folders for this configuration
+        configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
+        # Create a folder to save
+        # - best model checkpoint
+        # - statistics (results)
+        statistics = "stats"
+        model_path = EXPERIMENT_PATH + MODELS_PATH + "/" + configuration_name + "/"
+        folder_creator(model_path, 0)
+        for date_to_predict in test_set:
+            dataset_name = horizontal_name + "_" + str(date_to_predict) + ".csv"
             dataset,features_filtred = prepare_input_forecasting(DATA_PATH,dataset_name,features_to_use)
             #takes all the target
             indexes_of_target_features = [features_filtred.index(f) for f in features_filtred if
@@ -57,14 +62,6 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                           TENSOR_DATA_PATH + "/" + horizontal_name + "/",
                                                           horizontal_name+"_"+date_to_predict)
-            #New folders for this configuration
-            configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
-            # Create a folder to save
-            # - best model checkpoint
-            # - statistics (results)
-            statistics = "stats"
-            model_path = EXPERIMENT_PATH + MODELS_PATH + "/" + configuration_name + "/"
-            folder_creator(model_path,0)
 
             train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
 
@@ -170,23 +167,23 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             print("Predicted: ", predicted_decoded)
             print("Actual: ", observed_decoded)
 
-            #divides results by crypto.
-            for crypto in cryptos:
-                PATH_CRYPTO=EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto+"/"+configuration_name+"/"+statistics+"/"
-                folder_creator(PATH_CRYPTO, 0)
-    
-                crypto_prediction_file = {}
-                crypto_prediction_file['date'] = predictions_file['date']
-                crypto_prediction_file['observed_class'] = predictions_file[crypto + '_observed_class']
-                crypto_prediction_file['predicted_class'] = predictions_file[crypto + '_predicted_class']
-    
-                crypto_macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
-                crypto_macro_avg_recall_file['symbol'].append(crypto)
-                performances = get_classification_stats(crypto_prediction_file['observed_class'], crypto_prediction_file['predicted_class'])
-                crypto_macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
-    
-                #serialization
-                pd.DataFrame(data=crypto_prediction_file).to_csv(PATH_CRYPTO + 'predictions.csv',index=False)
-                pd.DataFrame(data=crypto_macro_avg_recall_file).to_csv(PATH_CRYPTO + 'macro_avg_recall.csv',index=False)
+        #divides results by crypto.
+        for crypto in cryptos:
+            PATH_CRYPTO=EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto+"/"+configuration_name+"/"+statistics+"/"
+            folder_creator(PATH_CRYPTO, 0)
+
+            crypto_prediction_file = {}
+            crypto_prediction_file['date'] = predictions_file['date']
+            crypto_prediction_file['observed_class'] = predictions_file[crypto + '_observed_class']
+            crypto_prediction_file['predicted_class'] = predictions_file[crypto + '_predicted_class']
+
+            crypto_macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
+            crypto_macro_avg_recall_file['symbol'].append(crypto)
+            performances = get_classification_stats(crypto_prediction_file['observed_class'], crypto_prediction_file['predicted_class'])
+            crypto_macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
+
+            #serialization
+            pd.DataFrame(data=crypto_prediction_file).to_csv(PATH_CRYPTO + 'predictions.csv',index=False)
+            pd.DataFrame(data=crypto_macro_avg_recall_file).to_csv(PATH_CRYPTO + 'macro_avg_recall.csv',index=False)
 
     return

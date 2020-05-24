@@ -43,49 +43,23 @@ def save_results(macro_avg_recall_file,crypto_name,predictions_file,results_path
         pass
 
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences, list_num_neurons, learning_rate,
-                  features_to_use, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE):
+                  features_to_use, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE,test_set):
 
     #################### FOLDER SETUP ####################
     MODELS_PATH = "models"
     RESULT_PATH = "result"
     # starting from the testing set
-    for window, num_neurons in product(window_sequences, list_num_neurons):
-        print('Current configuration: ')
-        print("Window_sequence: ", window, "\t", "Neurons: ", num_neurons)
-        crypto_name=""
-        predictions_file = {'symbol': [], 'date': [], 'observed_class': [], 'predicted_class': []}
-        macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
-        results_path=""
-
-        for dataset_name in os.listdir(DATA_PATH):
-            #format of dataset name: Crypto_DATE_TO_PREDICT.csv
-            splitted=dataset_name.split("_")
-            if(crypto_name!=str(splitted[0])):#new crypto
-
-                # DICTIONARY FOR STATISTICS
-                # Saving the accuracy into the dictionaries
-                save_results(macro_avg_recall_file,crypto_name,predictions_file,results_path)
-                #update the name
-                crypto_name = str(splitted[0])
-                # clean the dictionary
-                predictions_file = {'symbol': [], 'date': [], 'observed_class': [], 'predicted_class': []}
-                macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
-
-            print("Current crypto: ", crypto_name, "\t")
-            date_to_predict=str(splitted[1]).replace(".csv","")
-
-            # create a folder for data in tensor format
-            folder_creator(TENSOR_DATA_PATH + "/" + crypto_name, 0)
-            # create a folder for results
-            folder_creator(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name, 0)
-            folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 0)
-
-            dataset, features_without_date = \
-                prepare_input_forecasting(DATA_PATH,dataset_name,features_to_use)
-
-            dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
-                                                          TENSOR_DATA_PATH + "/" + crypto_name + "/",
-                                                          crypto_name+"_"+date_to_predict)
+    for crypto_name in os.listdir(DATA_PATH):
+        # create a folder for data in tensor format
+        folder_creator(TENSOR_DATA_PATH + "/" + crypto_name, 0)
+        # create a folder for results
+        folder_creator(EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name, 0)
+        folder_creator(EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name, 0)
+        for window, num_neurons in product(window_sequences, list_num_neurons):
+            print('Current configuration: ')
+            print("Crypto: ",crypto_name,"\t","Window_sequence: ", window, "\t", "Neurons: ", num_neurons)
+            predictions_file = {'symbol': [], 'date': [], 'observed_class': [], 'predicted_class': []}
+            macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
             # New folders for this configuration
             configuration_name = "LSTM_" + str(num_neurons) + "_neurons_" + str(window) + "_days"
             # Create a folder to save
@@ -95,91 +69,100 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
             model_path = EXPERIMENT_PATH + "/" + MODELS_PATH + "/" + crypto_name + "/" + configuration_name + "/"
             results_path = EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto_name + "/" + configuration_name + "/" + statistics + "/"
             folder_creator(model_path, 0)
-            folder_creator(results_path,0)
+            folder_creator(results_path, 0)
+            for date_to_predict in test_set:
+                #format of dataset name: Crypto_DATE_TO_PREDICT.csv
+                dataset_name=crypto_name+"_"+str(date_to_predict)+".csv"
+                dataset, features_without_date = \
+                    prepare_input_forecasting(os.path.join(DATA_PATH,crypto_name),dataset_name,features_to_use)
 
-            #train, validation,test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
-            train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
+                dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
+                                                              TENSOR_DATA_PATH + "/" + crypto_name + "/",
+                                                              crypto_name+"_"+date_to_predict)
 
-            train = train[:, :, 1:]
-            test = test[:, :, 1:]
+                #train, validation,test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
+                train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
 
-            index_of_target_feature = features_without_date.index('trend')
+                train = train[:, :, 1:]
+                test = test[:, :, 1:]
 
-            x_train = train[:, :-1, :index_of_target_feature]
-            """print("X_TRAIN")
-            print(x_train)
-            print(x_train.shape)"""
+                index_of_target_feature = features_without_date.index('trend')
 
-            y_train = train[:, -1, index_of_target_feature]
-            """print("Y_TRAIN")
-            print(y_train)
-            print(y_train.shape)"""
+                x_train = train[:, :-1, :index_of_target_feature]
+                """print("X_TRAIN")
+                print(x_train)
+                print(x_train.shape)"""
 
-            x_test = test[:, :-1, :index_of_target_feature]
-            """print("X_TEST")
-            print(x_test)
-            print(x_test.shape)"""
+                y_train = train[:, -1, index_of_target_feature]
+                """print("Y_TRAIN")
+                print(y_train)
+                print(y_train.shape)"""
 
-            y_test = test[:, -1, index_of_target_feature]
-            """print("Y_TEST")
-            print(y_test)
-            print(y_test.shape)"""
+                x_test = test[:, :-1, :index_of_target_feature]
+                """print("X_TEST")
+                print(x_test)
+                print(x_test.shape)"""
 
-            # change the data type, from object to float
-            x_train = x_train.astype('float')
-            x_test = x_test.astype('float')
+                y_test = test[:, -1, index_of_target_feature]
+                """print("Y_TEST")
+                print(y_test)
+                print(y_test.shape)"""
 
-            # one hot encode y
-            y_train  = to_categorical(y_train)
-            y_test = to_categorical(y_test)
-            """print(y_train)
-            print(y_test)"""
+                # change the data type, from object to float
+                x_train = x_train.astype('float')
+                x_test = x_test.astype('float')
 
-            #batch size must be a factor of the number of training elements
-            if BATCH_SIZE == None:
-                BATCH_SIZE = x_train.shape[0]
+                # one hot encode y
+                y_train  = to_categorical(y_train)
+                y_test = to_categorical(y_test)
+                """print(y_train)
+                print(y_test)"""
 
-            model, history = train_single_target_model(x_train, y_train,
-                                         num_neurons=num_neurons,
-                                         learning_rate=learning_rate,
-                                         dropout=DROPOUT,
-                                         epochs=EPOCHS,
-                                         batch_size=BATCH_SIZE,
-                                         patience=PATIENCE,
-                                         num_categories=len(y_train[0]),
-                                         date_to_predict=date_to_predict,
-                                         model_path=model_path)
-            # plot neural network's architecture
-            plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
-                       show_layer_names=True, expand_nested=True, dpi=150)
+                #batch size must be a factor of the number of training elements
+                if BATCH_SIZE == None:
+                    BATCH_SIZE = x_train.shape[0]
 
-            #plot loss
-            filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
-            plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
+                model, history = train_single_target_model(x_train, y_train,
+                                             num_neurons=num_neurons,
+                                             learning_rate=learning_rate,
+                                             dropout=DROPOUT,
+                                             epochs=EPOCHS,
+                                             batch_size=BATCH_SIZE,
+                                             patience=PATIENCE,
+                                             num_categories=len(y_train[0]),
+                                             date_to_predict=date_to_predict,
+                                             model_path=model_path)
+                # plot neural network's architecture
+                plot_model(model, to_file=model_path + "neural_network.png", show_shapes=True,
+                           show_layer_names=True, expand_nested=True, dpi=150)
 
-            #plot accuracy
-            filename = "model_train_val_accuracy_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
-            plot_train_and_validation_accuracy(pd.Series(history.history['accuracy']),
-                                           pd.Series(history.history['val_accuracy']), model_path, filename)
+                #plot loss
+                filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
+                plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
 
-            # Predict for each date in the validation set
-            test_prediction = model.predict(x_test)
-            # this is important!!
-            K.clear_session()
-            tf_core.random.set_seed(42)
+                #plot accuracy
+                filename = "model_train_val_accuracy_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
+                plot_train_and_validation_accuracy(pd.Series(history.history['accuracy']),
+                                               pd.Series(history.history['val_accuracy']), model_path, filename)
 
-            print("Num of entries for training: ", x_train.shape[0])
-            # invert encoding: argmax of numpy takes the higher value in the array
-            print("Predicting for: ", date_to_predict)
-            print("Predicted: ", np.argmax(test_prediction))
-            print("Actual: ", np.argmax(y_test))
-            print("\n")
+                # Predict for each date in the validation set
+                test_prediction = model.predict(x_test)
+                # this is important!!
+                K.clear_session()
+                tf_core.random.set_seed(42)
 
-            # Saving the predictions on the dictionarie
-            predictions_file['symbol'].append(crypto_name)
-            predictions_file['date'].append(date_to_predict)
-            predictions_file['observed_class'].append(np.argmax(y_test))
-            predictions_file['predicted_class'].append(np.argmax(test_prediction))
-        save_results(macro_avg_recall_file, crypto_name, predictions_file, results_path)
+                print("Num of entries for training: ", x_train.shape[0])
+                # invert encoding: argmax of numpy takes the higher value in the array
+                print("Predicting for: ", date_to_predict)
+                print("Predicted: ", np.argmax(test_prediction))
+                print("Actual: ", np.argmax(y_test))
+                print("\n")
+
+                # Saving the predictions on the dictionarie
+                predictions_file['symbol'].append(crypto_name)
+                predictions_file['date'].append(date_to_predict)
+                predictions_file['observed_class'].append(np.argmax(y_test))
+                predictions_file['predicted_class'].append(np.argmax(test_prediction))
+            save_results(macro_avg_recall_file, crypto_name, predictions_file, results_path)
     return
 

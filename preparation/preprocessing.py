@@ -23,12 +23,12 @@ def preprocessing(TEST_SET,start_date,end_date_for_clustering=None):
     feature_selection()
     separation()
     cleaning()"""
-    cut_datasets_for_clustering(input_path=PATH_CLEANED_FOLDER, output_path=PATH_CUT_FOR_CLUSTERING,
-                                start_date=start_date, end_date_for_clustering=end_date_for_clustering)
+    """cut_datasets_for_clustering(input_path=PATH_CLEANED_FOLDER, output_path=PATH_CUT_FOR_CLUSTERING,
+                                start_date=start_date, end_date_for_clustering=end_date_for_clustering)"""
 
     #integration(input_path=PATH_CLEANED_FOLDER, output_path=PATH_INTEGRATED_FOLDER,test_set=TEST_SET, start_date=start_date)
-    #construction(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_MAXABSNORMALIZED_FOLDER,type="max_abs")
-    construction(input_path=PATH_CUT_FOR_CLUSTERING,output_path=PATH_MINMAXNORMALIZED_FOLDER,type="min_max")
+    construction(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_MAXABSNORMALIZED_FOLDER,type="max_abs")
+    #construction(input_path=PATH_CUT_FOR_CLUSTERING,output_path=PATH_MINMAXNORMALIZED_FOLDER,type="min_max")
 
 def cut_datasets_for_clustering(input_path,output_path,start_date,end_date_for_clustering):
     folder_creator(output_path,1)

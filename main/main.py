@@ -38,16 +38,13 @@ def main():
     #preprocessing(TEST_SET,start_date,end_date_for_clustering)
 
     # CLUSTERING
-    """start_date_cluster = "2015-10-01"
-    end_date_cluster = "2018-12-31"""
     distance_measure = "pearson"
     features_to_use = ['Close']
     type_clustering = "min_max_normalized"
     # Description after
     type = "max_abs_normalized"
     # clustering
-    #todo da riavviare
-    """ clustering(distance_measure, type_for_clustering=type_clustering, type_for_prediction=type,
+    """clustering(distance_measure, type_for_clustering=type_clustering, type_for_prediction=type,
                features_to_use=features_to_use)"""
 
     """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+type+"/",
@@ -64,19 +61,19 @@ def main():
        'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20', 'MOM',
        'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO', 'UO',
        'lag_1','trend']"""
-    features_to_use = ['Date','Open', 'High','Close', 'trend']
+    features_to_use = ['Date','Close', 'trend']
     # General parameters
-    temporal_sequences = [15]
-    list_number_neurons = [128]
+    temporal_sequences = [2]
+    list_number_neurons = [10]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 150
-    PATIENCE= 100
+    EPOCHS = 1
+    PATIENCE= 1
     BATCH_SIZE=None
-    single_target_main(type,features_to_use,
+    """single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,BATCH_SIZE)
-
+    """
     #MULTITARGET
     temporal_sequences = [15]
     list_number_neurons = [128]
@@ -96,8 +93,8 @@ def main():
                        'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO', 'UO',
                        'lag_1', 'trend','symbol']"""
     features_to_use = [ 'Open', 'High', 'Close', 'trend','symbol']
-    """multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
-                      cluster_n,BATCH_SIZE)"""
+    multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
+                      cluster_n,BATCH_SIZE)
     """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
              name_folder_res=type)
@@ -132,7 +129,7 @@ def main():
     multi_vs_single(path_multi_target, types)"""
 
 def multi_target_main(test_set,features_to_use, temporal_sequences, list_number_neurons, learning_rate,
-                      DROPOUT, EPOCHS, PATIENCE,cluster_n,BATCH_SIZE=None):
+                      DROPOUT, EPOCHS, PATIENCE,cluster_n,TEST_SET,BATCH_SIZE=None):
     DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/multi_target/"
     folder_creator(EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/", 0)
@@ -151,7 +148,7 @@ def multi_target_main(test_set,features_to_use, temporal_sequences, list_number_
                  list_num_neurons=list_number_neurons, learning_rate=learning_rate,
                  cryptos=cryptos_in_cluster,
                  features_to_use=features_to_use_multi,
-                 DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE)
+                 DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)
 
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=list_number_neurons,
                           experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
@@ -166,7 +163,7 @@ def multi_target_main(test_set,features_to_use, temporal_sequences, list_number_
 
 
 
-def single_target_main(type, features_to_use, temporal_sequences, number_neurons,
+def single_target_main(TEST_SET,type, features_to_use, temporal_sequences, number_neurons,
                        learning_rate, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE):
     DATA_PATH = "../preparation/preprocessed_dataset/constructed/" + type + "/"
 
@@ -184,7 +181,7 @@ def single_target_main(type, features_to_use, temporal_sequences, number_neurons
                   window_sequences=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE)
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)
 
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
