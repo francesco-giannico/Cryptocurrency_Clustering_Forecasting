@@ -36,7 +36,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             predictions_file[crypto + "_observed_class"] = []
             predictions_file[crypto + "_predicted_class"] = []
 
-        horizontal_name = "horizontal.csv"
+        horizontal_name = "horizontal"
         print("Current crypto: ", horizontal_name, "\t")
         # date_to_predict = str(splitted[1]).replace(".csv", "")
         # create a folder for data in tensor format

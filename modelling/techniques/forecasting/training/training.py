@@ -92,8 +92,8 @@ def train_single_target_model(x_train, y_train, num_neurons, learning_rate, drop
         model.add(LSTM(units=num_neurons,input_shape=(x_train.shape[1], x_train.shape[2])))
         #reduce the overfitting
         model.add(Dropout(dropout))
-        model.add(Dense(units=num_neurons, activation='relu'))
-        model.add(Dense(units=num_categories, activation='softmax'))
+        model.add(Dense(units=num_neurons, activation='relu',name='ReLu'))
+        model.add(Dense(units=num_categories, activation='softmax',name='softmax'))
         # optimizer
         adam = Adam(learning_rate=learning_rate)
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
@@ -135,7 +135,7 @@ def train_multi_target_model(x_train, y_trains_encoded, num_neurons, learning_ra
         crypto_model = LSTM(units=num_neurons)(inputs_stm)
         # reduce the overfitting
         crypto_model= Dropout(dropout)(crypto_model)
-        crypto_model= Dense(units=num_neurons, activation='relu')(crypto_model)
+        crypto_model= Dense(units=num_neurons, activation='relu',name="ReLu_"+ str(i))(crypto_model)
         crypto_model=Dense(units=num_categories, activation='softmax', name='trend_' + str(i))(crypto_model)
         cryptocurrencies.append(crypto_model)
         i += 1

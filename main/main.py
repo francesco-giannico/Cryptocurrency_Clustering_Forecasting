@@ -52,49 +52,47 @@ def main():
              name_folder_res=type)"""
 
     #MODELLING
-    """features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
+    features_to_use=['Date', 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
        'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
        'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
        'EMA_12', 'EMA_26', 'EMA_13', 'EMA_30', 'EMA_20', 'EMA_50', 'EMA_100',
        'EMA_200', 'RSI_14', 'RSI_21', 'RSI_5', 'RSI_12', 'RSI_26', 'RSI_13',
        'RSI_30', 'RSI_20', 'RSI_50', 'RSI_100', 'RSI_200', 'MACD_12_26_9',
-       'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20', 'MOM',
-       'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO', 'UO',
-       'lag_1','trend']"""
-    features_to_use = ['Date','Close', 'trend']
+       'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20', 'MOM', 'CMO',  'UO',
+       'lag_1','trend']
+    #features_to_use = ['Date','Close', 'trend']
     # General parameters
-    temporal_sequences = [2]
+    temporal_sequences = [3]
     list_number_neurons = [10]
     learning_rate = 0.001
     DROPOUT = 0.45
     EPOCHS = 1
     PATIENCE= 1
     BATCH_SIZE=None
-    """single_target_main(TEST_SET,type,features_to_use,
+    single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
                         EPOCHS,PATIENCE,BATCH_SIZE)
-    """
     #MULTITARGET
-    temporal_sequences = [15]
-    list_number_neurons = [128]
+    temporal_sequences = [3]
+    list_number_neurons = [10]
     learning_rate = 0.001
     DROPOUT = 0.45
-    EPOCHS = 150
-    PATIENCE = 100
+    EPOCHS = 1
+    PATIENCE = 1
     BATCH_SIZE=None
     cluster_n="cluster"
-    """ features_to_use = [ 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
+    features_to_use = [ 'Open', 'High', 'Low', 'Close', 'Adj_Close', 'Volume', 'VWAP',
                        'SMA_14', 'SMA_21', 'SMA_5', 'SMA_12', 'SMA_26', 'SMA_13', 'SMA_30',
                        'SMA_20', 'SMA_50', 'SMA_100', 'SMA_200', 'EMA_14', 'EMA_21', 'EMA_5',
                        'EMA_12', 'EMA_26', 'EMA_13', 'EMA_30', 'EMA_20', 'EMA_50', 'EMA_100',
                        'EMA_200', 'RSI_14', 'RSI_21', 'RSI_5', 'RSI_12', 'RSI_26', 'RSI_13',
                        'RSI_30', 'RSI_20', 'RSI_50', 'RSI_100', 'RSI_200', 'MACD_12_26_9',
-                       'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20', 'MOM',
-                       'STOCHF_14', 'STOCHF_3', 'STOCH_5', 'STOCH_3', 'CMO', 'DPO', 'UO',
-                       'lag_1', 'trend','symbol']"""
-    features_to_use = [ 'Open', 'High', 'Close', 'trend','symbol']
-    multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
-                      cluster_n,BATCH_SIZE)
+                       'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20', 'MOM', 'CMO', 'UO',
+                        'trend','symbol']
+    #features_to_use = [ 'Open', 'High', 'Close', 'trend','symbol']
+    print(TEST_SET)
+    """multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
+                      cluster_n,BATCH_SIZE)"""
     """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
              name_folder_res=type)
@@ -128,13 +126,13 @@ def main():
     """path_multi_target = "../modelling/techniques/forecasting/"
     multi_vs_single(path_multi_target, types)"""
 
-def multi_target_main(test_set,features_to_use, temporal_sequences, list_number_neurons, learning_rate,
-                      DROPOUT, EPOCHS, PATIENCE,cluster_n,TEST_SET,BATCH_SIZE=None):
+def multi_target_main(TEST_SET,features_to_use, temporal_sequences, list_number_neurons, learning_rate,
+                      DROPOUT, EPOCHS, PATIENCE,cluster_n,BATCH_SIZE=None):
     DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/multi_target/"
     folder_creator(EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/", 0)
     # generate horizontal dataset
-    cryptos_in_cluster=create_horizontal_dataset(DATA_PATH + cluster_n + "/", EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",test_set)
+    cryptos_in_cluster=create_horizontal_dataset(DATA_PATH + cluster_n + "/", EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",TEST_SET)
 
     features_to_use_multi = ['Date']
     for i in range(len(cryptos_in_cluster)):
@@ -169,19 +167,19 @@ def single_target_main(TEST_SET,type, features_to_use, temporal_sequences, numbe
 
     # SIMPLE PREDICTION
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
-    #simple_prediction(DATA_PATH, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
+    simple_prediction(DATA_PATH, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
 
     # SINGLE TARGET LSTM
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequences=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)"""
 
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
