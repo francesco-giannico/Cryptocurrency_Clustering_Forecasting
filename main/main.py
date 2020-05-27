@@ -69,9 +69,9 @@ def main():
     EPOCHS = 1
     PATIENCE= 1
     BATCH_SIZE=None
-    single_target_main(TEST_SET,type,features_to_use,
+    """single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,BATCH_SIZE)
+                        EPOCHS,PATIENCE,BATCH_SIZE)"""
     #MULTITARGET
     temporal_sequences = [3]
     list_number_neurons = [10]
@@ -91,8 +91,8 @@ def main():
                         'trend','symbol']
     #features_to_use = [ 'Open', 'High', 'Close', 'trend','symbol']
     print(TEST_SET)
-    """multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
-                      cluster_n,BATCH_SIZE)"""
+    multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
+                      cluster_n,BATCH_SIZE)
     """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
              name_folder_res=type)
@@ -167,19 +167,19 @@ def single_target_main(TEST_SET,type, features_to_use, temporal_sequences, numbe
 
     # SIMPLE PREDICTION
     OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
-    simple_prediction(DATA_PATH, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
+    #simple_prediction(DATA_PATH, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
 
     # SINGLE TARGET LSTM
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequences=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)"""
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)
 
     # visualization single_target
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,

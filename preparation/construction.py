@@ -7,7 +7,7 @@ import pandas as pd
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 import numpy as np
-
+from pathlib import Path
 #SCALING
 """Normalization is the process of scaling individual samples to have unit norm. 
 This process can be useful if you plan to use a quadratic form such 
@@ -95,41 +95,59 @@ def standardization(input_path,output_path):
 def create_horizontal_dataset(data_path,output_path,test_set):
     cryptocurrencies_with_date_to_pred=os.listdir(data_path)
     cryptos_in_the_cluster=[]
-    already_added=[]
-    folder_creator(output_path + "horizontal_datasets" + "/", 1)
+    folder_creator(output_path + "horizontal_datasets" + "/", 0)
+    to_run = False
     for date_to_predict in test_set:
-        dataframes = []
-        #take just the date column one time
-        for dataset_name in cryptocurrencies_with_date_to_pred:
-            splitted = dataset_name.split("_")
-            date_to_predict_crypto = str(splitted[1]).replace(".csv","")
-            if date_to_predict==date_to_predict_crypto:
-             df_date=pd.read_csv(os.path.join(data_path,dataset_name))
-             dataframes.append(df_date['Date'])
-             break
-
-        # creates Close_1,Open_1 ecc for each dataframe
-        i=1
-        for dataset_name in cryptocurrencies_with_date_to_pred:
-            splitted=dataset_name.split("_")
-            crypto_name=splitted[0]
-            date_to_predict_crypto=str(splitted[1]).replace(".csv","")
-            if date_to_predict == date_to_predict_crypto:
-                df=pd.read_csv(os.path.join(data_path,dataset_name),header=0)
+        my_file = Path(output_path + "horizontal_datasets" + "/"+"horizontal_"+str(date_to_predict)+".csv")
+        try:
+            my_file.resolve(strict=True)
+        except FileNotFoundError:
+            to_run = True
+            break
+    if to_run == False:
+        print("Horizontal version found!")
+        for date_to_predict in test_set:
+            for dataset_name in cryptocurrencies_with_date_to_pred:
+                splitted = dataset_name.split("_")
+                crypto_name = splitted[0]
                 cryptos_in_the_cluster.append(crypto_name)
-                df=df.drop('Date',axis=1)
-                df['symbol']=crypto_name
-                df=df.add_suffix('_'+str(i))
-                i+=1
-                dataframes.append(df)
+    elif to_run:
+        print("Horizontal version not found, creating..")
+        for date_to_predict in test_set:
+            dataframes = []
+            #take just the date column one time
+            for dataset_name in cryptocurrencies_with_date_to_pred:
+                splitted = dataset_name.split("_")
+                date_to_predict_crypto = str(splitted[1]).replace(".csv","")
+                if date_to_predict==date_to_predict_crypto:
+                 df_date=pd.read_csv(os.path.join(data_path,dataset_name))
+                 dataframes.append(df_date['Date'])
+                 break
 
-        #concat horizontally all the dataframes
-        horizontal = pd.concat(dataframes, axis=1)
+            # creates Close_1,Open_1 ecc for each dataframe
+            i=1
+            for dataset_name in cryptocurrencies_with_date_to_pred:
+                splitted=dataset_name.split("_")
+                crypto_name=splitted[0]
+                date_to_predict_crypto=str(splitted[1]).replace(".csv","")
+                if date_to_predict == date_to_predict_crypto:
+                    df=pd.read_csv(os.path.join(data_path,dataset_name),header=0)
+                    cryptos_in_the_cluster.append(crypto_name)
+                    df=df.drop('Date',axis=1)
+                    df['symbol']=crypto_name
+                    df=df.add_suffix('_'+str(i))
+                    i+=1
+                    dataframes.append(df)
 
-        #serialization
-        horizontal.to_csv(output_path+"horizontal_datasets/horizontal_"+date_to_predict+".csv",sep=",",index=False)
+            #concat horizontally all the dataframes
+            horizontal = pd.concat(dataframes, axis=1)
 
-    return  list(dict.fromkeys(cryptos_in_the_cluster))
+            #serialization
+            horizontal.to_csv(output_path+"horizontal_datasets/horizontal_"+date_to_predict+".csv",sep=",",index=False)
+            del horizontal
+            del dataframes
+            print("Horizontal version created for the date: "+ str(date_to_predict))
+    return list(dict.fromkeys(cryptos_in_the_cluster))
 
 #[close(i+1)-close(i)/close(i)*100]
 def add_trend_feature(input_path,output_path,percent):

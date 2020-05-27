@@ -124,19 +124,27 @@ def simple_prediction(data_path,test_set,result_folder):
         df = pd.read_csv(result_folder+partial_folder+"/"+crypto)
         #get rmse for each crypto
         performances= get_classification_stats(df['observed_class'], df['predicted_class'])
-        df_performances_1=pd.DataFrame()
-        df_performances_2= pd.DataFrame()
 
-        df_performances_2 = df_performances_2.append(
-            {'macro_avg_precision': performances.get('macro avg').get('precision'),
-             'macro_avg_recall': performances.get('macro avg').get('recall'),
-             'macro_avg_f1': performances.get('macro avg').get('f1-score'),
-             'weighted_macro_avg_precision': performances.get('weighted avg').get('precision'),
-             'weighted_macro_avg_recall': performances.get('weighted avg').get('recall'),
-             'weighted_macro_avg_f1': performances.get('weighted avg').get('f1-score'),
-             'support': performances.get('weighted avg').get('support')
-             }, ignore_index=True)
+        dict_perf_2={'performance_name':[],'value':[]}
+        #df_performances_2= pd.DataFrame(columns=['performance_name','value'])
+        dict_perf_2['performance_name'].append("macro_avg_precision")
+        dict_perf_2['value'].append(performances.get('macro avg').get('precision'))
+        dict_perf_2['performance_name'].append("macro_avg_recall")
+        dict_perf_2['value'].append(performances.get('macro avg').get('recall'))
+        dict_perf_2['performance_name'].append("macro_avg_f1")
+        dict_perf_2['value'].append(performances.get('macro avg').get('f1-score'))
+        dict_perf_2['performance_name'].append("weighted_avg_precision")
+        dict_perf_2['value'].append(performances.get('weighted avg').get('precision'))
+        dict_perf_2['performance_name'].append("weighted_avg_recall")
+        dict_perf_2['value'].append(performances.get('weighted avg').get('recall'))
+        dict_perf_2['performance_name'].append("weighted_avg_f1-score")
+        dict_perf_2['value'].append(performances.get('weighted avg').get('f1-score'))
+        dict_perf_2['performance_name'].append("accuracy")
+        dict_perf_2['value'].append(performances.get('accuracy'))
+        dict_perf_2['performance_name'].append("support")
+        dict_perf_2['value'].append(performances.get('weighted avg').get('support'))
 
+        df_performances_1 = pd.DataFrame()
         z=0
         while z < 3:
             df_performances_1 = df_performances_1.append(
@@ -149,8 +157,9 @@ def simple_prediction(data_path,test_set,result_folder):
 
             z+=1
 
+        #serialization
         df_performances_1.to_csv(os.path.join(result_folder,folder_performances, crypto.replace(".csv","_performances_part1.csv")),index=False)
-        df_performances_2.to_csv(os.path.join(result_folder, folder_performances, crypto.replace(".csv", "_performances_part2.csv")), index=False)
+        pd.DataFrame(dict_perf_2).to_csv(os.path.join(result_folder, folder_performances, crypto.replace(".csv", "_performances_part2.csv")), index=False)
 
         # 'accuracy', 'macro_avg_precision', 'macro_avg_recall', 'macro_avg_f1_score'
         accuracies.append(performances.get('macro avg').get('recall'))

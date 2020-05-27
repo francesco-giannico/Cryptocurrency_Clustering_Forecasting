@@ -12,6 +12,7 @@ from utility.folder_creator import folder_creator
 from visualization.line_chart import plot_train_and_validation_loss, plot_train_and_validation_accuracy
 import tensorflow_core as tf_core
 import random as rn
+import gc
 from tensorflow.keras import backend as K
 np.random.seed(42)
 rn.seed(42)
@@ -144,6 +145,10 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             # this is important!!
             K.clear_session()
             tf_core.random.set_seed(42)
+            gc.collect()
+            del model
+            del dataset_tensor_format
+            del dataset
 
             #decoding
             observed_decoded = []
@@ -181,6 +186,42 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             crypto_macro_avg_recall_file['symbol'].append(crypto)
             performances = get_classification_stats(crypto_prediction_file['observed_class'], crypto_prediction_file['predicted_class'])
             crypto_macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
+
+            dict_perf_2 = {'performance_name': [], 'value': []}
+            # df_performances_2= pd.DataFrame(columns=['performance_name','value'])
+            dict_perf_2['performance_name'].append("macro_avg_precision")
+            dict_perf_2['value'].append(performances.get('macro avg').get('precision'))
+            dict_perf_2['performance_name'].append("macro_avg_recall")
+            dict_perf_2['value'].append(performances.get('macro avg').get('recall'))
+            dict_perf_2['performance_name'].append("macro_avg_f1")
+            dict_perf_2['value'].append(performances.get('macro avg').get('f1-score'))
+            dict_perf_2['performance_name'].append("weighted_avg_precision")
+            dict_perf_2['value'].append(performances.get('weighted avg').get('precision'))
+            dict_perf_2['performance_name'].append("weighted_avg_recall")
+            dict_perf_2['value'].append(performances.get('weighted avg').get('recall'))
+            dict_perf_2['performance_name'].append("weighted_avg_f1-score")
+            dict_perf_2['value'].append(performances.get('weighted avg').get('f1-score'))
+            dict_perf_2['performance_name'].append("accuracy")
+            dict_perf_2['value'].append(performances.get('accuracy'))
+            dict_perf_2['performance_name'].append("support")
+            dict_perf_2['value'].append(performances.get('weighted avg').get('support'))
+            df_performances_1 = pd.DataFrame()
+            z = 0
+            while z < 3:
+                df_performances_1 = df_performances_1.append(
+                    {'class': str(z),
+                     'precision': performances.get(str(z)).get('precision'),
+                     'recall': performances.get(str(z)).get('recall'),
+                     'f1_score': performances.get(str(z)).get('f1-score'),
+                     'support': performances.get(str(z)).get('support')
+                     }, ignore_index=True)
+
+                z += 1
+            # serialization
+            df_performances_1.to_csv(
+                os.path.join(PATH_CRYPTO, "performances_part1.csv"), index=False)
+            pd.DataFrame(dict_perf_2).to_csv(
+                os.path.join(PATH_CRYPTO, "performances_part2.csv"), index=False)
 
             #serialization
             pd.DataFrame(data=crypto_prediction_file).to_csv(PATH_CRYPTO + 'predictions.csv',index=False)

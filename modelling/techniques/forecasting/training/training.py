@@ -16,31 +16,41 @@ def prepare_input_forecasting(DATA_PATH,crypto,features_to_use):
     return df[features_without_symbols],features_without_date_and_symbols
 
 def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
-    print('Creating LSTM version..')
-    # an array in this format: [ [[items],[items]], [[items],[items]],.....]
-    # -num of rows: window_considered
-    # -num of columns: "dataset.shape[1]"
-    # 1 is the number of elements in
-    lstm_tensor = np.zeros((1, window_considered, dataset.shape[1]))
-    # for i between 0 to (num of elements in original array - window + 1)
-    """easy explanation through example:
-         i:0-701 (730-30+1)
-         i=0; => from day 0 + 30 days 
-         i=1 => from day 1 + 30 days 
-      """
-    for i in range(dataset.shape[0] - window_considered + 1):
-        #note (i:i + window_considered) is the rows selection.
-        element=dataset[i:i + window_considered, :].reshape(1, window_considered, dataset.shape[1])
-        lstm_tensor = np.append(lstm_tensor, element,axis=0)#axis 0 in order to appen on rows
+    try:
+        # pickling is also known as Serialization
+        # The pickle module is not secure. Only unpickle data you trust.
+        # load is for de-serialize
+        # allow_pickle=True else: Object arrays cannot be loaded when allow_pickle=False
+        file_path = output_path + "/crypto_TensorFormat_" + output_name + "_" + str(window_considered) + '.npy'
+        lstm_tensor = np.load(file_path, allow_pickle=True)
+        print('(LSTM Version found!)')
+        return lstm_tensor
+    except FileNotFoundError as e:
+        print('Creating LSTM version..')
+        # an array in this format: [ [[items],[items]], [[items],[items]],.....]
+        # -num of rows: window_considered
+        # -num of columns: "dataset.shape[1]"
+        # 1 is the number of elements in
+        lstm_tensor = np.zeros((1, window_considered, dataset.shape[1]))
+        # for i between 0 to (num of elements in original array - window + 1)
+        """easy explanation through example:
+             i:0-701 (730-30+1)
+             i=0; => from day 0 + 30 days 
+             i=1 => from day 1 + 30 days 
+          """
+        for i in range(dataset.shape[0] - window_considered + 1):
+            #note (i:i + window_considered) is the rows selection.
+            element=dataset[i:i + window_considered, :].reshape(1, window_considered, dataset.shape[1])
+            lstm_tensor = np.append(lstm_tensor, element,axis=0)#axis 0 in order to appen on rows
 
-    #serialization
-    output_path += "/crypto_"
-    name_tensor = 'TensorFormat_' + output_name + '_' + str(window_considered)
-    #since the first element is zero I'll skip it:
-    lstm_tensor=lstm_tensor[1:,:]
-    np.save(str(output_path + name_tensor),lstm_tensor)
-    print('LSTM version created!')
-    return lstm_tensor
+        #serialization
+        output_path += "/crypto_"
+        name_tensor = 'TensorFormat_' + output_name + '_' + str(window_considered)
+        #since the first element is zero I'll skip it:
+        lstm_tensor=lstm_tensor[1:,:]
+        np.save(str(output_path + name_tensor),lstm_tensor)
+        print('LSTM version created!')
+        return lstm_tensor
 
 def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
     train = []

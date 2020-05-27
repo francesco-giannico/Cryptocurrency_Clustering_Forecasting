@@ -19,6 +19,7 @@ from visualization.line_chart import plot_train_and_validation_loss, plot_train_
 import tensorflow_core as tf_core
 import time
 import random as rn
+import gc
 from tensorflow.keras import backend as K
 np.random.seed(42)
 rn.seed(42)
@@ -29,18 +30,50 @@ PREPROCESSED_PATH = "../preparation/preprocessed_dataset/cleaned/final/"
 
 
 def save_results(macro_avg_recall_file,crypto_name,predictions_file,results_path):
-    try:
-        macro_avg_recall_file['symbol'].append(crypto_name)
-        # accuracy
-        performances = get_classification_stats(predictions_file['observed_class'],
-                                                predictions_file['predicted_class'])
-        macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
+    macro_avg_recall_file['symbol'].append(crypto_name)
+    # accuracy
+    performances = get_classification_stats(predictions_file['observed_class'],
+                                            predictions_file['predicted_class'])
+    macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
 
-        # serialization
-        pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv', index=False)
-        pd.DataFrame(data=macro_avg_recall_file).to_csv(results_path + 'macro_avg_recall.csv', index=False)
-    except:
-        pass
+    dict_perf_2 = {'performance_name': [], 'value': []}
+    # df_performances_2= pd.DataFrame(columns=['performance_name','value'])
+    dict_perf_2['performance_name'].append("macro_avg_precision")
+    dict_perf_2['value'].append(performances.get('macro avg').get('precision'))
+    dict_perf_2['performance_name'].append("macro_avg_recall")
+    dict_perf_2['value'].append(performances.get('macro avg').get('recall'))
+    dict_perf_2['performance_name'].append("macro_avg_f1")
+    dict_perf_2['value'].append(performances.get('macro avg').get('f1-score'))
+    dict_perf_2['performance_name'].append("weighted_avg_precision")
+    dict_perf_2['value'].append(performances.get('weighted avg').get('precision'))
+    dict_perf_2['performance_name'].append("weighted_avg_recall")
+    dict_perf_2['value'].append(performances.get('weighted avg').get('recall'))
+    dict_perf_2['performance_name'].append("weighted_avg_f1-score")
+    dict_perf_2['value'].append(performances.get('weighted avg').get('f1-score'))
+    dict_perf_2['performance_name'].append("accuracy")
+    dict_perf_2['value'].append(performances.get('accuracy'))
+    dict_perf_2['performance_name'].append("support")
+    dict_perf_2['value'].append(performances.get('weighted avg').get('support'))
+    df_performances_1 = pd.DataFrame()
+    z = 0
+    while z < 3:
+        df_performances_1 = df_performances_1.append(
+            {'class': str(z),
+             'precision': performances.get(str(z)).get('precision'),
+             'recall': performances.get(str(z)).get('recall'),
+             'f1_score': performances.get(str(z)).get('f1-score'),
+             'support': performances.get(str(z)).get('support')
+             }, ignore_index=True)
+
+        z += 1
+    # serialization
+    df_performances_1.to_csv(
+        os.path.join(results_path, "performances_part1.csv"),index=False)
+    pd.DataFrame(dict_perf_2).to_csv(
+        os.path.join(results_path,"performances_part2.csv"),index=False)
+    # serialization
+    pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv', index=False)
+    pd.DataFrame(data=macro_avg_recall_file).to_csv(results_path + 'macro_avg_recall.csv', index=False)
 
 def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences, list_num_neurons, learning_rate,
                   features_to_use, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE,test_set):
@@ -75,7 +108,7 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 dataset_name=crypto_name+"_"+str(date_to_predict)+".csv"
                 dataset, features_without_date = \
                     prepare_input_forecasting(os.path.join(DATA_PATH,crypto_name),dataset_name,features_to_use)
-
+                #print(dataset.dtypes)
                 dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                               TENSOR_DATA_PATH + "/" + crypto_name + "/",
                                                               crypto_name+"_"+date_to_predict)
@@ -150,6 +183,10 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                 # this is important!!
                 K.clear_session()
                 tf_core.random.set_seed(42)
+                gc.collect()
+                del model
+                del dataset_tensor_format
+                del dataset
 
                 print("Num of entries for training: ", x_train.shape[0])
                 # invert encoding: argmax of numpy takes the higher value in the array
