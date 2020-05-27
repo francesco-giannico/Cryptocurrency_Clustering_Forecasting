@@ -88,7 +88,7 @@ def main():
                        'EMA_200', 'RSI_14', 'RSI_21', 'RSI_5', 'RSI_12', 'RSI_26', 'RSI_13',
                        'RSI_30', 'RSI_20', 'RSI_50', 'RSI_100', 'RSI_200', 'MACD_12_26_9',
                        'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20', 'MOM', 'CMO', 'UO',
-                        'trend','symbol']
+                        'trend']
     #features_to_use = [ 'Open', 'High', 'Close', 'trend','symbol']
     print(TEST_SET)
     multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,

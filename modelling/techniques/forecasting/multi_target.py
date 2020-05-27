@@ -59,24 +59,30 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             #takes all the target
             indexes_of_target_features = [features_filtred.index(f) for f in features_filtred if
                                           f.startswith('trend')]
+            features_filtred=np.asarray(features_filtred,dtype="S3")
+            """print(features_filtred.dtype)
+            print(features_filtred.nbytes)"""
+
             # non prende in input i neuroni questo.
             dataset_tensor_format = fromtemporal_totensor(np.array(dataset), window,
                                                           TENSOR_DATA_PATH + "/" + horizontal_name + "/",
                                                           horizontal_name+"_"+date_to_predict)
 
+            """print(dataset_tensor_format.dtype)
+            print(dataset_tensor_format.nbytes)"""
             train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
-
-            train = train[:, :, 1:]
-            test = test[:, :, 1:]
-
+            """print(train.dtype)
+            print(test.dtype)"""
             x_train = train[:, :-1,:]
+            #print(x_train.dtype)
             #separates the y_trains
             y_trains=[]
             for index in indexes_of_target_features:
                 y_trains.append(train[:, -1,  index])
+            #print(y_trains[0].dtype)
             #delete the columns trend_1,trend_2 ecc..
             x_train=np.delete(x_train,indexes_of_target_features,2)
-
+            #print(x_train.dtype)
             x_test = test[:, :-1, :]
             y_tests = []
             for index in indexes_of_target_features:
@@ -98,6 +104,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             for y_test in y_tests:
                 y_tests_encoded.append(to_categorical(y_test))
             #y_tests_encoded = np.asarray(y_tests_encoded)
+
 
             if BATCH_SIZE==None:
                 BATCH_SIZE=x_train.shape[0]
@@ -149,6 +156,9 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             del model
             del dataset_tensor_format
             del dataset
+            del train
+            del test
+            del features_filtred
 
             #decoding
             observed_decoded = []
@@ -172,6 +182,14 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             print("Predicted: ", predicted_decoded)
             print("Actual: ", observed_decoded)
 
+            gc.collect()
+            del x_train
+            del y_trains_encoded
+            del y_trains
+            del y_tests_encoded
+            del test_prediction
+            del observed_decoded
+            del predicted_decoded
         #divides results by crypto.
         for crypto in cryptos:
             PATH_CRYPTO=EXPERIMENT_PATH + "/" + RESULT_PATH + "/" + crypto+"/"+configuration_name+"/"+statistics+"/"

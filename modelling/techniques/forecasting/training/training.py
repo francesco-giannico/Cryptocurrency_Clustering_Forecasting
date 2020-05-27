@@ -11,9 +11,9 @@ from utility.dataset_utils import cut_dataset_by_range
 
 def prepare_input_forecasting(DATA_PATH,crypto,features_to_use):
     df=pd.read_csv(os.path.join(DATA_PATH,crypto),usecols=features_to_use)
-    features_without_symbols = [feature for feature in df.columns if not feature.startswith("symbol")]
+    #features_without_symbols = [feature for feature in df.columns if not feature.startswith("symbol")]
     features_without_date_and_symbols = [feature for feature in df.columns if feature != "Date" and not feature.startswith("symbol")]
-    return df[features_without_symbols],features_without_date_and_symbols
+    return df,features_without_date_and_symbols
 
 def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
     try:
@@ -54,7 +54,6 @@ def fromtemporal_totensor(dataset, window_considered, output_path, output_name):
 
 def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
     train = []
-    validation=[]
     test = []
     index_feature_date = 0
     for sample in dataset_tensor_format:
@@ -78,8 +77,12 @@ def get_training_validation_testing_set(dataset_tensor_format, date_to_predict):
             i-=1
         days.append(pd.to_datetime(date_to_predict))"""
         if candidate == pd.to_datetime(date_to_predict):
+            #remove the "Data" information
+            sample = sample[:, 1:].astype('float')
             test.append(sample)
         elif candidate < pd.to_datetime(date_to_predict):
+            # remove the "Data" information
+            sample=sample[:,1:].astype('float')
             train.append(sample)
     #return np.array(train), np.array(validation),np.array(test)
     return np.array(train),np.array(test)
@@ -125,9 +128,9 @@ def train_multi_target_model(x_train, y_trains_encoded, num_neurons, learning_ra
     #note: it's an incremental way to get a final model.
     #
     inputs_stm = Input(shape=(x_train.shape[1], x_train.shape[2]))
-    """lstm= LSTM(units=num_neurons)(inputs_stm)
+    lstm= LSTM(units=num_neurons)(inputs_stm)
     # reduce the overfitting
-    lstm=Dropout(dropout)(lstm)
+    """lstm=Dropout(dropout)(lstm)
     lstm = Dense(units=num_neurons, activation='relu')(lstm)"""
 
     cryptocurrencies=[]
@@ -148,6 +151,11 @@ def train_multi_target_model(x_train, y_trains_encoded, num_neurons, learning_ra
         crypto_model= Dense(units=num_neurons, activation='relu',name="ReLu_"+ str(i))(crypto_model)
         crypto_model=Dense(units=num_categories, activation='softmax', name='trend_' + str(i))(crypto_model)
         cryptocurrencies.append(crypto_model)
+
+        """crypto_model = Dropout(dropout)(lstm)
+        crypto_model = Dense(units=num_neurons, activation='relu', name="ReLu_" + str(i))(crypto_model)
+        crypto_model = Dense(units=num_categories, activation='softmax', name='trend_' + str(i))(crypto_model)
+        cryptocurrencies.append(crypto_model)"""
         i += 1
 
     model = Model(
