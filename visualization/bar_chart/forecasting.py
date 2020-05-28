@@ -5,6 +5,161 @@ from itertools import product
 import os
 from utility.folder_creator import folder_creator
 from pathlib import Path
+import seaborn as sns
+
+
+def overall_macro_avg_recall_baseline(input_file_path,output_path):
+    df = pd.read_csv(input_file_path, header=0)
+    avg=np.average(df.value)
+    df=pd.DataFrame(columns=['average'])
+    df=df.append({'average':avg},ignore_index=True)
+    plt.figure()
+    flatui = ["#3498db"]
+    palettes = sns.color_palette(flatui)
+    ax = sns.barplot(data=df, ci=None, palette=palettes)
+    title = "Baseline overall"
+    plt.title(title)
+    ax.set(xlabel='All cryptocurrencies', ylabel='Average macro average recall')
+    plt.savefig(output_path + "/overall_" + title + ".png", dpi=100)
+    plt.close()
+
+
+def comparison_macro_avg_recall_baseline(input_file_path,output_path):
+    df=pd.read_csv(input_file_path,header=0)
+    df.set_index('crypto', inplace=True)
+    df_t=df.T
+    plt.figure()
+
+
+    flatui = ["#3498db"]
+    palettes=sns.color_palette(flatui)
+    sns.set(font_scale=0.65, style="white")
+    ax = sns.barplot(data=df_t, ci=None,palette=palettes)
+
+    """for bar in ax.patches:
+        if bar.get_height() > 6:
+            bar.set_color('red')
+        else:
+            bar.set_color('grey')"""
+    title = "Baseline"
+    plt.title(title)
+    ax.set(xlabel='Cryptocurrencies', ylabel='Macro average recall')
+    plt.savefig(output_path+ "/comparison_"+title + ".png", dpi=100)
+    plt.close()
+
+#input path single: path to results folder
+#input path_baseline: performances
+#output_path: report for each crypto
+def comparison_macro_avg_recall_single_vs_baseline(input_path_single,input_path_baseline,output_path):
+    folder_creator(output_path,0)
+    for crypto in os.listdir(input_path_single):
+
+        folder_creator(os.path.join(output_path,crypto),1)
+        # read baseline
+        file = open(input_path_baseline + crypto+"_macro_avg_recall.txt", "r")
+        macro_avg_recall_baseline = file.read()
+        file.close()
+
+        #find best configuration
+        max_macro_avg_recall = -1
+        config = ""
+        for configuration in os.listdir(os.path.join(input_path_single, crypto)):
+            df = pd.read_csv(os.path.join(input_path_single, crypto, configuration, "stats/macro_avg_recall.csv"), header=0)
+            if df["macro_avg_recall"][0] > max_macro_avg_recall:
+                max_macro_avg_recall = df["macro_avg_recall"][0]
+                config = configuration
+
+        #generate csv containing these info
+        df_report=pd.DataFrame()
+        df_report = df_report.append(
+            {'crypto': crypto, 'model type': 'single_target', 'macro_avg_recall': float(max_macro_avg_recall),'config':config},
+            ignore_index=True)
+        df_report=df_report.append({'crypto':crypto,'model type':'baseline','macro_avg_recall': float(macro_avg_recall_baseline),'config':'standard'},ignore_index=True)
+        df_report.to_csv(os.path.join(output_path,crypto,crypto+"_report.csv"),index=False)
+        # generate individual chart
+        comparison_macro_avg_recall_single_vs_baseline_plot(df_report,os.path.join(output_path,crypto))
+
+def comparison_macro_avg_recall_single_vs_baseline_plot(df,output_path):
+    title = "Single target VS Baseline"
+    flatui = ["#3498db", "#FF9633"]
+    palettes = sns.color_palette(flatui)
+    #sns.set(font_scale=0.65, style='white')
+    ax = sns.barplot(x="crypto", y="macro_avg_recall", hue="model type", data=df, palette=palettes)
+    plt.title(title)
+    ax.set(xlabel='Models', ylabel='Macro average recall')
+    plt.savefig(output_path + "/" + title + ".png", dpi=100)
+    plt.close()
+
+def overall_macro_avg_recall_single(input_path_single,output_path):
+    avg_bests = []
+    for crypto in os.listdir(input_path_single):
+        # find best configuration
+        max_macro_avg_recall = -1
+        config = ""
+        for configuration in os.listdir(os.path.join(input_path_single, crypto)):
+            df = pd.read_csv(os.path.join(input_path_single, crypto, configuration, "stats/macro_avg_recall.csv"),
+                             header=0)
+            if df["macro_avg_recall"][0] > max_macro_avg_recall:
+                max_macro_avg_recall = df["macro_avg_recall"][0]
+                config = configuration
+        avg_bests.append(max_macro_avg_recall)
+
+    avg_single_target = np.average(avg_bests)
+    df_report = pd.DataFrame()
+    df_report = df_report.append(
+        {'crypto': "Models", 'model type': 'single_target', 'macro_avg_recall': float(avg_single_target)},
+        ignore_index=True)
+    df_report.to_csv(os.path.join(output_path, "single_average_report.csv"), index=False)
+    overall_macro_avg_recall_single_plot(df_report, output_path)
+def overall_macro_avg_recall_single_plot(df,output_path):
+    title = "Single target"
+    flatui = ["#3498db", "#FF9633"]
+    palettes = sns.color_palette(flatui)
+    ax = sns.barplot(x="crypto", y="macro_avg_recall", hue="model type", data=df, palette=palettes)
+    plt.title(title)
+    ax.set(xlabel=" ", ylabel='Average macro average recall')
+    plt.savefig(output_path + "/" + title + ".png", dpi=100)
+    plt.close()
+
+def overall_comparison_macro_avg_recall_simple_vs_baseline(input_path_single,input_path_baseline,output_path):
+    avg_bests = []
+    for crypto in os.listdir(input_path_single):
+
+        # find best configuration
+        max_macro_avg_recall = -1
+        config = ""
+        for configuration in os.listdir(os.path.join(input_path_single, crypto)):
+            df = pd.read_csv(os.path.join(input_path_single, crypto, configuration, "stats/macro_avg_recall.csv"),
+                             header=0)
+            if df["macro_avg_recall"][0] > max_macro_avg_recall:
+                max_macro_avg_recall = df["macro_avg_recall"][0]
+                config = configuration
+        avg_bests.append(max_macro_avg_recall)
+
+    # average baseline
+    file = open(input_path_baseline + "average_macro_avg_recall.txt", "r")
+    avg_macro_avg_recall_baseline = file.read()
+    file.close()
+    avg_single_target = np.average(avg_bests)
+    df_report = pd.DataFrame()
+    df_report = df_report.append(
+        {'crypto': "Models", 'model type': 'single_target', 'macro_avg_recall': float(avg_single_target)},
+        ignore_index=True)
+    df_report = df_report.append(
+        {'crypto': "Models", 'model type': 'baseline', 'macro_avg_recall': float(avg_macro_avg_recall_baseline)},
+        ignore_index=True)
+    df_report.to_csv(os.path.join(output_path, "single_vs_baseline_report.csv"), index=False)
+    overall_comparison_macro_avg_recall_simple_vs_baseline_plot(df_report,output_path)
+
+def overall_comparison_macro_avg_recall_simple_vs_baseline_plot(df,output_path):
+    title = "Single target VS Baseline (Average)"
+    flatui = ["#3498db", "#FF9633"]
+    palettes = sns.color_palette(flatui)
+    ax = sns.barplot(x="crypto", y="macro_avg_recall", hue="model type", data=df, palette=palettes)
+    plt.title(title)
+    ax.set(xlabel=" ",ylabel='Average macro average recall')
+    plt.savefig(output_path + "/" + title + ".png", dpi=100)
+    plt.close()
 
 #for forecasting
 def report_configurations(temporal_sequence, num_neurons, experiment_folder,

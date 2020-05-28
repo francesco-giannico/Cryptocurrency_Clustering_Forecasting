@@ -21,7 +21,9 @@ from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
 from visualization.bar_chart.clustering import compare_multi_baseline_single_target, crypto_oriented, \
     crypto_cluster_oriented, multi_vs_single
-from visualization.bar_chart.forecasting import report_configurations, report_crypto
+from visualization.bar_chart.forecasting import report_configurations, report_crypto, \
+    comparison_macro_avg_recall_single_vs_baseline, overall_comparison_macro_avg_recall_simple_vs_baseline, \
+    overall_macro_avg_recall_single
 from visualization.line_chart import generate_line_chart
 import numpy as np
 
@@ -69,9 +71,9 @@ def main():
     EPOCHS = 1
     PATIENCE= 1
     BATCH_SIZE=None
-    """single_target_main(TEST_SET,type,features_to_use,
+    single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,BATCH_SIZE)"""
+                        EPOCHS,PATIENCE,BATCH_SIZE)
     #MULTITARGET
     temporal_sequences = [3]
     list_number_neurons = [10]
@@ -90,9 +92,9 @@ def main():
                        'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20', 'MOM', 'CMO', 'UO',
                         'trend']
     #features_to_use = [ 'Open', 'High', 'Close', 'trend','symbol']
-    print(TEST_SET)
-    multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
-                      cluster_n,BATCH_SIZE)
+    #print(TEST_SET)
+    """multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
+                      cluster_n,BATCH_SIZE)"""
     """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
              output_path="../modelling/techniques/clustering/",
              name_folder_res=type)
@@ -166,22 +168,30 @@ def single_target_main(TEST_SET,type, features_to_use, temporal_sequences, numbe
     DATA_PATH = "../preparation/preprocessed_dataset/constructed/" + type + "/"
 
     # SIMPLE PREDICTION
-    OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output/"
+    #ATTENZIONEEEEEEEEEEEEEEEEEE STA OUTPUT_1%!!!!!!!!!!!!
+    OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output_1%/"
+    # ATTENZIONEEEEEEEEEEEEEEEEEE STA OUTPUT_1%!!!!!!!!!!!!
     #simple_prediction(DATA_PATH, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
 
     # SINGLE TARGET LSTM
     EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
-    single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
+    """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
                   DATA_PATH=DATA_PATH,
                   TENSOR_DATA_PATH=TENSOR_DATA_PATH,
                   window_sequences=temporal_sequences,
                   list_num_neurons=number_neurons, learning_rate=learning_rate,
                   features_to_use=features_to_use,
-                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)
+                  DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)"""
 
     # visualization single_target
+    input_path_single=EXPERIMENT_PATH+"result/"
+    input_path_baseline= "../modelling/techniques/baseline/simple_prediction/output_1%/performances/"
+    output_path=EXPERIMENT_PATH+"report/"
+    #comparison_macro_avg_recall_single_vs_baseline(input_path_single, input_path_baseline, output_path)
+    #overall_comparison_macro_avg_recall_simple_vs_baseline(input_path_single, input_path_baseline, output_path)
+    overall_macro_avg_recall_single(input_path_single,  output_path)
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH, results_folder="result",
                           report_folder="report", output_filename="overall_report")"""

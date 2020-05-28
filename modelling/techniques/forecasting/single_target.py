@@ -1,23 +1,14 @@
 import os
-from decimal import Decimal
 from itertools import product
 import numpy as np
 import pandas as pd
-from pandas import DataFrame
 from tensorflow.keras.utils import plot_model
 from tensorflow_core.python.keras.utils.np_utils import to_categorical
-
-from modelling.techniques.forecasting.evaluation.error_measures import get_rmse,  \
-    get_classification_stats
+from modelling.techniques.forecasting.evaluation.error_measures import get_classification_stats
 from modelling.techniques.forecasting.training.training import prepare_input_forecasting, fromtemporal_totensor, \
     get_training_validation_testing_set, train_single_target_model
-from utility.computations import get_factors
 from utility.folder_creator import folder_creator
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
-from visualization.line_chart import plot_train_and_validation_loss, plot_train_and_validation_accuracy
 import tensorflow_core as tf_core
-import time
 import random as rn
 import gc
 from tensorflow.keras import backend as K
@@ -117,9 +108,6 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
 
                 #train, validation,test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
                 train, test = get_training_validation_testing_set(dataset_tensor_format, date_to_predict)
-
-                train = train[:, :, 1:]
-                test = test[:, :, 1:]
 
                 index_of_target_feature = features_without_date.index('trend')
 

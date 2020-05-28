@@ -4,102 +4,17 @@ import pandas as pd
 import numpy as np
 from modelling.techniques.forecasting.evaluation.error_measures import get_rmse, get_accuracy, get_classification_stats
 from utility.folder_creator import folder_creator
-
+from visualization.bar_chart.forecasting import comparison_macro_avg_recall_baseline, overall_macro_avg_recall_baseline
 
 partial_folder="predictions"
 folder_performances="performances"
-
-"""def simple_prediction(data_path,test_set,result_folder):
-    folder_creator(result_folder+partial_folder+"/",1)
-    folder_creator(result_folder+folder_rmse,1)
-    folder_creator(result_folder + folder_accuracy, 1)
-    for crypto in os.listdir(data_path):
-        df= pd.read_csv(data_path+crypto,usecols=['Date','Close','trend'])
-
-        #new dataframe for output
-        df1=pd.DataFrame(columns=["date","observed_value","predicted_value","observed_class","predicted_class"])
-        for date_to_predict in test_set:
-            day_before = (pd.to_datetime(date_to_predict,format="%Y-%m-%d") - timedelta(days=1)).strftime('%Y-%m-%d')
-
-            row_day_before=df[df['Date']==day_before]
-            row_day_before = row_day_before.set_index('Date')
-
-            row_day_to_predict=df[df['Date']==date_to_predict]
-            row_day_to_predict=row_day_to_predict.set_index('Date')
-
-            df1 = df1.append({'date':date_to_predict,'observed_value':row_day_to_predict.loc[date_to_predict,'Close'],
-                              'predicted_value':row_day_before.loc[day_before,'Close'],
-                              'observed_class': row_day_to_predict.loc[date_to_predict, 'trend'],
-                              'predicted_class': row_day_before.loc[day_before, 'trend'],
-                              },ignore_index=True)
-        df1.to_csv(result_folder+partial_folder+"/"+crypto,sep=",",index=False)
-
-    #accuracy and rmse
-    rmses=[]
-    accuracies=[]
-    for crypto in os.listdir(result_folder+partial_folder+"/"):
-        df = pd.read_csv(result_folder+partial_folder+"/"+crypto)
-        #get rmse for each crypto
-        rmse = get_rmse(df['observed_value'], df['predicted_value'])
-        accuracy= get_accuracy(df['observed_class'], df['predicted_class'])
-        rmses.append(rmse)
-        accuracies.append(accuracy)
-        with open(os.path.join(result_folder,folder_rmse, crypto.replace(".csv","")), 'w+') as out:
-            out.write(str(rmse))
-        with open(os.path.join(result_folder,folder_accuracy, crypto.replace(".csv","_accuracy.txt")), 'w+') as out:
-            out.write(str(accuracy))
-
-    # average accuracy
-    with open(os.path.join(result_folder, folder_accuracy, "average_accuracy.txt"), 'w+') as out:
-        final = np.mean(accuracies)
-        out.write(str(final))"""
-
-"""def simple_prediction(data_path,test_set,result_folder):
-    folder_creator(result_folder+partial_folder+"/",1)
-    folder_creator(result_folder+folder_rmse,1)
-    folder_creator(result_folder + folder_accuracy, 1)
-    for crypto in os.listdir(data_path):
-        df= pd.read_csv(data_path+crypto,usecols=['Date','Close','trend'])
-        #new dataframe for output
-        df1=pd.DataFrame(columns=["date","observed_class","predicted_class"])
-        final_class=None
-        for date_to_predict in test_set:
-            day_before = (pd.to_datetime(date_to_predict,format="%Y-%m-%d") - timedelta(days=1)).strftime('%Y-%m-%d')
-
-            row_day_before=df[df['Date']==day_before]
-            row_day_before = row_day_before.set_index('Date')
-            if final_class==None:
-                final_class=row_day_before.loc[day_before, 'trend']
-
-            row_day_to_predict=df[df['Date']==date_to_predict]
-            row_day_to_predict=row_day_to_predict.set_index('Date')
-
-            df1 = df1.append({'date':date_to_predict,
-                              'observed_class': row_day_to_predict.loc[date_to_predict, 'trend'],
-                              'predicted_class': final_class,
-                              },ignore_index=True)
-        df1.to_csv(result_folder+partial_folder+"/"+crypto,sep=",",index=False)
-    #accuracy and rmse
-    #rmses=[]
-    accuracies=[]
-    for crypto in os.listdir(result_folder+partial_folder+"/"):
-        df = pd.read_csv(result_folder+partial_folder+"/"+crypto)
-        #get rmse for each crypto
-        performances= get_classification_stats(df['observed_class'], df['predicted_class'])
-        #rmses.append(rmse)
-        accuracies.append(performances.get('macro avg').get('recall'))
-        with open(os.path.join(result_folder,folder_accuracy, crypto.replace(".csv","_accuracy.txt")), 'w+') as out:
-            out.write(str(performances.get('macro avg').get('recall')))
-
-    # average accuracy
-    with open(os.path.join(result_folder, folder_accuracy, "average_accuracy.txt"), 'w+') as out:
-        final = np.mean(accuracies)
-        out.write(str(final))"""
-
+report_folder="reports"
 def simple_prediction(data_path,test_set,result_folder):
-    folder_creator(result_folder+partial_folder+"/",1)
+    """folder_creator(result_folder+partial_folder+"/",1)
     folder_creator(result_folder + folder_performances, 1)
+    folder_creator(result_folder + report_folder, 1)
     accuracies = []
+    dict_avg_recall={"crypto":[],"value":[]}
     for crypto_name in os.listdir(data_path):
         df1 = pd.DataFrame(columns=["date", "observed_class", "predicted_class"])
         for date_to_predict in test_set:
@@ -123,7 +38,7 @@ def simple_prediction(data_path,test_set,result_folder):
     for crypto in os.listdir(result_folder+partial_folder+"/"):
         df = pd.read_csv(result_folder+partial_folder+"/"+crypto)
         #get rmse for each crypto
-        performances= get_classification_stats(df['observed_class'], df['predicted_class'])
+        confusion_matrix,performances= get_classification_stats(df['observed_class'], df['predicted_class'])
 
         dict_perf_2={'performance_name':[],'value':[]}
         #df_performances_2= pd.DataFrame(columns=['performance_name','value'])
@@ -165,8 +80,21 @@ def simple_prediction(data_path,test_set,result_folder):
         accuracies.append(performances.get('macro avg').get('recall'))
         with open(os.path.join(result_folder,folder_performances, crypto.replace(".csv","_macro_avg_recall.txt")), 'w+') as out:
             out.write(str(performances.get('macro avg').get('recall')))
+            dict_avg_recall['crypto'].append(crypto.replace(".csv",""))
+            dict_avg_recall['value'].append(performances.get('macro avg').get('recall'))
+            out.close()
+
+        pd.DataFrame(data=confusion_matrix).to_csv(os.path.join(result_folder,folder_performances, crypto.replace(".csv","_confusion_matrix.csv")), index=False)
+    #saving all macro avg recall
+    pd.DataFrame(dict_avg_recall).to_csv(
+        os.path.join(result_folder, report_folder, "all_macro_avg_recall.csv"),index=False)
 
     # average macro avg recall
     with open(os.path.join(result_folder, folder_performances, "average_macro_avg_recall.txt"), 'w+') as out:
         final = np.mean(accuracies)
         out.write(str(final))
+        out.close()"""
+
+    #reports
+    #comparison_macro_avg_recall_baseline(input_file_path=os.path.join(result_folder, report_folder, "all_macro_avg_recall.csv"),output_path=os.path.join(result_folder,report_folder))
+    overall_macro_avg_recall_baseline(input_file_path=os.path.join(result_folder, report_folder, "all_macro_avg_recall.csv"),output_path=os.path.join(result_folder,report_folder))

@@ -52,7 +52,7 @@ def get_classification_stats(actual,prediction):
     performances = metrics.classification_report(actual, prediction, digits=3, output_dict=True,zero_division=False)
     #print(metrics.classification_report(actual, prediction, digits=3))
     return confusion_matrix,performances
-C = "Cat"
+"""C = "Cat"
 F = "Fish"
 H = "Hen"
 # True values
@@ -63,4 +63,4 @@ confusion_matrix=metrics.confusion_matrix(y_true,y_pred)
 confusion_matrix = pd.DataFrame(
     {'Stable': confusion_matrix[:, 0], 'Down': confusion_matrix[:, 1], 'Up': confusion_matrix[:, 2]})
 
-print(confusion_matrix)
+print(confusion_matrix)"""

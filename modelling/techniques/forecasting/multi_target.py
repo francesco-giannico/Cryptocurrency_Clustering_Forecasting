@@ -1,5 +1,4 @@
 import os
-from datetime import timedelta
 import numpy as np
 import pandas as pd
 from itertools import product
@@ -132,7 +131,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
             plot_train_and_validation_loss(pd.Series(history.history['loss']),
                                            pd.Series(history.history['val_loss']),
                                            model_path, filename)
-            m = 0
+            """m = 0
             while m < len(y_trains_encoded):
                 curr_crypto="trend_"+str(m)
                 filename = curr_crypto+"_train_val_loss_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
@@ -144,7 +143,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
                 plot_train_and_validation_accuracy(pd.Series(history.history[curr_crypto+'_accuracy']),
                                                pd.Series(history.history['val_'+curr_crypto+'_accuracy']), model_path,
                                                filename)
-                m+=1
+                m+=1"""
 
             # Predict for each date in the validation set
             test_prediction = model.predict(x_test)
