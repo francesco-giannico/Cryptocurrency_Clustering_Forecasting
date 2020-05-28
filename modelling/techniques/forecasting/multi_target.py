@@ -202,7 +202,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
 
             crypto_macro_avg_recall_file = {'symbol': [], 'macro_avg_recall': []}
             crypto_macro_avg_recall_file['symbol'].append(crypto)
-            performances = get_classification_stats(crypto_prediction_file['observed_class'], crypto_prediction_file['predicted_class'])
+            confusion_matrix,performances = get_classification_stats(crypto_prediction_file['observed_class'], crypto_prediction_file['predicted_class'])
             crypto_macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
 
             dict_perf_2 = {'performance_name': [], 'value': []}
@@ -236,6 +236,7 @@ def multi_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH,window_sequences, 
 
                 z += 1
             # serialization
+            pd.DataFrame(data=confusion_matrix).to_csv(PATH_CRYPTO + 'confusion_matrix.csv', index=False)
             df_performances_1.to_csv(
                 os.path.join(PATH_CRYPTO, "performances_part1.csv"), index=False)
             pd.DataFrame(dict_perf_2).to_csv(

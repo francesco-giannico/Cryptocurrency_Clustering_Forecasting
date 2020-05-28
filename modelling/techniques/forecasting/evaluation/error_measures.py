@@ -47,10 +47,20 @@ def get_classification_stats(actual,prediction):
         partial_averages.append(np.divide(true_positives[i],np.sum(confusion_matrix[i])))
         i+=1
     print(np.average(partial_averages))"""
-    #confusion_matrix=metrics.confusion_matrix(actual, prediction)
-    #confusion_matrix = pd.DataFrame({'Stable': confusion_matrix[:, 0], 'Down':  confusion_matrix[:, 1],'Up':  confusion_matrix[:, 2]})
+    confusion_matrix=metrics.confusion_matrix(actual, prediction)
+    confusion_matrix = pd.DataFrame({'Stable': confusion_matrix[:, 0], 'Down':  confusion_matrix[:, 1],'Up':  confusion_matrix[:, 2]})
     performances = metrics.classification_report(actual, prediction, digits=3, output_dict=True,zero_division=False)
     #print(metrics.classification_report(actual, prediction, digits=3))
-    return performances
+    return confusion_matrix,performances
+C = "Cat"
+F = "Fish"
+H = "Hen"
+# True values
+y_true = [C, C, C, C, C, C, F, F, F, F, F, F, F, F, F, F, H, H, H, H, H, H, H, H, H]
+# Predicted values
+y_pred = [C, C, C, C, H, F, C, C, C, C, C, C, H, H, F, F, C, C, C, H, H, H, H, H, H]
+confusion_matrix=metrics.confusion_matrix(y_true,y_pred)
+confusion_matrix = pd.DataFrame(
+    {'Stable': confusion_matrix[:, 0], 'Down': confusion_matrix[:, 1], 'Up': confusion_matrix[:, 2]})
 
-
+print(confusion_matrix)

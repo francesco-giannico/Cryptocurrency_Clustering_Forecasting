@@ -32,7 +32,7 @@ PREPROCESSED_PATH = "../preparation/preprocessed_dataset/cleaned/final/"
 def save_results(macro_avg_recall_file,crypto_name,predictions_file,results_path):
     macro_avg_recall_file['symbol'].append(crypto_name)
     # accuracy
-    performances = get_classification_stats(predictions_file['observed_class'],
+    confusion_matrix,performances = get_classification_stats(predictions_file['observed_class'],
                                             predictions_file['predicted_class'])
     macro_avg_recall_file['macro_avg_recall'].append(performances.get('macro avg').get('recall'))
 
@@ -67,10 +67,12 @@ def save_results(macro_avg_recall_file,crypto_name,predictions_file,results_path
 
         z += 1
     # serialization
+    pd.DataFrame(data=confusion_matrix).to_csv(results_path + 'confusion_matrix.csv', index=False)
     df_performances_1.to_csv(
         os.path.join(results_path, "performances_part1.csv"),index=False)
     pd.DataFrame(dict_perf_2).to_csv(
         os.path.join(results_path,"performances_part2.csv"),index=False)
+
     # serialization
     pd.DataFrame(data=predictions_file).to_csv(results_path + 'predictions.csv', index=False)
     pd.DataFrame(data=macro_avg_recall_file).to_csv(results_path + 'macro_avg_recall.csv', index=False)
@@ -170,13 +172,13 @@ def single_target(EXPERIMENT_PATH, DATA_PATH, TENSOR_DATA_PATH, window_sequences
                            show_layer_names=True, expand_nested=True, dpi=150)
 
                 #plot loss
-                filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
+                """filename="model_train_val_loss_bs_"+str(BATCH_SIZE)+"_target_"+str(date_to_predict)
                 plot_train_and_validation_loss(pd.Series(history.history['loss']),pd.Series(history.history['val_loss']),model_path,filename)
 
                 #plot accuracy
                 filename = "model_train_val_accuracy_bs_" + str(BATCH_SIZE) + "_target_" + str(date_to_predict)
                 plot_train_and_validation_accuracy(pd.Series(history.history['accuracy']),
-                                               pd.Series(history.history['val_accuracy']), model_path, filename)
+                                               pd.Series(history.history['val_accuracy']), model_path, filename)"""
 
                 # Predict for each date in the validation set
                 test_prediction = model.predict(x_test)
