@@ -47,13 +47,11 @@ def compute_distance_matrix(input_path,dict_symbol_id,distance_measure,CLUSTERIN
                      """
                      bivariate_plot(dfL,[col,col+"_2"])"""
                      #if (dict_symbol_id.symbol[i] =="BTC"):
-                     import seaborn as sns
+                     """import seaborn as sns
                      dfL = pd.DataFrame()
                      dfL[col] = df1[col]
                      dfL[col + "_2"] = df[col]
                      # Set style of scatterplot
-                     """sns.set_context("notebook", font_scale=1.1)
-                     sns.set_style("ticks")"""
 
                      # Create scatterplot of dataframe
                      sns.lmplot(col,  # Horizontal axis
@@ -69,9 +67,9 @@ def compute_distance_matrix(input_path,dict_symbol_id,distance_measure,CLUSTERIN
                      # Set y-axis label
                      plt.ylabel(col+"_2")
                      folder_creator(CLUSTERING_PATH+col,0)
-                     plt.savefig(CLUSTERING_PATH+col+"/"+dict_symbol_id.symbol[i] + "-"+ dict_symbol_id.symbol[j]+".png",dpi=50)
+                     plt.savefig(CLUSTERING_PATH+col+"/"+dict_symbol_id.symbol[i] + "-"+ dict_symbol_id.symbol[j]+".png",dpi=50)"""
                      correlation, p = pearsonr(df[col].to_numpy(dtype="float"),df1[col].to_numpy(dtype="float"))
-                     distance = 1 - correlation  # lo trasformo in distanza: varia tra [0,2]
+                     distance = 1 - np.abs(correlation)  # lo trasformo in distanza: varia tra [0,2]
                      distances.append(distance)
 
 

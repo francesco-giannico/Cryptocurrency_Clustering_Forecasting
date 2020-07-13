@@ -13,20 +13,20 @@ PATH_MINMAXMEANNORMALIZED_FOLDER= "../preparation/preprocessed_dataset/construct
 PATH_MAXABSNORMALIZED_FOLDER= "../preparation/preprocessed_dataset/constructed/max_abs_normalized/"
 PATH_ROBUSTNORMALIZED_FOLDER= "../preparation/preprocessed_dataset/constructed/robust_normalized/"
 PATH_STANDARDIZED_FOLDER= "../preparation/preprocessed_dataset/constructed/standardized/"
-PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated"
+PATH_INTEGRATED_FOLDER= "../preparation/preprocessed_dataset/integrated/"
 PATH_TRANSFORMED_FOLDER= "../preparation/preprocessed_dataset/transformed/"
 PATH_NORMALIZED_FOLDER = "../preparation/preprocessed_dataset/constructed/"
 PATH_CUT_FOR_CLUSTERING = "../preparation/preprocessed_dataset/cut_for_clustering/"
 
-def preprocessing(TEST_SET,start_date,end_date_for_clustering=None):
+def preprocessing(TEST_SET,start_date,percentual,end_date_for_clustering=None):
     """folders_setup()
     feature_selection()
     separation()
-    cleaning()"""
-    """cut_datasets_for_clustering(input_path=PATH_CLEANED_FOLDER, output_path=PATH_CUT_FOR_CLUSTERING,
+    cleaning()
+    cut_datasets_for_clustering(input_path=PATH_CLEANED_FOLDER, output_path=PATH_CUT_FOR_CLUSTERING,
                                 start_date=start_date, end_date_for_clustering=end_date_for_clustering)"""
 
-    #integration(input_path=PATH_CLEANED_FOLDER, output_path=PATH_INTEGRATED_FOLDER,test_set=TEST_SET, start_date=start_date)
+    integration(input_path=PATH_CLEANED_FOLDER, output_path=PATH_INTEGRATED_FOLDER,test_set=TEST_SET, start_date=start_date,percent=percentual)
     construction(input_path=PATH_INTEGRATED_FOLDER,output_path=PATH_MAXABSNORMALIZED_FOLDER,type="max_abs")
     #construction(input_path=PATH_CUT_FOR_CLUSTERING,output_path=PATH_MINMAXNORMALIZED_FOLDER,type="min_max")
 
@@ -57,10 +57,10 @@ def cleaning():
     #todo LKK lo abbiamo rimosso perchè ha 144 missing values nel 2018!!
     #input_missing_values()
 
-def integration(input_path,output_path,start_date,test_set):
-    integrate_with_indicators(input_path,output_path,start_date,test_set)
+def integration(input_path,output_path,start_date,test_set,percent):
+    #integrate_with_indicators(input_path,output_path,start_date,test_set)
     # add qualitative feature Trend
-    add_trend_feature(input_path=output_path, output_path=output_path,percent=1)
+    add_trend_feature(input_path=output_path, output_path=output_path,percent=percent)
     #integrate_with_lag(input_path)
 
 def construction(input_path,output_path,type):

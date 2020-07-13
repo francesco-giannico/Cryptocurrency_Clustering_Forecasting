@@ -7,19 +7,179 @@ from utility.folder_creator import folder_creator
 from pathlib import Path
 import seaborn as sns
 
+def report_multi_target_overall(path_single_target,types,output_path,path_multi_target):
+    df_report = pd.DataFrame()
+    df = pd.read_csv(os.path.join(path_multi_target+"multi_target_k_oriented.csv"))
+    avg_baseline = df.loc[df['Model'] == "baseline"]['value']
+    avg_single_target = df.loc[df['Model'] == "single target"]['value']
+    df_report = df_report.append({"Model": "baseline", 'value': float(avg_baseline)}, ignore_index=True)
+    df_report = df_report.append({'Model': "single target", 'value': float(avg_single_target)}, ignore_index=True)
+    avg_multi=[]
+    for k in types:
+        avg_multi.append(float(df.loc[df['Model'] == k]['value']))
+    avg_mu=np.average(avg_multi)
+    df_report = df_report.append({'Model': "multi target", 'value': float(avg_mu)}, ignore_index=True)
+    df_report.to_csv(os.path.join(output_path, "multi_target_overall.csv"), index=False)
+    report_multi_target_overall_plot(df_report,output_path)
+
+def report_multi_target_overall_plot(df,output_path):
+    df.set_index('Model', inplace=True)
+    df_t = df.T
+    plt.figure(figsize=(10, 10))
+    flatui = ["#3498db"]
+    palettes = sns.color_palette(flatui)
+    ax = sns.barplot(data=df_t, ci=None, palette=palettes)
+    for p in ax.patches:
+        ax.annotate("%.3f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', fontsize=9, color='black', xytext=(0, 5),
+                    textcoords='offset points')
+    title = "Multi-target vs single-target vs baseline overall"
+    plt.title(title)
+    ax.set(ylabel='Macro average recall')
+    title = title.replace(" ", "_")
+    plt.savefig(output_path + title + ".png", dpi=100)
+    plt.close()
+
+def report_multi_target_k_oriented(path_single_target,types,output_path,percent):
+    output_path = output_path + "multi_target_k_oriented/"
+    df_report=pd.DataFrame()
+    df=pd.read_csv(os.path.join(path_single_target,"single_vs_baseline_report.csv"))
+    avg_baseline=df.loc[df['model type']=="baseline"]['macro_avg_recall']
+    avg_single_target=df.loc[df['model type']=="single_target"]['macro_avg_recall']
+    df_report=df_report.append({"Model":"baseline",'value':float(avg_baseline)},ignore_index=True)
+    df_report=df_report.append({'Model': "single target", 'value': float(avg_single_target)},ignore_index=True)
+    #ora average per ogni k
+    for k in types:
+        path_multi_target = "../modelling/techniques/forecasting/outputs_multi_"+str(percent)+"/" + k + "/multi_target/"
+        highest_by_crypto=[]
+        for cluster in os.listdir(os.path.join(path_multi_target, "clusters/")):
+            for crypto in os.listdir(os.path.join(path_multi_target, "clusters", cluster, "result")):
+                highest_macro_avg_recall = -1
+                for configuration in os.listdir(os.path.join(path_multi_target, "clusters", cluster, "result", crypto)):
+                    df = pd.read_csv(
+                        os.path.join(path_multi_target, "clusters", cluster, "result", crypto, configuration,
+                                     "stats/macro_avg_recall.csv"))
+                    value = df['macro_avg_recall'][0]
+                    if value > highest_macro_avg_recall:
+                        highest_macro_avg_recall = value
+                highest_by_crypto.append(highest_macro_avg_recall)
+        df_report = df_report.append({'Model': k, 'value': np.average(highest_by_crypto)},ignore_index=True)
+    folder_creator(output_path, 0)
+    df_report.to_csv(os.path.join(output_path, "multi_target_k_oriented.csv"), index=False)
+    report_multi_target_k_oriented_plot(df_report,output_path)
+
+def report_multi_target_k_oriented_plot(df,output_path):
+    df.set_index('Model', inplace=True)
+    df_t = df.T
+    plt.figure(figsize=(10, 10))
+    flatui = ["#3498db"]
+    palettes = sns.color_palette(flatui)
+    ax = sns.barplot(data=df_t, ci=None, palette=palettes)
+    for p in ax.patches:
+        ax.annotate("%.3f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', fontsize=9, color='black', xytext=(0, 5),
+                    textcoords='offset points')
+    title = "Multi-target k oriented vs single-target vs baseline"
+    plt.title(title)
+    ax.set(ylabel='Macro average recall')
+    title = title.replace(" ", "_")
+    plt.savefig(output_path + title + ".png", dpi=100)
+    plt.close()
+
+def report_multi_target_crypto_oriented(path_baseline,path_single_target,types,output_path,cryptocurrencies,percent):
+    output_path=output_path + "multi_target_crypto_oriented/"
+    i=0
+    report=i
+    while i< len(cryptocurrencies):
+        save_baseline_single_target = True
+        df_report = pd.DataFrame()
+        for k in types:
+            path_multi_target = "../modelling/techniques/forecasting/outputs_multi_"+str(percent)+"/" + k + "/multi_target/"
+            for cluster in os.listdir(os.path.join(path_multi_target,"clusters/")):
+                for crypto in os.listdir(os.path.join(path_multi_target,"clusters",cluster,"result")):
+                    if crypto in cryptocurrencies[i]:
+                        report=str(i)
+                        if save_baseline_single_target:
+                            file = open(path_baseline + crypto + "_macro_avg_recall.txt", "r")
+                            macro_avg_recall_baseline = file.read()
+                            df_report = df_report.append(
+                                {'crypto': crypto, 'model type': "baseline",
+                                 'macro_avg_recall': float(macro_avg_recall_baseline),
+                                 'config':"standard"},
+                                ignore_index=True)
+                            file.close()
+
+                            #find best for single target
+                            highest_macro_avg_recall_single = -1
+                            config_single = ""
+                            for config_single in os.listdir(os.path.join(path_single_target, crypto)):
+                                df = pd.read_csv(
+                                    os.path.join(path_single_target, crypto, config_single, "stats/macro_avg_recall.csv"),
+                                    header=0)
+                                if df["macro_avg_recall"][0] > highest_macro_avg_recall_single:
+                                    highest_macro_avg_recall_single = df["macro_avg_recall"][0]
+                                    config_single = config_single
+                            df_report =df_report.append(
+                                {'crypto': crypto, 'model type': "single_target",
+                                 'macro_avg_recall': float(highest_macro_avg_recall_single),
+                                 'config': config_single},
+                                ignore_index=True)
+                        highest_macro_avg_recall=-1
+                        best_conf=""
+                        for configuration in os.listdir(os.path.join(path_multi_target,"clusters",cluster,"result",crypto)):
+                            df= pd.read_csv(os.path.join(path_multi_target,"clusters",cluster,"result",crypto,configuration,"stats/macro_avg_recall.csv"))
+                            value=df['macro_avg_recall'][0]
+                            if value > highest_macro_avg_recall:
+                                highest_macro_avg_recall=value
+                                best_conf=configuration
+                        df_report = df_report.append(
+                            {'crypto': crypto, 'model type': k,
+                             'macro_avg_recall': float(highest_macro_avg_recall),
+                             'config': best_conf},
+                            ignore_index=True)
+            save_baseline_single_target = False
+        i+=1
+        folder_creator(output_path, 0)
+        df_report.to_csv(os.path.join(output_path,"multi_target_crypto_oriented_"+report+".csv"),index=False)
+        report_multi_target_crypto_oriented_plot(df_report,output_path,report)
+
+def report_multi_target_crypto_oriented_plot(df,output_path,report):
+    title = "Multi-target crypto oriented results"
+    fig = plt.figure(figsize=(15, 10))
+    flatui = ["#ec7063","#a569bd","#5dade2","#27ae60","#f4d03f","#f39c12","#b2babb","#138d75"]
+    palettes = sns.color_palette(flatui)
+    # sns.set(font_scale=0.65, style='white')
+    ax = sns.barplot(x="crypto", y="macro_avg_recall", hue="model type", data=df,palette=palettes)
+    for p in ax.patches:
+        ax.annotate("%.3f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', fontsize=8, color='black', xytext=(0, 5),
+                    textcoords='offset points')
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])  # resize position
+    # Put a legend to the right side
+    ax.legend(loc='center right', bbox_to_anchor=(1.16, 0.5), ncol=1)
+    plt.title(title)
+    title = title.replace(" ", "_")
+    ax.set(xlabel='Cryptocurrencies', ylabel='Macro average recall')
+    plt.savefig(output_path + "/" + title + "_"+report+".png", dpi=100)
+    plt.close(fig)
 
 def overall_macro_avg_recall_baseline(input_file_path,output_path):
     df = pd.read_csv(input_file_path, header=0)
     avg=np.average(df.value)
-    df=pd.DataFrame(columns=['average'])
-    df=df.append({'average':avg},ignore_index=True)
-    plt.figure()
+    df=pd.DataFrame(columns=['All cryptocurrencies'])
+    df=df.append({'All cryptocurrencies':avg},ignore_index=True)
+    plt.figure(figsize=(5,5))
     flatui = ["#3498db"]
     palettes = sns.color_palette(flatui)
     ax = sns.barplot(data=df, ci=None, palette=palettes)
+    for p in ax.patches:
+        ax.annotate("%.3f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', fontsize=9, color='black', xytext=(0, 5),
+                    textcoords='offset points')
     title = "Baseline overall"
     plt.title(title)
-    ax.set(xlabel='All cryptocurrencies', ylabel='Average macro average recall')
+    ax.set(ylabel='Average macro average recall')
     plt.savefig(output_path + "/overall_" + title + ".png", dpi=100)
     plt.close()
 
@@ -28,33 +188,41 @@ def comparison_macro_avg_recall_baseline(input_file_path,output_path):
     df=pd.read_csv(input_file_path,header=0)
     df.set_index('crypto', inplace=True)
     df_t=df.T
-    plt.figure()
+    dfs=[]
+    dfs.append(df_t.iloc[:, :3])
+    dfs.append(df_t.iloc[:, 3:6])
+    dfs.append(df_t.iloc[:, 6:9])
+    dfs.append(df_t.iloc[:, 9:12])
+    dfs.append(df_t.iloc[:, 12:15])
+    dfs.append(df_t.iloc[:, 15:17])
 
-
-    flatui = ["#3498db"]
-    palettes=sns.color_palette(flatui)
-    sns.set(font_scale=0.65, style="white")
-    ax = sns.barplot(data=df_t, ci=None,palette=palettes)
-
-    """for bar in ax.patches:
-        if bar.get_height() > 6:
-            bar.set_color('red')
-        else:
-            bar.set_color('grey')"""
-    title = "Baseline"
-    plt.title(title)
-    ax.set(xlabel='Cryptocurrencies', ylabel='Macro average recall')
-    plt.savefig(output_path+ "/comparison_"+title + ".png", dpi=100)
-    plt.close()
+    i=1
+    for df in dfs:
+        plt.figure(figsize=(10,10))
+        flatui = ["#3498db"]
+        palettes=sns.color_palette(flatui)
+        #sns.set(font_scale=0.80, style="white")
+        ax = sns.barplot(data=df, ci=None,palette=palettes)
+        # annotate axis = seaborn axis
+        for p in ax.patches:
+            ax.annotate("%.3f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                        ha='center', va='center', fontsize=9, color='black', xytext=(0, 5),
+                        textcoords='offset points')
+        #_ = ax.set_ylim(0, 5)  # To make space for the annotations
+        title = "Baseline"
+        plt.title(title)
+        ax.set(xlabel='Cryptocurrencies', ylabel='Macro average recall')
+        plt.savefig(output_path+ "/comparison_"+title + "_"+str(i)+".png", dpi=200)
+        plt.close()
+        i+=1
 
 #input path single: path to results folder
 #input path_baseline: performances
 #output_path: report for each crypto
 def comparison_macro_avg_recall_single_vs_baseline(input_path_single,input_path_baseline,output_path):
     folder_creator(output_path,0)
+    df_report = pd.DataFrame()
     for crypto in os.listdir(input_path_single):
-
-        folder_creator(os.path.join(output_path,crypto),1)
         # read baseline
         file = open(input_path_baseline + crypto+"_macro_avg_recall.txt", "r")
         macro_avg_recall_baseline = file.read()
@@ -70,25 +238,45 @@ def comparison_macro_avg_recall_single_vs_baseline(input_path_single,input_path_
                 config = configuration
 
         #generate csv containing these info
-        df_report=pd.DataFrame()
         df_report = df_report.append(
-            {'crypto': crypto, 'model type': 'single_target', 'macro_avg_recall': float(max_macro_avg_recall),'config':config},
+            {'crypto': crypto, 'model type': 'single_target', 'macro_avg_recall': float(max_macro_avg_recall),
+             'config': config},
             ignore_index=True)
         df_report=df_report.append({'crypto':crypto,'model type':'baseline','macro_avg_recall': float(macro_avg_recall_baseline),'config':'standard'},ignore_index=True)
-        df_report.to_csv(os.path.join(output_path,crypto,crypto+"_report.csv"),index=False)
-        # generate individual chart
-        comparison_macro_avg_recall_single_vs_baseline_plot(df_report,os.path.join(output_path,crypto))
+    df_report.to_csv(os.path.join(output_path,"single_target_vs_baseline_report.csv"),index=False)
+    comparison_macro_avg_recall_single_vs_baseline_plot(df_report,output_path)
 
 def comparison_macro_avg_recall_single_vs_baseline_plot(df,output_path):
-    title = "Single target VS Baseline"
-    flatui = ["#3498db", "#FF9633"]
-    palettes = sns.color_palette(flatui)
-    #sns.set(font_scale=0.65, style='white')
-    ax = sns.barplot(x="crypto", y="macro_avg_recall", hue="model type", data=df, palette=palettes)
-    plt.title(title)
-    ax.set(xlabel='Models', ylabel='Macro average recall')
-    plt.savefig(output_path + "/" + title + ".png", dpi=100)
-    plt.close()
+    dfs = []
+    dfs.append(df.iloc[:6, :])
+    dfs.append(df.iloc[6:12,:])
+    dfs.append(df.iloc[12:18, :])
+    dfs.append(df.iloc[18:24,:])
+    dfs.append(df.iloc[24:30, :])
+    dfs.append(df.iloc[30:36, :])
+    i=1
+    for df_l in dfs:
+        title = "Single target VS Baseline"
+        fig=plt.figure(figsize=(10,10))
+        flatui = ["#3498db", "#FF9633"]
+        palettes = sns.color_palette(flatui)
+        #sns.set(font_scale=0.65, style='white')
+        ax = sns.barplot(x="crypto", y="macro_avg_recall", hue="model type", data=df_l, palette=palettes)
+        for p in ax.patches:
+            ax.annotate("%.3f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                        ha='center', va='center', fontsize=8, color='black', xytext=(0, 5),
+                        textcoords='offset points')
+        plt.title(title)
+        # Removed 'ax' from T.W.'s answer here aswell:
+        box = ax.get_position()
+        ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])  # resize position
+        # Put a legend to the right side
+        ax.legend(loc='center right', bbox_to_anchor=(1.25, 0.5), ncol=1)
+        title=title.replace(" ","_")
+        ax.set(xlabel='Cryptocurrencies', ylabel='Macro average recall')
+        plt.savefig(output_path + "/" + title + "_"+str(i)+".png", dpi=100)
+        plt.close(fig)
+        i+=1
 
 def overall_macro_avg_recall_single(input_path_single,output_path):
     avg_bests = []
@@ -107,17 +295,20 @@ def overall_macro_avg_recall_single(input_path_single,output_path):
     avg_single_target = np.average(avg_bests)
     df_report = pd.DataFrame()
     df_report = df_report.append(
-        {'crypto': "Models", 'model type': 'single_target', 'macro_avg_recall': float(avg_single_target)},
+        {'crypto': "All cryptocurrencies", 'model type': 'single_target', 'macro_avg_recall': float(avg_single_target)},
         ignore_index=True)
     df_report.to_csv(os.path.join(output_path, "single_average_report.csv"), index=False)
     overall_macro_avg_recall_single_plot(df_report, output_path)
+
 def overall_macro_avg_recall_single_plot(df,output_path):
-    title = "Single target"
+    title = "Single target overall"
+    plt.figure(figsize=(5, 5))
     flatui = ["#3498db", "#FF9633"]
     palettes = sns.color_palette(flatui)
-    ax = sns.barplot(x="crypto", y="macro_avg_recall", hue="model type", data=df, palette=palettes)
+    ax = sns.barplot(x="crypto", y="macro_avg_recall", data=df, palette=palettes)
     plt.title(title)
     ax.set(xlabel=" ", ylabel='Average macro average recall')
+    title=title.replace(" ", "_")
     plt.savefig(output_path + "/" + title + ".png", dpi=100)
     plt.close()
 
@@ -143,25 +334,36 @@ def overall_comparison_macro_avg_recall_simple_vs_baseline(input_path_single,inp
     avg_single_target = np.average(avg_bests)
     df_report = pd.DataFrame()
     df_report = df_report.append(
-        {'crypto': "Models", 'model type': 'single_target', 'macro_avg_recall': float(avg_single_target)},
+        {'crypto': "All cryptocurrencies", 'model type': 'single_target', 'macro_avg_recall': float(avg_single_target)},
         ignore_index=True)
     df_report = df_report.append(
-        {'crypto': "Models", 'model type': 'baseline', 'macro_avg_recall': float(avg_macro_avg_recall_baseline)},
+        {'crypto': "All cryptocurrencies", 'model type': 'baseline', 'macro_avg_recall': float(avg_macro_avg_recall_baseline)},
         ignore_index=True)
     df_report.to_csv(os.path.join(output_path, "single_vs_baseline_report.csv"), index=False)
     overall_comparison_macro_avg_recall_simple_vs_baseline_plot(df_report,output_path)
 
 def overall_comparison_macro_avg_recall_simple_vs_baseline_plot(df,output_path):
-    title = "Single target VS Baseline (Average)"
+    title = "Single target VS Baseline overall"
+    fig=plt.figure(figsize=(7,7))
     flatui = ["#3498db", "#FF9633"]
     palettes = sns.color_palette(flatui)
     ax = sns.barplot(x="crypto", y="macro_avg_recall", hue="model type", data=df, palette=palettes)
+    for p in ax.patches:
+        ax.annotate("%.3f" % p.get_height(), (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', fontsize=10, color='black', xytext=(0, 5),
+                    textcoords='offset points')
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.85, box.height])  # resize position
+    # Put a legend to the right side
+    ax.legend(loc='center right', bbox_to_anchor=(1.33, 0.5), ncol=1)
     plt.title(title)
     ax.set(xlabel=" ",ylabel='Average macro average recall')
+    title=title.replace(" ","_")
     plt.savefig(output_path + "/" + title + ".png", dpi=100)
-    plt.close()
+    plt.close(fig)
 
-#for forecasting
+#UNUSED
+"""#for forecasting
 def report_configurations(temporal_sequence, num_neurons, experiment_folder,
                                        results_folder, report_folder, output_filename):
     # Folder creator
@@ -290,19 +492,6 @@ def report_crypto(experiment_folder, result_folder, report_folder,output_filenam
             name_file_output="bargraph_macro_avg_recall_" + str(crypto))
     return
 
-"""def report_single_vs_simple(input_path,cryptocurrencies):
-    
-
-    #reads the csv (merged_predictions.csv)
-    df = pd.read_csv(input_path,sep=",")
-    
-
-    #for crypto, neurons, days in product(cryptocurrencies, list_neurons, list_temporal_sequences):
-    #read a specific line from the file
-    data_cut = data[(data["symbol"] == crypto)]
-    for neurons, days in product(list_neurons, list_temporal_sequences):
-        data_cut=data_cut[(data_cut["neurons"] == neurons) & (data["days"] == days)]"""
-
 #for forecasting
 def plot_report(path_file, x_data, column_of_data, label_for_values_column, label_x, title_img, destination,
                 name_file_output):
@@ -334,4 +523,4 @@ def plot_report(path_file, x_data, column_of_data, label_for_values_column, labe
     #serialization
     f.savefig(destination+name_file_output, bbox_inches='tight', pad_inches=0,dpi=120)
     return
-
+"""

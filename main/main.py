@@ -19,11 +19,9 @@ from understanding.exploration import describe
 from utility.clustering_utils import merge_predictions
 from utility.dataset_utils import cut_dataset_by_range
 from utility.folder_creator import folder_creator
-from visualization.bar_chart.clustering import compare_multi_baseline_single_target, crypto_oriented, \
-    crypto_cluster_oriented, multi_vs_single
-from visualization.bar_chart.forecasting import report_configurations, report_crypto, \
-    comparison_macro_avg_recall_single_vs_baseline, overall_comparison_macro_avg_recall_simple_vs_baseline, \
-    overall_macro_avg_recall_single
+from visualization.bar_chart.forecasting import comparison_macro_avg_recall_single_vs_baseline, overall_comparison_macro_avg_recall_simple_vs_baseline, \
+    overall_macro_avg_recall_single, report_multi_target_crypto_oriented, report_multi_target_k_oriented, \
+    report_multi_target_overall
 from visualization.line_chart import generate_line_chart
 import numpy as np
 
@@ -36,8 +34,9 @@ def main():
     TEST_SET = testing_set()
     start_date="2015-09-01"
     end_date_for_clustering="2018-12-31"
+    percentual_of_variation=2
     #DATA PREPARATION
-    #preprocessing(TEST_SET,start_date,end_date_for_clustering)
+    #preprocessing(TEST_SET,start_date,percentual_of_variation,end_date_for_clustering)
 
     # CLUSTERING
     distance_measure = "pearson"
@@ -46,8 +45,8 @@ def main():
     # Description after
     type = "max_abs_normalized"
     # clustering
-    """clustering(distance_measure, type_for_clustering=type_clustering, type_for_prediction=type,
-               features_to_use=features_to_use)"""
+    clustering(distance_measure, type_for_clustering=type_clustering, type_for_prediction=type,
+               features_to_use=features_to_use)
 
     """describe(PATH_DATASET="../preparation/preprocessed_dataset/constructed/"+type+"/",
              output_path="../preparation/preprocessed_dataset/",
@@ -71,9 +70,9 @@ def main():
     EPOCHS = 1
     PATIENCE= 1
     BATCH_SIZE=None
-    single_target_main(TEST_SET,type,features_to_use,
+    """single_target_main(TEST_SET,type,features_to_use,
                        temporal_sequences,list_number_neurons,learning_rate,DROPOUT,
-                        EPOCHS,PATIENCE,BATCH_SIZE)
+                        EPOCHS,PATIENCE,BATCH_SIZE,percentual_of_variation)"""
     #MULTITARGET
     temporal_sequences = [3]
     list_number_neurons = [10]
@@ -91,28 +90,44 @@ def main():
                        'RSI_30', 'RSI_20', 'RSI_50', 'RSI_100', 'RSI_200', 'MACD_12_26_9',
                        'MACDH_12_26_9', 'MACDS_12_26_9', 'BBL_20', 'BBM_20', 'BBU_20', 'MOM', 'CMO', 'UO',
                         'trend']
-    #features_to_use = [ 'Open', 'High', 'Close', 'trend','symbol']
-    #print(TEST_SET)
     """multi_target_main(TEST_SET,features_to_use,temporal_sequences,list_number_neurons,learning_rate,DROPOUT,EPOCHS,PATIENCE,
-                      cluster_n,BATCH_SIZE)"""
-    """describe_new(PATH_DATASET="../modelling/techniques/clustering/",
-             output_path="../modelling/techniques/clustering/",
-             name_folder_res=type)
-    """
-    #[df=pd.read_csv("modelling/techniques/clustering/output_to_use/clusters/cluster_1/ETH.csv",header=0)
-    """df = pd.read_csv("ETH.csv", header=0)
+                      cluster_n,percentual_of_variation,BATCH_SIZE)"""
 
-    print(df.isnull().sum())"""
-    # types=["k_1","k_sqrtN","k_sqrtNdiv2","k_sqrtNdiv4","k_sqrtNby2","k_sqrtNby4"]
-    """types=['outputs_multi']
-    single_target="outputs_single"
-    for current in types:
-        #path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_rmse/"
-        path_baseline = "../modelling/techniques/baseline/simple_prediction/output/average_accuracy/"
-        path_single_target = "../modelling/techniques/forecasting/"+single_target+"/single_target/result/"
-        path_multi_target = "../modelling/techniques/forecasting/"+current+"/multi_target/clusters/"
-        output_path="../modelling/techniques/forecasting/"+current+"/reports/"
-        compare_multi_baseline_single_target(path_baseline, path_single_target, path_multi_target,output_path)"""
+def multi_target_main(TEST_SET,features_to_use, temporal_sequences, list_number_neurons, learning_rate,
+                      DROPOUT, EPOCHS, PATIENCE,cluster_n,percent,BATCH_SIZE=None):
+    DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs_multi_"+str(percent)+"multi_target/"
+    #folder_creator(EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/", 0)
+    # generate horizontal dataset
+    """cryptos_in_cluster=create_horizontal_dataset(DATA_PATH + cluster_n + "/", EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",TEST_SET)
+
+    features_to_use_multi = ['Date']
+    for i in range(len(cryptos_in_cluster)):
+        for feature in features_to_use:
+            features_to_use_multi.append(feature + "_" + str(i + 1))"""
+
+    """multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
+                 DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_datasets/",
+                 TENSOR_DATA_PATH=EXPERIMENT_PATH +"clusters" + "/" + cluster_n + "/tensor_data/",
+                 window_sequences=temporal_sequences,
+                 list_num_neurons=list_number_neurons, learning_rate=learning_rate,
+                 cryptos=cryptos_in_cluster,
+                 features_to_use=features_to_use_multi,
+                 DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)"""
+
+    types=["k_1","k_sqrtN","k_sqrtNdiv2","k_sqrtNdiv4","k_sqrtNby2","k_sqrtNby4"]
+    baseline="output_"+str(percent)+"%/performances/"
+    path_baseline = "../modelling/techniques/baseline/simple_prediction/" + baseline
+    path_single_target = "../modelling/techniques/forecasting/outputs_single_"+str(percent)+"/single_target/result/"
+    output_path = "../modelling/techniques/forecasting/outputs_multi_"+str(percent)+"/reports/"
+    cryptocurrencies=[["BTC","BTS","DASH"],["DGB","DOGE","ETH"],["IOC","LTC",
+                      "MAID"],["MONA","NAV","SYS"],["VTC","XCP","XLM"],["XMR","XRP"]]
+    report_multi_target_crypto_oriented(path_baseline,path_single_target,types,output_path,cryptocurrencies,percent)
+    path_single_target = "../modelling/techniques/forecasting/outputs_single_"+str(percent)+"/single_target/report/"
+    report_multi_target_k_oriented(path_single_target,types,output_path,percent)
+    path_multi_target = "../modelling/techniques/forecasting/outputs_multi_"+str(percent)+"/reports/multi_target_k_oriented/"
+    report_multi_target_overall(path_single_target,types,output_path,path_multi_target)
+
 
     """path_multi_target = "../modelling/techniques/forecasting/"
     crypto_oriented(path_multi_target,types)"""
@@ -128,28 +143,6 @@ def main():
     """path_multi_target = "../modelling/techniques/forecasting/"
     multi_vs_single(path_multi_target, types)"""
 
-def multi_target_main(TEST_SET,features_to_use, temporal_sequences, list_number_neurons, learning_rate,
-                      DROPOUT, EPOCHS, PATIENCE,cluster_n,BATCH_SIZE=None):
-    DATA_PATH = "../modelling/techniques/clustering/output_to_use/clusters/"
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/multi_target/"
-    folder_creator(EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/", 0)
-    # generate horizontal dataset
-    cryptos_in_cluster=create_horizontal_dataset(DATA_PATH + cluster_n + "/", EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",TEST_SET)
-
-    features_to_use_multi = ['Date']
-    for i in range(len(cryptos_in_cluster)):
-        for feature in features_to_use:
-            features_to_use_multi.append(feature + "_" + str(i + 1))
-
-    multi_target(EXPERIMENT_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
-                 DATA_PATH=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/" + "horizontal_datasets/",
-                 TENSOR_DATA_PATH=EXPERIMENT_PATH +"clusters" + "/" + cluster_n + "/tensor_data/",
-                 window_sequences=temporal_sequences,
-                 list_num_neurons=list_number_neurons, learning_rate=learning_rate,
-                 cryptos=cryptos_in_cluster,
-                 features_to_use=features_to_use_multi,
-                 DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)
-
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=list_number_neurons,
                           experiment_folder=EXPERIMENT_PATH + "clusters" + "/" + cluster_n + "/",
                           results_folder="result",
@@ -164,17 +157,16 @@ def multi_target_main(TEST_SET,features_to_use, temporal_sequences, list_number_
 
 
 def single_target_main(TEST_SET,type, features_to_use, temporal_sequences, number_neurons,
-                       learning_rate, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE):
+                       learning_rate, DROPOUT, EPOCHS, PATIENCE,BATCH_SIZE,percent):
     DATA_PATH = "../preparation/preprocessed_dataset/constructed/" + type + "/"
 
     # SIMPLE PREDICTION
     #ATTENZIONEEEEEEEEEEEEEEEEEE STA OUTPUT_1%!!!!!!!!!!!!
-    OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output_1%/"
-    # ATTENZIONEEEEEEEEEEEEEEEEEE STA OUTPUT_1%!!!!!!!!!!!!
-    #simple_prediction(DATA_PATH, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
+    OUTPUT_SIMPLE_PREDICTION = "../modelling/techniques/baseline/simple_prediction/output_"+str(percent)+"%/"
+    simple_prediction(DATA_PATH, TEST_SET, OUTPUT_SIMPLE_PREDICTION)
 
     # SINGLE TARGET LSTM
-    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs/single_target/"
+    EXPERIMENT_PATH = "../modelling/techniques/forecasting/outputs_single_"+str(percent)+"/single_target/"
     TENSOR_DATA_PATH = EXPERIMENT_PATH + "tensor_data"
 
     """single_target(EXPERIMENT_PATH=EXPERIMENT_PATH,
@@ -185,13 +177,14 @@ def single_target_main(TEST_SET,type, features_to_use, temporal_sequences, numbe
                   features_to_use=features_to_use,
                   DROPOUT=DROPOUT, EPOCHS=EPOCHS, PATIENCE=PATIENCE,BATCH_SIZE=BATCH_SIZE,test_set=TEST_SET)"""
 
+
     # visualization single_target
     input_path_single=EXPERIMENT_PATH+"result/"
-    input_path_baseline= "../modelling/techniques/baseline/simple_prediction/output_1%/performances/"
+    input_path_baseline= "../modelling/techniques/baseline/simple_prediction/output_"+str(percent)+"%/performances/"
     output_path=EXPERIMENT_PATH+"report/"
-    #comparison_macro_avg_recall_single_vs_baseline(input_path_single, input_path_baseline, output_path)
-    #overall_comparison_macro_avg_recall_simple_vs_baseline(input_path_single, input_path_baseline, output_path)
-    overall_macro_avg_recall_single(input_path_single,  output_path)
+    comparison_macro_avg_recall_single_vs_baseline(input_path_single, input_path_baseline, output_path)
+    overall_comparison_macro_avg_recall_simple_vs_baseline(input_path_single, input_path_baseline, output_path)
+    #overall_macro_avg_recall_single(input_path_single,  output_path)
     """report_configurations(temporal_sequence=temporal_sequences, num_neurons=number_neurons,
                           experiment_folder=EXPERIMENT_PATH, results_folder="result",
                           report_folder="report", output_filename="overall_report")"""

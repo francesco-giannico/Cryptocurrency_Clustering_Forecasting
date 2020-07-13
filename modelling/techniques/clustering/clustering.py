@@ -9,8 +9,8 @@ from utility.reader import get_dict_symbol_id
 
 def clustering(distance_measure,type_for_clustering,type_for_prediction,features_to_use=None):
     CLUSTERING_PATH = "../modelling/techniques/clustering/output/" + distance_measure + "/"
-    PATH_SOURCE_CLUST= "../preparation/preprocessed_dataset/constructed/"+type_for_clustering+"/"
-    PATH_SOURCE_PRED= "../preparation/preprocessed_dataset/constructed/" + type_for_prediction + "/"
+    PATH_SOURCE_CLUST= "../preparation/preprocessed_dataset_1%/constructed/"+type_for_clustering+"/"
+    PATH_SOURCE_PRED= "../preparation/preprocessed_dataset_1%/constructed/" + type_for_prediction + "/"
 
     folder_setup(CLUSTERING_PATH)
 

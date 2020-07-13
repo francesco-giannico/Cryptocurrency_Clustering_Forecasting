@@ -96,5 +96,5 @@ def simple_prediction(data_path,test_set,result_folder):
         out.close()"""
 
     #reports
-    #comparison_macro_avg_recall_baseline(input_file_path=os.path.join(result_folder, report_folder, "all_macro_avg_recall.csv"),output_path=os.path.join(result_folder,report_folder))
+    comparison_macro_avg_recall_baseline(input_file_path=os.path.join(result_folder, report_folder, "all_macro_avg_recall.csv"),output_path=os.path.join(result_folder,report_folder))
     overall_macro_avg_recall_baseline(input_file_path=os.path.join(result_folder, report_folder, "all_macro_avg_recall.csv"),output_path=os.path.join(result_folder,report_folder))
