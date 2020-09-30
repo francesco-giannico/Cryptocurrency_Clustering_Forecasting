@@ -6,19 +6,26 @@ This repo contains the code for my M.S. Thesis in Big Data Analytics, discussed 
 Duration: Jan, 2019 - Jun, 2020 (6 months)
 
 ## Goals
-Hypothesis: The correlation between cryptocurrencies has latent information useful in order to predict their trends for the next day.
 
-## Steps
-The trend can be:
-* STABLE
-* UP
-* DOWN
+Hypothesis to verify: *The correlation between cryptocurrencies has latent information useful in order to predict their trends for the next day*.
+Action: 
+1. Clustering
+    - Consensus clustering based on:
+      - K-means 
+      - Agglomerative
+
+2. Modelling 
+   - Baseline
+   - Single-target Model based on LSTM
+   - Multi-target Model based on LSTM
+Result: In overall, for some cluster of cryptocurrencies, 
 
 ## Dataset 
 
 All available data on the Yahoo Finance platform have been downloaded, for each cryptocurrency, about price and volume.
 Since Yahoo Finance does not offer APIs, web scarping was necessary. It automatically allowed to collect information from the website, by parsing content from within the HTML container of each specific page. For example, a web page containing historical date for bitcoin can be found
 [here](https://finance.yahoo.com/quote/BTC-USD/history?p=BTC-USD).
+
 ### Dataset's details
 Each dataset has inter-day granularity and is composed by the following features:
 * Open, it is the opening price, in US dollars;
