@@ -3,7 +3,7 @@
 
 This repo contains the code for my M.S. Thesis in Big Data Analytics, discussed in _June 17, 2020_ at the University of Bari "Aldo Moro". 
 
-Duration: Jan, 2019 - Jun, 2020 (6 months)
+Duration: Jan, 2020 - Jun, 2020 (6 months)
 
 ## Goals
 
