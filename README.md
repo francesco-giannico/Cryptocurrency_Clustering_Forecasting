@@ -1,5 +1,4 @@
 # Cryptocurrency_Clustering_Forecasting
-![](./demo/images/preview.png)
 
 <p align="center">
   <a href="https://github.com/nsfw-filter/nsfw-filter/releases/" target="_blank">
