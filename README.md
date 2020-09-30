@@ -8,7 +8,7 @@ Duration: Jan, 2020 - Jun, 2020 (6 months)
 ## Goals
 
 Hypothesis to verify: *The correlation between cryptocurrencies has latent information useful in order to predict their trends for the next day*.
-Action: 
+Overall Actions: 
 1. Clustering
     - Consensus clustering based on:
       - K-means 
@@ -18,8 +18,9 @@ Action:
    - Baseline
    - Single-target Model based on LSTM
    - Multi-target Model based on LSTM
-Result: In overall, for some cluster of cryptocurrencies, 
+Result: In overall, for some cluster of cryptocurrencies, the hyposesis is true.
 
+# UNCOMPLETED DESCRIPTION..
 ## Dataset 
 
 All available data on the Yahoo Finance platform have been downloaded, for each cryptocurrency, about price and volume.
