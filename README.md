@@ -54,6 +54,20 @@ The selected cryptocurrencies are:
 17. Ripple (XRP).
 
 ## Feature engineering
+As the rows in the dataset only contains information about a specific period (i.e. one day), these are not sufficient to generate good predictions. Thus, to get better predictions, it has been decided to add more features in each dataset, computed on the base of the feature **Close** and **Volume**.
+These new features are the *technical indicators* involved in the decisional support process of a trader. Their value is used for the technical analysis of the price trends and, thus, for the prediction of the price trends of the future. To accomplish this step, the library exploited is **pandas_ta5**, which is an easy to use library that is built upon Python's Pandas library with more than 80 technical indicators.
+
+### Features
+* Simple Moving Average (SMA)
+* Exponential Moving Average (EMA)
+* Moving Average Convergence-Divergence (MACD)
+* Relative Strenght Index (RSI)
+* Ultimate Oscillator (UO)
+* Bollinger Bands (BBANDS)
+* Volume-weighted Average Price (VWAP)
+
+
+
 
 ## Deep Learning technique 
 **Long short-term memory (LSTM)** which is a widely adopeted technique for time series forecasting.
