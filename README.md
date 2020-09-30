@@ -1,8 +1,7 @@
 
-# Cryptocurrency clustering and forecasting
+# Clustering-based multi-target forecasting for the cryptocurrency financial market
 
 This repo contains the code for my M.S. Thesis in Big Data Analytics, discussed in _June 17, 2020_ at the University of Bari "Aldo Moro". 
-It is entitled: *Clustering-based multi-target forecasting for the cryptocurrency financial market*
 
 Duration: Jan, 2019 - Jun, 2020 (6 months)
 
@@ -76,9 +75,10 @@ The next step is to set a percentage threshold, identified by the variable X, an
 * If delta percent is lower than -X then assign **Down**;
 * If delta percent is between -X and +X then assign **Stable**;
 
-It has been decided to create two different version of the labelled dataset:
+It has been decided to create two different version of the labelled datasets:
 * X= 1%
 * X= 2%
+
 ### Feature scaling
 #### Min-Max scaling (for clustering purposes)
 This technique is widely adopted when the distribution of data is not gaussian or, in other cases, when the data distribution is unknown. In min-max scaling data are scaled in a fixed range, usually between 0 and 1. 
@@ -86,7 +86,14 @@ This technique is widely adopted when the distribution of data is not gaussian o
 #### Max-Abs scaling (for forecasting purposes)
 The Max-abs scaling is very similar to min-max scaling but for the range, in this case, between -1 and 1. It does not shift/centre the data, and thus does not destroy any sparsity. This scaler is meant for data that is already centred at zero or sparse data.
 
-## Deep Learning technique 
+## Modelling 
+
+### Forecasting
+#### Baseline
+A simple predictive model that estimates the trend for the next day to be equal to the trend of the previous one.
+
+### Artificial Neural Network
+
 **Long short-term memory (LSTM)** which is a widely adopeted technique for time series forecasting.
 
 
@@ -94,14 +101,34 @@ The Max-abs scaling is very similar to min-max scaling but for the range, in thi
 
 Consensus clustering which involved k-medoids and agglomerative algorithms.
 
+## Experiments 
+### Walk-Forward validation
 
-## Main Tools
+#### Expermimental Settings
 * Python
-* Scikit-learn
 * Google Colab
-* Keras & Tensorflow 
 
-## Author
+#### Test Set
+
+#### LSTM's Hyperparameters
+
+#### Clustering
+* SqrtNdiv4 = 2
+* sqrtNdiv2 = 3
+* sqrtN = 4
+* sqrtNby2 = 6
+* sqrtNby4 = 8
+
+### Model Performance
+Since the micro average, weighted macro and the accuracy are not suitable for
+imbalanced datasets, only the **macro average recall** has been considered. 
+Python's scikit-learn library provied a convenient functions in order to compute this value. See 
+[Confusion matrix](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html) and [classification_report](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.classification_report.html)
+
+While it is easy to measure the performance of supervised learning algorithms, such as algorithms for classification problems, it is often hard to measure the performance of unsupervised learning algorithms, such as clustering algorithms. The reason for this, is that it is subjective what makes a clustering ‘good’. The performance of a clustering depends on the goal and criteria of the clustering and may therefore differ per application.
+This goal is to use clustering to obtain clusters that can be used for forecasting. Instead of making forecasts for all individual time series, only one forecast will be made for each cluster. This forecast is then applied to all time series in the corresponding cluster. To measure the quality of the clustering, it has been taken the macro average recall as performance metric.
+
+Author
 * Giannico Francesco
 
 ## Collaborators
