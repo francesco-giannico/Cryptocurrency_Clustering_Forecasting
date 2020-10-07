@@ -10,16 +10,11 @@ Duration: January, 2020 - June, 2020 (6 months)
 * [Technologies](#technologies)
 
 ## Introduction 
-This project is born 
+This project is born in order to try to prove the following hypothesis:
+*The relation between cryptocurrencies has latent information useful in order to predict their trends, for the next day*
 
-## Technologies
-Project is created with:
-* Scikit-learn version: 0.23.1
-* Tensorflow version: 2.1
+Thus, this project is based on the CRISP-DM methodology.
 
-## Goals
-
-Hypothesis to verify: *The correlation between cryptocurrencies has latent information useful in order to predict their trends for the next day*.
 Overall Actions: 
 1. Clustering
     - Consensus clustering based on:
@@ -32,7 +27,12 @@ Overall Actions:
    - Multi-target Model based on LSTM
 Result: In overall, for some cluster of cryptocurrencies, the hyposesis is true.
 
-# UNCOMPLETED DESCRIPTION..
+
+## Technologies
+Project is created with:
+* Scikit-learn version: 0.23.1
+* Tensorflow version: 2.1
+
 ## Dataset 
 
 All available data on the Yahoo Finance platform have been downloaded, for each cryptocurrency, about price and volume.
