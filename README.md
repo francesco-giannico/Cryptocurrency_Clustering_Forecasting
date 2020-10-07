@@ -5,6 +5,13 @@ This repo contains the code for my M.S. Thesis in Big Data Analytics, discussed 
 
 Duration: Jan, 2020 - Jun, 2020 (6 months)
 
+## Author
+* Francesco Giannico
+
+## Collaborators
+* Gianvito Pio
+* Michelangelo ceci
+
 ## Goals
 
 Hypothesis to verify: *The correlation between cryptocurrencies has latent information useful in order to predict their trends for the next day*.
@@ -136,10 +143,5 @@ Python's scikit-learn library provied a convenient functions in order to compute
 While it is easy to measure the performance of supervised learning algorithms, such as algorithms for classification problems, it is often hard to measure the performance of unsupervised learning algorithms, such as clustering algorithms. The reason for this, is that it is subjective what makes a clustering ‘good’. The performance of a clustering depends on the goal and criteria of the clustering and may therefore differ per application.
 This goal is to use clustering to obtain clusters that can be used for forecasting. Instead of making forecasts for all individual time series, only one forecast will be made for each cluster. This forecast is then applied to all time series in the corresponding cluster. To measure the quality of the clustering, it has been taken the macro average recall as performance metric.
 
-Author
-* Giannico Francesco
 
-## Collaborators
-* Gianvito Pio
-* Michelangelo ceci
 
