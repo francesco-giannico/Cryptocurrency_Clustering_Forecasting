@@ -9,13 +9,6 @@ Duration: Jan, 2020 - Jun, 2020 (6 months)
 * [Introduction](#introduction)
 * [Technologies](#technologies)
 
-## Author
-* Francesco Giannico
-
-## Collaborators
-* Gianvito Pio
-* Michelangelo ceci
-
 ## Introduction 
 
 ## Technologies
@@ -153,6 +146,16 @@ Python's scikit-learn library provied a convenient functions in order to compute
 
 While it is easy to measure the performance of supervised learning algorithms, such as algorithms for classification problems, it is often hard to measure the performance of unsupervised learning algorithms, such as clustering algorithms. The reason for this, is that it is subjective what makes a clustering ‘good’. The performance of a clustering depends on the goal and criteria of the clustering and may therefore differ per application.
 This goal is to use clustering to obtain clusters that can be used for forecasting. Instead of making forecasts for all individual time series, only one forecast will be made for each cluster. This forecast is then applied to all time series in the corresponding cluster. To measure the quality of the clustering, it has been taken the macro average recall as performance metric.
+
+## Author
+**Francesco Giannico**, M.S. in Computer Science, specialized in Knowledge Engineering and Machine intelligence (LM-18)
+* [github/francesco-giannico](https://github.com/francesco-giannico)
+* [linkedin/francesco-giannico](https://linkedin.com/in/francesco-giannico)
+
+## Collaborators
+* [Gianvito Pio](http://www.di.uniba.it/~gianvitopio/), Assistant Professor at [University of Bari "Aldo Moro"](https://www.uniba.it/)
+* [Michelangelo ceci](http://www.di.uniba.it/~ceci/), Full Professor at [University of Bari "Aldo Moro"](https://www.uniba.it/)
+
 
 
 
