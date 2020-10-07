@@ -40,7 +40,7 @@ Project is created with:
 
 ## Dataset 
 
-All available data on the Yahoo Finance platform have been downloaded, for each cryptocurrency, about price and volume.
+All available data on the [Yahoo Finance platform](https://finance.yahoo.com/) have been downloaded, for each cryptocurrency, about price and volume.
 Since Yahoo Finance does not offer APIs, web scarping was necessary. It automatically allowed to collect information from the website, by parsing content from within the HTML container of each specific page. For example, a web page containing historical date for bitcoin can be found
 [here](https://finance.yahoo.com/quote/BTC-USD/history?p=BTC-USD).
 
