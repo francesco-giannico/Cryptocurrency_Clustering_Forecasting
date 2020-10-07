@@ -7,6 +7,7 @@ Duration: Jan, 2020 - Jun, 2020 (6 months)
 
 ## Table of contents
 * [Introduction](#introduction)
+* [Technologies](#technologies)
 
 ## Author
 * Francesco Giannico
@@ -15,8 +16,13 @@ Duration: Jan, 2020 - Jun, 2020 (6 months)
 * Gianvito Pio
 * Michelangelo ceci
 
-# Introduction 
-Test
+## Introduction 
+
+## Technologies
+Project is created with:
+* Scikit-learn version: 0.23.1
+* Tensorflow version: 2.1
+
 ## Goals
 
 Hypothesis to verify: *The correlation between cryptocurrencies has latent information useful in order to predict their trends for the next day*.
