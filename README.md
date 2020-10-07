@@ -32,6 +32,9 @@ Result: In overall, for some cluster of cryptocurrencies, the hyposesis is true.
 Project is created with:
 * Scikit-learn version: 0.23.1
 * Tensorflow version: 2.1
+* Seaborn version: 
+* MatplotLib version:
+* 
 
 ## Dataset 
 
