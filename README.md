@@ -1,5 +1,7 @@
 
-# Clustering-based multi-target forecasting for the cryptocurrency financial market
+# DISCLAIMER: I AM CURRENTLY WORKING ABOUT THE README, THIS IS NOT A FINAL VERSION. 
+
+# Clustering-based multi-target forecasting for the cryptocurrency financial market 
 
 This repo contains the code for my M.S. Thesis in Big Data Analytics, discussed in _June 17, 2020_ at the University of Bari "Aldo Moro". 
 
