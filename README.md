@@ -5,6 +5,9 @@ This repo contains the code for my M.S. Thesis in Big Data Analytics, discussed 
 
 Duration: Jan, 2020 - Jun, 2020 (6 months)
 
+## Table of contents
+* [Introduction](#introduction)
+
 ## Author
 * Francesco Giannico
 
@@ -12,6 +15,8 @@ Duration: Jan, 2020 - Jun, 2020 (6 months)
 * Gianvito Pio
 * Michelangelo ceci
 
+# Introduction 
+Test
 ## Goals
 
 Hypothesis to verify: *The correlation between cryptocurrencies has latent information useful in order to predict their trends for the next day*.
