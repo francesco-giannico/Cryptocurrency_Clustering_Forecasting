@@ -45,7 +45,7 @@ Since Yahoo Finance does not offer APIs, web scarping was necessary. It automati
 [here](https://finance.yahoo.com/quote/BTC-USD/history?p=BTC-USD).
 
 ### Dataset's details
-Each dataset has inter-day granularity and is composed by the following features:
+Each dataset has *inter-day granularity* and is composed by the following features:
 * Open, it is the opening price, in US dollars;
 *  High, t it is the maximum price, in US dollars;
 *  Low, it is the minimum price, in US dollars;
