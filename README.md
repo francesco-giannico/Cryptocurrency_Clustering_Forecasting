@@ -1,5 +1,5 @@
 
-# DISCLAIMER: I AM CURRENTLY WORKING ABOUT THE README, THIS IS NOT A FINAL VERSION. 
+# DISCLAIMER: I AM CURRENTLY WORKING ABOUT THE README, THIS IS NOT THE FINAL VERSION. 
 
 # Clustering-based multi-target forecasting for the cryptocurrency financial market 
 
@@ -119,7 +119,10 @@ A simple predictive model that estimates the trend for the next day to be equal 
 
 ### Artificial Neural Network
 
-**Long short-term memory (LSTM)** which is a widely adopeted technique for time series forecasting.
+**Long short-term memory (LSTM)** is a widely adopeted technique for time series forecasting.
+Two kind of models:
+* Single-target: A model trained using the dataset of a specific cryptocurrency.
+* Multi-target: A model trained using the horizontal dataset containing data of N cryptocurrencies.
 
 
 ## Clustering techniques
@@ -128,15 +131,12 @@ Consensus clustering which involved k-medoids and agglomerative algorithms.
 
 ## Experiments 
 ### Walk-Forward validation
-
 #### Expermimental Settings
 * Python
 * Google Colab
 
 #### Test Set
-
 #### LSTM's Hyperparameters
-
 #### Clustering
 * SqrtNdiv4 = 2
 * sqrtNdiv2 = 3
